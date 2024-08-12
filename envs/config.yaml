@@ -1,0 +1,23 @@
+http:
+  host: 'localhost'
+  port: 3000
+
+db:
+  postgres:
+    url: '0,0,0,0'
+
+    port: 5432
+    database: 'chatpostgres'
+
+  sqlite:
+    database: 'sqlite.db'
+
+  redis:
+    host: 'localhost'
+    port: 6379
+
+  mysql:
+    url : '0,0,0,0'
+    host: 'localhost'
+    port: 3306
+    database: 'chatmysql'

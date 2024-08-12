@@ -51,13 +51,12 @@ import { join } from 'path';
       }),
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'public'), // Adjust the path to your frontend directory
+      rootPath: join(__dirname, '..', 'frontend', 'public'),
     }),
-
     UsersModule,
     ChatModule,
     RoomModule,
-    AuthModule, //
+    AuthModule,
   ],
   controllers: [AuthController, ChatController],
   providers: [AuthService, ChatService, JwtService],

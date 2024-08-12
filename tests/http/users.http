@@ -1,0 +1,204 @@
+### users
+
+### signup
+POST {{server}}/users/create
+Content-Type: application/json
+
+{
+  "email": "abbb3a@abc.com",
+  "password": "abbb",
+  "username": "bbbx"
+}
+
+### Get user
+GET {{server}}/users/getUser/abbb3a@abc.com
+
+### update
+PUT {{server}}/users/update/abbb3a@abc.com
+Content-Type: application/json
+
+{
+  "email": "elly@abc.com",
+  "username": "elllly",
+  "password": "1111"
+}
+
+### delete User
+DELETE {{server}}/users/delete/testuser@example.com
+
+### auth sign up
+POST {{server}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "abbb3abc@abc.com",
+  "password": "abbbc",
+  "username": "bbbx"
+}
+
+### find all users
+GET {{server}}/users
+
+
+
+### Extract Cookie
+{% client.global.set("authCookie", response.headers['set-cookie'][0].split(';')[0]); %}
+
+### Add Friend
+POST {{server}}/users/add-friend
+Content-Type: application/json
+Cookie: {{loginCookie}}
+
+{
+  "friendEmail": "a@a.com"
+}
+
+### Add Friend
+POST {{server}}/users/add-friend
+Content-Type: application/json
+Cookie: {{loginCookie}}
+
+{
+  "friendEmail": "b@b.com"
+}
+
+
+
+### Get Friends List
+GET {{server}}/users/friends
+Cookie: {{loginCookie}}
+
+################################ auth
+
+### Sign Up User
+POST {{server}}/auth/signup
+Content-Type: application/json
+
+{
+  "username": "testuser1",
+  "email": "testuser1@example.com",
+  "password": "password123"
+}
+
+### auth login
+POST {{server}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "abbb3@abc.com",
+  "password": "abbb"
+}
+
+
+
+### login
+POST {{server}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "a@a.com",
+  "password": "1234"
+}
+
+
+
+### Log In User
+POST {{server}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "password123"
+}
+
+
+
+### Add Friend Request
+POST http://localhost:5000/users/add-friend
+Content-Type: application/json
+Cookie: {{loginCookie}}
+
+{
+  "friendEmail": "testuser@example.com"
+}
+
+### Add Friend Request
+POST http://localhost:5000/users/add-friend
+Content-Type: application/json
+Cookie: {{loginCookie}}
+
+{
+  "friendEmail": "testuser1@example.com"
+}
+
+### Get profiles
+GET {{server}}/users/profile
+Cookie: {{loginCookie}}
+
+### Get User Secure
+GET http://localhost:3000/users/getUserSecure/testuser@example.com
+
+### Get friends
+GET {{server}}/users/friends
+Cookie: {{loginCookie}}
+
+### Get test
+GET {{server}}/users/test
+
+### Post add friend
+POST {{server}}/users/
+Content-Type: application/json
+
+{
+  "friendEmail" : "testuser@example.com"
+}
+
+### Guard test
+GET {{server}}/test-guard
+
+### Session test
+GET {{server}}/check-session
+
+### --- after logging in, get the cookie from the response and use it in the next requests ---
+
+# Find or create a room
+POST {{server}}/rooms/find-or-create
+Content-Type: application/json
+Cookie: {{loginCookie}}
+
+{
+  "friendId": 2
+}
+
+### Check session
+GET {{server}}/auth/check-session
+Content-Type: application/json
+Cookie: {{loginCookie}}
+
+#### delete
+#DELETE {{server}}/delete/abbb3abc@abc.com
+#
+#### Delete User
+#DELETE http://localhost:3000/user/delete/abbb3abc@abc.com
+
+#### 잘못된 이메일을 입력한 경우
+#POST http://localhost:3000/user/create
+#content-type: application/json
+#
+#{
+#  "username": "andy",
+#  "password": "test1234",
+#  "email": "andy-podo"
+#}
+
+
+#### getUser
+#Get {{server}}/users/getUser/
+#Content-Type: application/json
+#
+#{
+#  "email": "abbb3@abc.com"
+#}
+
+
+

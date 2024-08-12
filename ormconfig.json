@@ -1,0 +1,10 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": "5432",
+  "username": "chatadmin",
+  "password": "1234",
+  "database": "chatpostgres",
+  "entities": ["dist/**/*.entity{.ts,.js}"],
+  "synchronize": true
+}

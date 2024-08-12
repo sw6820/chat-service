@@ -4,11 +4,15 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "noEmit": false,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": false,
+    "removeComments": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules",
-    "tests", "dist", "**/*spec.ts",
-    "frontend/public"
+  "exclude": [
+    "node_modules",
+    "tests",
+    "dist",
+    "**/*spec.ts",
+    "frontend"
   ]
 }

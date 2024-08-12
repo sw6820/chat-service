@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*",
+    "frontend/public/**/*.js"
+  ],
+  "exclude": ["node_modules"],
+  "parserOptions": {
+    "project": "./tsconfig.eslint.json"
+  }
+}

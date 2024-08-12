@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && copyfiles -u 1 frontend/public/**/* dist/public",
+    "build": "tsc --build tsconfig.build.json",
     "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
     "start": "nest start",
     "start:dev": "NODE_ENV=dev nest start --watch",
