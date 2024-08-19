@@ -1,23 +1,21 @@
 http:
-  host: 'localhost'
-  port: 3000
+  host: '${SERVER_DOMAIN}'
+  port: ${SERVER_PORT}
 
 db:
   postgres:
-    url: '0,0,0,0'
-
-    port: 5432
-    database: 'chatpostgres'
-
-  sqlite:
-    database: 'sqlite.db'
+    url: '${DATABASE_HOST}'
+    port: ${DATABASE_PORT}
+    database: '${DATABASE_NAME}'
+    username: '${DATABASE_USERNAME}'
+    password: '${DATABASE_PASSWORD}'
 
   redis:
-    host: 'localhost'
-    port: 6379
+    host: '${REDIS_HOST}'
+    port: ${REDIS_PORT}
 
   mysql:
-    url : '0,0,0,0'
-    host: 'localhost'
-    port: 3306
+    url: '${DATABASE_HOST}'
+#    host: 'localhost'
+    port: ${DATABASE_PORT}
     database: 'chatmysql'
