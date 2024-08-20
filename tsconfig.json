@@ -21,7 +21,7 @@
     "strict": false,
 //    "strictNullChecks": true,
     "strictPropertyInitialization": false,
-//    "esModuleInterop": true,
+    "esModuleInterop": true,
     "noImplicitAny": false,
     "alwaysStrict": false,
     "noImplicitReturns": false,

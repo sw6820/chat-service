@@ -12,14 +12,29 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
+
+  // Retrieve environment-specific settings
   const secretKey = configService.get<string>('SECRET_KEY');
   const port = configService.get<string>('SERVER_PORT');
+  const environment = configService.get<string>('NODE_ENV', 'local');
+  const corsOrigin = configService.get<string>(
+    'CORS_ORIGIN',
+    `http://localhost:${port}`,
+  );
+
+  // Global validation pipes
   app.useGlobalPipes(new ValidationPipe());
+
+  // Cookie parser middleware
   app.use(cookieParser());
+
+  // Enable CORS for the specified origin or allow multiple origins based on your needs
   app.enableCors({
-    origin: `http://localhost:${port}`,
+    origin: corsOrigin.split(','),
     credentials: true,
   });
+
+  // Session management
   app.use(
     session({
       secret: secretKey,
@@ -28,18 +43,27 @@ async function bootstrap() {
       cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }, // 7 days
     }),
   );
+
+  // Initialize Passport.js
   app.use(passport.initialize());
   app.use(passport.session());
 
-  const config = new DocumentBuilder()
-    .setTitle('Users API')
-    .setDescription('This is a REST API')
-    .setVersion('1.0')
-    .addTag('tag')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  // Swagger setup (conditionally enable in non-production environments)
+  if (environment !== 'prod') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Users API')
+      .setDescription('This is a REST API')
+      .setVersion('1.0')
+      .addTag('tag')
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api', app, document);
+  }
+
+  // Serve static assets
   app.useStaticAssets(join(__dirname, '..', 'frontend', 'public'));
+
+  // Start the server
   await app.listen(port);
 }
 bootstrap();
