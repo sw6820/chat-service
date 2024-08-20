@@ -44,6 +44,9 @@ envs/.env
 .env.test.local
 .env.production.local
 .env.local
+.env.prod
+.env.dev
+
 
 # temp directory
 .temp
@@ -87,5 +90,4 @@ Dockerfile
 docker-compose.yml
 
 # Misc
-.DS_Store
 Thumbs.db

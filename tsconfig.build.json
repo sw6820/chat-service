@@ -1,11 +1,19 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./src",
     "noEmit": false,
     "emitDeclarationOnly": false,
-    "removeComments": true
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
   },
   "include": ["src/**/*.ts"],
   "exclude": [
