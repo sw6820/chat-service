@@ -28,7 +28,7 @@ jobs:
         run: npm run build
 
       - name: Add public IP to AWS security group
-        uses: sw6820/chat-service@master
+        uses: sw6820/chat-service@main
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -62,11 +62,11 @@ jobs:
           rm .env.prod
 
       - name: Remove public IP from AWS security group
-        uses: sw6820/chat-service@master
+        uses: sw6820/chat-service@main
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'your-region-here'
+          aws-region: ${{ secrets.AWS_REGION }}
           aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
           port: '22'
           to-port: '22'
