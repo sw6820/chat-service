@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: sw6820/chat-service@main
+        uses: actions/checkout@v2
 
       - name: Set up Node.js
-        uses: sw6820/chat-service@main
+        uses: actions/setup-node@v2
         with:
           node-version: '20'
 
