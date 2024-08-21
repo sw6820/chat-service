@@ -27,6 +27,18 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Add public IP to AWS security group
+        uses: sw6820/chat-service@master
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'your-region-here'
+          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
+          port: '22'
+          to-port: '22'
+          protocol: 'tcp'
+          description: 'Allow GitHub Actions SSH Access'
+
       - name: Deploy to EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -48,3 +60,14 @@ jobs:
           EOF
           rm private_key.pem
           rm .env.prod
+
+      - name: Remove public IP from AWS security group
+        uses: sw6820/chat-service@master
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'your-region-here'
+          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
+          port: '22'
+          to-port: '22'
+          protocol: 'tcp'
