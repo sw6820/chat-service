@@ -1,0 +1,36 @@
+name: 'Add IP to AWS Security Group'
+description: 'A GitHub Action to add an IP address to an AWS Security Group'
+author: 'sw6820'
+inputs:
+  aws-access-key-id:
+    description: 'AWS Access Key ID'
+    required: true
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key'
+    required: true
+  aws-region:
+    description: 'AWS Region'
+    required: true
+  aws-security-group-id:
+    description: 'AWS Security Group ID'
+    required: true
+  port:
+    description: 'Port to open'
+    required: true
+  to-port:
+    description: 'Ending port (same as starting port for single port)'
+    required: true
+  protocol:
+    description: 'Protocol (tcp, udp)'
+    required: true
+  description:
+    description: 'Description of the rule'
+    required: false
+
+runs:
+  using: 'node20'
+  main: './dist/main.js'  # The entry point for your action, where your main logic is
+
+branding:
+  icon: 'server'
+  color: 'blue'
