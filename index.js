@@ -1,19 +1,28 @@
-const core = require('@actions/core');
-const exec = require('@actions/exec');
+import { getInput, setOutput, setFailed } from '@actions/core';
+import { exec as _exec } from '@actions/exec';
 
 async function run() {
   try {
-    // Get input from the action.yml file
-    const awsAccessKeyId = core.getInput('aws-access-key-id');
-    const awsSecretAccessKey = core.getInput('aws-secret-access-key');
-    const awsRegion = core.getInput('aws-region');
-    const securityGroupId = core.getInput('aws-security-group-id');
-    const port = core.getInput('port');
-    const toPort = core.getInput('to-port');
-    const protocol = core.getInput('protocol');
+    // Get input (including secrets) from the action.yml file
+    const awsAccessKeyId = getInput('aws-access-key-id', { required: true });
+    const awsSecretAccessKey = getInput('aws-secret-access-key', {
+      required: true,
+    });
+    const awsRegion = getInput('aws-region', { required: true });
+    const securityGroupId = getInput('aws-security-group-id', {
+      required: true,
+    });
+    const port = getInput('port', { required: true });
+    const toPort = getInput('to-port', { required: true });
+    const protocol = getInput('protocol', { required: true });
 
-    // Example command to add an IP to the security group (pseudo-code)
-    await exec.exec('aws', [
+    // Set environment variables for AWS CLI
+    process.env.AWS_ACCESS_KEY_ID = awsAccessKeyId;
+    process.env.AWS_SECRET_ACCESS_KEY = awsSecretAccessKey;
+    process.env.AWS_DEFAULT_REGION = awsRegion;
+
+    // Example command to add an IP to the security group (real command)
+    await _exec('aws', [
       'ec2',
       'authorize-security-group-ingress',
       '--group-id',
@@ -23,12 +32,12 @@ async function run() {
       '--port',
       port,
       '--cidr',
-      '0.0.0.0/0',
+      '0.0.0.0/0', // In real use, replace this with the actual CIDR block
     ]);
 
-    core.setOutput('result', 'Security group updated');
+    setOutput('result', 'Security group updated');
   } catch (error) {
-    core.setFailed(error.message);
+    setFailed(error.message);
   }
 }
 
