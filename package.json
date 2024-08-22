@@ -52,7 +52,7 @@
     "socket.io": "^4.7.5",
     "typeorm": "^0.3.20",
     "@actions/core": "^1.10.0",
-    "@actions/github": "^5.0.0",
+    "@actions/github": "^5.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
