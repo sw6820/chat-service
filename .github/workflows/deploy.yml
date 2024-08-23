@@ -18,8 +18,14 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Display package.json (Debugging Step)
+        run: cat package.json
+
       - name: Install dependencies
         run: npm install
+
+      - name: Verify node_modules presence (Debugging Step)
+        run: ls -la node_modules
 
       - name: Prebuild dependencies
         run: npm run prebuild
