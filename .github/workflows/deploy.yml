@@ -47,6 +47,9 @@ jobs:
       - name: Verify node_modules presence (Debugging Step)
         run: ls -la node_modules
 
+      - name: Verify @actions/core (Debugging Step)
+        run: ls -la node_modules/@actions
+
       - name: Add public IP to AWS security group
         uses: sw6820/chat-service@main
         with:
