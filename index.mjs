@@ -1,6 +1,11 @@
+const actions = require('@actions')
 import { getInput, setOutput, setFailed } from '@actions/core';
 import { exec as _exec } from '@actions/exec';
 
+const core = actions.core
+const getInput = core.getInput;
+const setOutput = core.setOutput;
+const setFailed = core.setFailed;
 async function run() {
   try {
     // Get input (including secrets) from the action.yml file
