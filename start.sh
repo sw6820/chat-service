@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ "$1" == "production" ]; then
-  ENV_FILE=".env.production"
+if [ "$1" == "prod" ]; then
+  ENV_FILE=".env.prod"
 else
   ENV_FILE=".env.local"
 fi

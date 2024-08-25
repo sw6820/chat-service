@@ -35,8 +35,8 @@ jobs:
 #      - name: preinstall dependencies
 #        run: rm -rf node_modules
 
-      - name: Install dependencies
-        run: npm install
+#      - name: Install dependencies
+#        run: npm install
 
       - name: Verify node_modules presence (Debugging Step)
         run: ls -la node_modules
