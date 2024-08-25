@@ -1,5 +1,5 @@
 const actions = require('@actions')
-import { getInput, setOutput, setFailed } from '@actions/core';
+// import { getInput, setOutput, setFailed } from '@actions/core';
 import { exec as _exec } from '@actions/exec';
 
 const core = actions.core
