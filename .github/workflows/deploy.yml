@@ -38,14 +38,14 @@ jobs:
 #      - name: Install dependencies
 #        run: npm install
 
-      - name: Verify node_modules presence (Debugging Step)
-        run: ls -la node_modules
-
       - name: Prebuild dependencies
         run: npm run prebuild
 
       - name: Build project
         run: npm run build
+
+      - name: Verify node_modules presence (Debugging Step)
+        run: ls -la node_modules
 
       - name: Add public IP to AWS security group
         uses: sw6820/chat-service@main
