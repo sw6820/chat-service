@@ -42,7 +42,7 @@ jobs:
         run: npm run prebuild
 
       - name: Build TypeScript for Action
-        run: src/actions/index.ts --outDir ./dist/actions
+        run: tsc src/actions/index.ts --outDir ./dist/actions
 
 
       - name: Build project
