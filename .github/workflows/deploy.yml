@@ -41,8 +41,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Prebuild dependencies
-        run: npm run prebuild
+#      - name: Prebuild dependencies
+#        run: npm run prebuild
 
 #      - name: Build TypeScript for Action
 #        run: tsc src/actions/index.ts --outDir ./dist/actions
