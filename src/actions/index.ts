@@ -1,8 +1,5 @@
-import * as core from '@actions/core.js';
-import * as exec from '@actions/exec.js';
-import * as em from '@socket.io'
-const e = em
-
+import * as core from '@actions/core';
+import * as exec from '@actions/exec';
 
 async function run() {
   try {
@@ -18,7 +15,7 @@ async function run() {
       required: true,
     });
     const port = core.getInput('port', { required: true });
-    const toPort = core.getInput('to-port', { required: true });
+    // const toPort = core.getInput('to-port', { required: true });
     const protocol = core.getInput('protocol', { required: true });
 
     // Set environment variables for AWS CLI
@@ -27,7 +24,7 @@ async function run() {
     process.env.AWS_DEFAULT_REGION = awsRegion;
 
     // Example command to add an IP to the security group (real command)
-    await exec('aws', [
+    await exec.exec('aws', [
       'ec2',
       'authorize-security-group-ingress',
       '--group-id',
