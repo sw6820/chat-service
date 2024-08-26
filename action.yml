@@ -27,7 +27,7 @@ inputs:
     required: false
 
 runs:
-  using: 'node16'  # Ensure the Node.js version is correct
+  using: 'node20'  # Ensure the Node.js version is correct
   main: 'index.js'  # Path to the entry point script for your action
 
 branding:
