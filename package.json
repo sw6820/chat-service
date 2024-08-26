@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "tsc --build --clean tsconfig.build.json",
+    "build": "tsc --build --clean tsconfig.build.json --outDir dist",
     "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
     "start": "nest start",
     "start:dev": "NODE_ENV=dev nest start --watch",
