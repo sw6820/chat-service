@@ -41,6 +41,10 @@ jobs:
       - name: Prebuild dependencies
         run: npm run prebuild
 
+      - name: Build TypeScript for Action
+        run: tsc sw6820/chat-service@main/srr/actions/index.ts --outDir ./dist/actions
+
+
       - name: Build project
         run: npm run build
 
