@@ -35,11 +35,11 @@ jobs:
 #      - name: install @actions/core
 #        run: npm install @actions/core --save
 
-#      - name: preinstall dependencies
-#        run: rm -rf node_modules
+      - name: preinstall dependencies
+        run: rm -rf node_modules
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Prebuild dependencies
         run: npm run prebuild
@@ -47,9 +47,10 @@ jobs:
 #      - name: Build TypeScript for Action
 #        run: tsc src/actions/index.ts --outDir ./dist/actions
 
-
-      - name: Build project
-        run: npm run build
+      - name: Build TypeScript
+        run: tsc --build --clean tsconfig.build.json
+#      - name: Build project
+#        run: npm run build
 
       - name: Verify dist (Debugging Step)
         run: ls -la
