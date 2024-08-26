@@ -1,5 +1,8 @@
 import * as core from '@actions/core.js';
 import * as exec from '@actions/exec.js';
+import * as em from '@socket.io'
+const e = em
+
 
 async function run() {
   try {
