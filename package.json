@@ -5,7 +5,6 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "type": "module",
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc --build --clean tsconfig.build.json",
