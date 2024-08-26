@@ -32,6 +32,9 @@ jobs:
       - name: Display package.json (Debugging Step)
         run: cat package.json
 
+      - name: install @actions/core
+        run: npm install @actions/core --save
+
 #      - name: preinstall dependencies
 #        run: rm -rf node_modules
 
