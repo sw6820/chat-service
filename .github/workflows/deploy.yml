@@ -18,31 +18,31 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        id: cache
-        with:
-          path: node_modules
-          key: npm-packages-${{ hashFiles('**/package-lock.json') }}
+#      - name: Cache node modules
+#        uses: actions/cache@v4
+#        id: cache
+#        with:
+#          path: node_modules
+#          key: npm-packages-${{ hashFiles('**/package-lock.json') }}
 
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+#      - name: Install Dependencies
+#        if: steps.cache.outputs.cache-hit != 'true'
+#        run: npm ci
 
-      - name: Display package.json (Debugging Step)
-        run: cat package.json
+#      - name: Display package.json (Debugging Step)
+#        run: cat package.json
 
-      - name: install @actions/core
-        run: npm install @actions/core --save
+#      - name: install @actions/core
+#        run: npm install @actions/core --save
 
 #      - name: preinstall dependencies
 #        run: rm -rf node_modules
 
-#      - name: Install dependencies
-#        run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - name: Prebuild dependencies
-        run: npm run prebuild
+#      - name: Prebuild dependencies
+#        run: npm run prebuild
 
 #      - name: Build TypeScript for Action
 #        run: tsc src/actions/index.ts --outDir ./dist/actions
@@ -51,25 +51,28 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Verify node_modules presence (Debugging Step)
-        run: ls -la node_modules
+#      - name: Verify node_modules presence (Debugging Step)
+#        run: ls -la node_modules
 
-      - name: Verify @actions/core (Debugging Step)
+#      - name: Verify @actions/core (Debugging Step)
+#        run: |
+#          ls -la
+#          ls -la node_modules/@actions/core
+      - name: Create .env.prod file
         run: |
-          ls -la
-          ls -la node_modules/@actions/core
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.prod
 
-      - name: Add public IP to AWS security group
-        uses: sw6820/chat-service@main
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
-          port: '22'
-          to-port: '22'
-          protocol: 'tcp'
-          description: 'Allow GitHub Actions SSH Access'
+#      - name: Add public IP to AWS security group
+#        uses: sw6820/chat-service@main
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ secrets.AWS_REGION }}
+#          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
+#          port: '22'
+#          to-port: '22'
+#          protocol: 'tcp'
+#          description: 'Allow GitHub Actions SSH Access'
 
       - name: Deploy to EC2
         env:
@@ -88,7 +91,7 @@ jobs:
             cd /home/$EC2_USER/$APP_NAME
             npm install --production
             pm2 stop chat-service || true
-            pm2 start npm --name "chat-service" -- run start:prod
+            pm2 start npm --name "$APP_NAME" -- run start:prod
           EOF
           rm private_key.pem
           rm .env.prod
