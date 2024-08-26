@@ -1,7 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const core = require('@actions/core');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { exec } = require('@actions/exec');
+import * as core from '@actions/core';
+import * as exec from '@actions/exec';
 
 async function run() {
   try {
