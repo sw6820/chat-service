@@ -1,13 +1,21 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const core = require('@actions/core');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { exec } = require('@actions/exec');
 
 async function run() {
   try {
     // Get input (including secrets) from the action.yml file
-    const awsAccessKeyId = core.getInput('aws-access-key-id', { required: true });
-    const awsSecretAccessKey = core.getInput('aws-secret-access-key', { required: true });
+    const awsAccessKeyId = core.getInput('aws-access-key-id', {
+      required: true,
+    });
+    const awsSecretAccessKey = core.getInput('aws-secret-access-key', {
+      required: true,
+    });
     const awsRegion = core.getInput('aws-region', { required: true });
-    const securityGroupId = core.getInput('aws-security-group-id', { required: true });
+    const securityGroupId = core.getInput('aws-security-group-id', {
+      required: true,
+    });
     const port = core.getInput('port', { required: true });
     const toPort = core.getInput('to-port', { required: true });
     const protocol = core.getInput('protocol', { required: true });
