@@ -1,5 +1,5 @@
-import * as core from '@actions/core';
-import * as exec from '@actions/exec';
+import * as core from '@actions/core.js';
+import * as exec from '@actions/exec.js';
 
 async function run() {
   try {
