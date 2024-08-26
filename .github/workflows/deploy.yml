@@ -58,9 +58,9 @@ jobs:
 #        run: |
 #          ls -la
 #          ls -la node_modules/@actions/core
-      - name: Create .env.prod file
-        run: |
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.prod
+#      - name: Create .env.prod file
+#        run: |
+#          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.prod
 
 #      - name: Add public IP to AWS security group
 #        uses: sw6820/chat-service@main
@@ -85,7 +85,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           echo "$ENV_PROD" > .env.prod
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./dist $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME
+#          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./dist $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
@@ -96,13 +96,13 @@ jobs:
           rm private_key.pem
           rm .env.prod
 
-      - name: Remove public IP from AWS security group
-        uses: sw6820/chat-service@main
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
-          port: '22'
-          to-port: '22'
-          protocol: 'tcp'
+#      - name: Remove public IP from AWS security group
+#        uses: sw6820/chat-service@main
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ secrets.AWS_REGION }}
+#          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
+#          port: '22'
+#          to-port: '22'
+#          protocol: 'tcp'
