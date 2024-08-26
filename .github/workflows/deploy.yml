@@ -11,12 +11,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '16'
 
       - name: Cache node modules
         uses: actions/cache@v3
@@ -48,7 +48,9 @@ jobs:
         run: ls -la node_modules
 
       - name: Verify @actions/core (Debugging Step)
-        run: ls -la node_modules/@actions/core
+        run: |
+          ls -la
+          ls -la node_modules/@actions/core
 
       - name: Add public IP to AWS security group
         uses: sw6820/chat-service@main
