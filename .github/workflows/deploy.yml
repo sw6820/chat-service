@@ -33,6 +33,9 @@ jobs:
       - name: Verify files
         run: ls -la
 
+      - name: verify current path
+        run: pwd
+
       - name: Deploy to EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
