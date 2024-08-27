@@ -2,13 +2,13 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": false,
-//    "module": "commonjs",
+    "module": "commonjs",
     "declaration": true,
 //    "removeComments": true,
-//    "emitDecoratorMetadata": true,
-//    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
 //    "allowSyntheticDefaultImports": true,
-//    "target": "ES2021",
+    "target": "ES2021",
 //    "sourceMap": true,
 //    "outDir": "./dist",
 //    "rootDir": "./src",
@@ -31,17 +31,18 @@
     "typeRoots": ["node_modules/@types", "./src/types", "./typings"],
     "types": ["node", "passport-github2", "jest"]
   },
-//  "include": ["src/**/*",
+  "include": ["src/**/*",
 //    "src/types/express-request.d.ts",
 //    "frontend/public/**/*.js",
 //    "typings/**/*.d.ts",
 //    "tests",
 //    "tests/**/*.ts"
-//  ],
-//  "exclude": [
-//    "node_modules",
+  ],
+  "exclude": [
+    "node_modules",
 //    "dist",
 //    "test",
 //    "**/*spec.ts",
-//    "frontend"]
+//    "frontend",
+  ]
 }
