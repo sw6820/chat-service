@@ -24,24 +24,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-#      - name: Build TypeScript
-#        run: npm run build
-
-#      - name: Verify dist (Debugging Step)
-#        run: |
-#          if [ -d "dist" ]; then
-#            echo "dist directory exists."
-#            ls -la dist
-#          else
-#            echo "dist directory does not exist. Exiting."
-#            exit 1
-#          fi
-#          cat dist/main.js  # or another key file to verify it's there
-      #          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./dist $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME
-#      - name: Verify dist (Debugging Step)
-#        run: |
-#          ls -la dist
-
       - name: Verify node_modules presence (Debugging Step)
         run: ls -la node_modules
 
@@ -65,3 +47,6 @@ jobs:
           EOF
           rm private_key.pem
           rm .env.prod
+
+      - name: verify dist
+        run: ls -la dist
