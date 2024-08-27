@@ -23,6 +23,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
+        env:
+          APP_NAME: ${{ secrets.APP_NAME }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
         run: |
           docker build -t $APP_NAME:${{ github.sha }} .
           docker tag $APP_NAME:${{ github.sha }} $DOCKER_REPO/$APP_NAME:latest
