@@ -25,20 +25,22 @@ jobs:
         run: npm ci
 
       - name: Build TypeScript
-        run: |
-          tsc --build --clean tsconfig.build.json
-            if [ -d "dist" ]; then
-              echo "dist directory exists."
-              ls -la dist
-            else
-              echo "dist directory does not exist. Exiting."
-              exit 1
-            fi
+        run: npm run build
+
+      - name: Build TypeScript
+        run: |      
+          if [ -d "dist" ]; then
+            echo "dist directory exists."
+            ls -la dist
+          else
+            echo "dist directory does not exist. Exiting."
+            exit 1
+          fi
+          cat dist/main.js  # or another key file to verify it's there
 
       - name: Verify dist (Debugging Step)
         run: |
-          ls -la dist
-          cat dist/main.js  # or another key file to verify it's there
+          ls -la dist          
 
       - name: Verify node_modules presence (Debugging Step)
         run: ls -la node_modules
