@@ -86,7 +86,6 @@ build/
 
 # Docker
 docker-compose.override.yml
-Dockerfile
 docker-compose.yml
 
 # Misc
