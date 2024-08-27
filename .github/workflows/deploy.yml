@@ -74,9 +74,11 @@ jobs:
             # Pull the latest Docker image
             docker pull $DOCKER_REPO/$APP_NAME:latest
           
-            # Stop and remove the existing container
-            docker stop $APP_NAME || true
-            docker rm $APP_NAME || true
+            # Stop and remove the existing container only if it exists
+            if [ "$(docker ps -q -f name=$APP_NAME)" ]; then
+            docker stop $APP_NAME
+            docker rm $APP_NAME
+            fi
           
             # Run the new container with the .env.prod file
             docker run -d --name $APP_NAME --env-file .env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
