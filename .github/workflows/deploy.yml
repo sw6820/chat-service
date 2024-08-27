@@ -27,6 +27,9 @@ jobs:
       - name: Verify node_modules presence (Debugging Step)
         run: ls -la node_modules
 
+      - name: Verify files
+        run: ls -la
+
       - name: Deploy to EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
