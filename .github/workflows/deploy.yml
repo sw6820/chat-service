@@ -69,6 +69,12 @@ jobs:
             sudo systemctl start docker
             sudo systemctl enable docker
           
+            # Add the user to the docker group
+            sudo usermod -aG docker $USER
+      
+            # Log out and log back in to apply the group change
+            exec sg docker newgrp docker
+          
             cd /home/$EC2_USER/$APP_NAME
           
             # Pull the latest Docker image
