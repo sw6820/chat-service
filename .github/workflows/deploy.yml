@@ -31,40 +31,96 @@ jobs:
           docker tag $APP_NAME:${{ github.sha }} $DOCKER_REPO/$APP_NAME:latest
           docker push $DOCKER_REPO/$APP_NAME:latest 
 
-      - name: SSH into EC2 and deploy
+      - name: Deploy to EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
-          APP_NAME: ${{ secrets.APP_NAME }}
           ENV_PROD: ${{ secrets.ENV_PROD }}
-          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
+          APP_NAME: ${{ secrets.APP_NAME }}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-
-          # Copy the .env.prod file to the EC2 instance
-          echo "$ENV_PROD" > .env.prod
-          scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
-
-
-          # SSH into the EC2 instance and deploy the Docker container
+          
+          # SSH into the EC2 instance and install Docker if not already installed
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+            # Update the package index
+            sudo apt-get update
+          
+            # Install Docker if it is not already installed
+            if ! command -v docker &> /dev/null; then
+              sudo apt-get install -y \
+                ca-certificates \
+                curl \
+                gnupg \
+                lsb-release
+          
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          
+              echo \
+                "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+                $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          
+              sudo apt-get update
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+            fi
+          
+            # Ensure Docker is running
+            sudo systemctl start docker
+            sudo systemctl enable docker
+          
             cd /home/$EC2_USER/$APP_NAME
-
+          
             # Pull the latest Docker image
             docker pull $DOCKER_REPO/$APP_NAME:latest
-
+          
             # Stop and remove the existing container
             docker stop $APP_NAME || true
             docker rm $APP_NAME || true
-
+          
             # Run the new container with the .env.prod file
             docker run -d --name $APP_NAME --env-file .env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
-
+          
           # Clean up sensitive files
           rm private_key.pem
+          rm .env.prod
+              
+
+#      - name: SSH into EC2 and deploy
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#          EC2_HOST: ${{ secrets.EC2_HOST }}
+#          EC2_USER: ${{ secrets.EC2_USER }}
+#          APP_NAME: ${{ secrets.APP_NAME }}
+#          ENV_PROD: ${{ secrets.ENV_PROD }}
+#          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
+#        run: |
+#          echo "$SSH_PRIVATE_KEY" > private_key.pem
+#          chmod 600 private_key.pem
+#
+#          # Copy the .env.prod file to the EC2 instance
+#          echo "$ENV_PROD" > .env.prod
+#          scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
+#
+#
+#          # SSH into the EC2 instance and deploy the Docker container
+#          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+#            cd /home/$EC2_USER/$APP_NAME
+#
+#            # Pull the latest Docker image
+#            docker pull $DOCKER_REPO/$APP_NAME:latest
+#
+#            # Stop and remove the existing container
+#            docker stop $APP_NAME || true
+#            docker rm $APP_NAME || true
+#
+#            # Run the new container with the .env.prod file
+#            docker run -d --name $APP_NAME --env-file .env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+#          EOF
+#
+#          # Clean up sensitive files
+#          rm private_key.pem
 
 #      - name: Set up Node.js
 #        uses: actions/setup-node@v4
