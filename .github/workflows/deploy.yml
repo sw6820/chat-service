@@ -69,11 +69,9 @@ jobs:
             sudo systemctl start docker
             sudo systemctl enable docker
           
-            # Add the user to the docker group
-            sudo usermod -aG docker $USER
-      
-            # Log out and log back in to apply the group change
-            exec sg docker newgrp docker
+            # Ensure APP_NAME is valid (lowercase, no special chars)
+            APP_NAME_SANITIZED=$(echo "$APP_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9' '-')
+            echo "Sanitized APP_NAME: $APP_NAME_SANITIZED"
           
             cd /home/$EC2_USER/$APP_NAME
           
