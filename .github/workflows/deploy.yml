@@ -48,13 +48,23 @@ jobs:
 #        run: tsc src/actions/index.ts --outDir ./dist/actions
 
       - name: Build TypeScript
-        run: tsc --build --clean tsconfig.build.json
+        run: |
+          tsc --build --clean tsconfig.build.json
+            if [ -d "dist" ]; then
+              echo "dist directory exists."
+              ls -la dist
+            else
+              echo "dist directory does not exist. Exiting."
+              exit 1
+            fi
 
 #      - name: Build project
 #        run: npm run build
 
       - name: Verify dist (Debugging Step)
-        run: ls -la
+        run: |
+          ls -la dist
+          cat dist/main.js  # or another key file to verify it's there
 
 #      - name: Verify node_modules presence (Debugging Step)
 #        run: ls -la node_modules
