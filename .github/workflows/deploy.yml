@@ -18,34 +18,11 @@ jobs:
         with:
           node-version: '20'
 
-#      - name: Cache node modules
-#        uses: actions/cache@v4
-#        id: cache
-#        with:
-#          path: node_modules
-#          key: npm-packages-${{ hashFiles('**/package-lock.json') }}
-
-#      - name: Install Dependencies
-#        if: steps.cache.outputs.cache-hit != 'true'
-#        run: npm ci
-
-#      - name: Display package.json (Debugging Step)
-#        run: cat package.json
-
-#      - name: install @actions/core
-#        run: npm install @actions/core --save
-
       - name: preinstall dependencies
         run: rm -rf node_modules
 
       - name: Install dependencies
         run: npm ci
-
-#      - name: Prebuild dependencies
-#        run: npm run prebuild
-
-#      - name: Build TypeScript for Action
-#        run: tsc src/actions/index.ts --outDir ./dist/actions
 
       - name: Build TypeScript
         run: |
@@ -58,36 +35,13 @@ jobs:
               exit 1
             fi
 
-#      - name: Build project
-#        run: npm run build
-
       - name: Verify dist (Debugging Step)
         run: |
           ls -la dist
           cat dist/main.js  # or another key file to verify it's there
 
-#      - name: Verify node_modules presence (Debugging Step)
-#        run: ls -la node_modules
-
-#      - name: Verify @actions/core (Debugging Step)
-#        run: |
-#          ls -la
-#          ls -la node_modules/@actions/core
-#      - name: Create .env.prod file
-#        run: |
-#          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.prod
-
-#      - name: Add public IP to AWS security group
-#        uses: sw6820/chat-service@main
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ${{ secrets.AWS_REGION }}
-#          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
-#          port: '22'
-#          to-port: '22'
-#          protocol: 'tcp'
-#          description: 'Allow GitHub Actions SSH Access'
+      - name: Verify node_modules presence (Debugging Step)
+        run: ls -la node_modules
 
       - name: Deploy to EC2
         env:
@@ -104,20 +58,9 @@ jobs:
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
-            npm install --production
+            npm ci --production
             pm2 stop chat-service || true
             pm2 start npm --name "$APP_NAME" -- run start:prod
           EOF
           rm private_key.pem
           rm .env.prod
-
-#      - name: Remove public IP from AWS security group
-#        uses: sw6820/chat-service@main
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ${{ secrets.AWS_REGION }}
-#          aws-security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
-#          port: '22'
-#          to-port: '22'
-#          protocol: 'tcp'
