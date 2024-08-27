@@ -37,7 +37,7 @@ jobs:
 #            exit 1
 #          fi
 #          cat dist/main.js  # or another key file to verify it's there
-
+      #          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./dist $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME
       - name: Verify dist (Debugging Step)
         run: |
           ls -la dist          
@@ -56,7 +56,6 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           echo "$ENV_PROD" > .env.prod
-#          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./dist $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
