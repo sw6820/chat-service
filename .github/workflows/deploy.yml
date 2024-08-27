@@ -27,7 +27,7 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
-      - name: Build TypeScript
+      - name: Verify dist (Debugging Step)
         run: |      
           if [ -d "dist" ]; then
             echo "dist directory exists."
