@@ -22,7 +22,7 @@ jobs:
         run: rm -rf node_modules
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Verify node_modules presence (Debugging Step)
         run: ls -la node_modules
