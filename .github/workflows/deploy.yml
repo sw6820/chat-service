@@ -13,49 +13,102 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          node-version: '20'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: preinstall dependencies
-        run: rm -rf node_modules
+      - name: Build and push Docker image
+        run: |
+          docker build -t myapp:${{ github.sha }} .
+          docker tag myapp:${{ github.sha }} myrepo/myapp:latest
+          docker push myrepo/myapp:latest 
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Verify node_modules presence (Debugging Step)
-        run: ls -la node_modules
-
-      - name: build typescript
-        run: tsc --build --clean tsconfig.build.json
-
-      - name: Verify files
-        run: ls -la
-
-      - name: verify current path
-        run: pwd
-
-      - name: Deploy to EC2
+      - name: SSH into EC2 and deploy
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
-          ENV_PROD: ${{ secrets.ENV_PROD }}
           APP_NAME: ${{ secrets.APP_NAME }}
+          ENV_PROD: ${{ secrets.ENV_PROD }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+
+          # Copy the .env.prod file to the EC2 instance
           echo "$ENV_PROD" > .env.prod
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
+
+
+          # SSH into the EC2 instance and deploy the Docker container
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
-            npm ci --production
-            pm2 stop chat-service || true
-            pm2 start npm --name "$APP_NAME" -- run start:prod
-          EOF
-          rm private_key.pem
-          rm .env.prod
 
-      - name: verify dist
-        run: ls -la dist
+            # Pull the latest Docker image
+            docker pull $DOCKER_REPO/$APP_NAME:latest
+
+            # Stop and remove the existing container
+            docker stop $APP_NAME || true
+            docker rm $APP_NAME || true
+
+            # Run the new container with the .env.prod file
+            docker run -d --name $APP_NAME --env-file .env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+          EOF
+
+          # Clean up sensitive files
+          rm private_key.pem
+
+#      - name: Set up Node.js
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: '20'
+
+#      - name: preinstall dependencies
+#        run: rm -rf node_modules
+
+#      - name: Install dependencies
+#        run: npm ci
+
+#      - name: Verify node_modules presence (Debugging Step)
+#        run: ls -la node_modules
+
+#      - name: build typescript
+#        run: tsc --build --clean tsconfig.build.json
+
+#      - name: Verify files
+#        run: ls -la
+
+#      - name: verify current path
+#        run: pwd
+
+#      - name: Deploy to EC2
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#          EC2_HOST: ${{ secrets.EC2_HOST }}
+#          EC2_USER: ${{ secrets.EC2_USER }}
+#          ENV_PROD: ${{ secrets.ENV_PROD }}
+#          APP_NAME: ${{ secrets.APP_NAME }}
+#        run: |
+#          echo "$SSH_PRIVATE_KEY" > private_key.pem
+#          chmod 600 private_key.pem
+#          echo "$ENV_PROD" > .env.prod
+#
+#
+#          scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
+#
+#          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+#            cd /home/$EC2_USER/$APP_NAME
+#            npm ci --production --omit=dev
+#            pm2 stop chat-service || true
+#            pm2 start npm --name "$APP_NAME" -- run start:prod
+#          EOF
+#          rm private_key.pem
+#          rm .env.prod
+
+#      - name: verify dist
+#        run: ls -la dist
