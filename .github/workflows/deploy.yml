@@ -56,7 +56,8 @@ jobs:
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
           
           # verify .env.prod file existence
-          if [ -f /envs/.env.prod ]; then
+          cd envs
+          if [ -f .env.prod ]; then
             echo ".env.prod file exists."
             cat .env.prod  # Optional: Show the contents of the file for verification
           else
