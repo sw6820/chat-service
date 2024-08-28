@@ -55,6 +55,15 @@ jobs:
           echo "$ENV_PROD" > .env.prod          
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
           
+          # verify .env.prod file existence
+          if [ -f .env.prod ]; then
+            echo ".env.prod file exists."
+            cat .env.prod  # Optional: Show the contents of the file for verification
+          else
+            echo "Error: .env.prod file does not exist."
+            exit 1  # Exit with an error code to fail the workflow
+            fi    
+          
           # SSH into the EC2 instance and deploy the Docker container
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
