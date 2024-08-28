@@ -55,8 +55,18 @@ jobs:
           echo "$ENV_PROD" > .env.prod          
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
           
+          # Set permissions to ensure Docker can access the file
+          echo "Setting permissions on .env.prod..."
+          chmod 644 envs/.env.prod
+          chmod 755 envs
+          
           # Ensure the envs directory exists
           mkdir -p envs
+          
+          # Set permissions to ensure Docker can access the file
+          echo "Setting permissions on .env.prod..."
+          chmod 644 envs/.env.prod
+          chmod 755 envs          
           
           # List files to verify that .env.prod was created
           echo "Listing files in envs directory to verify .env.prod existence:"
