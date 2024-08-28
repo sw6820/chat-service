@@ -44,13 +44,16 @@ jobs:
           chmod 600 private_key.pem
           # Copy the .env.prod file to the EC2 instance
           echo "$ENV_PROD" > .env.prod
-          scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/.env.prod
+          cat .env.prod
+          scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
           # SSH into the EC2 instance and deploy the Docker container
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
             
             # Pull the latest Docker image
+            cat $DOCKER_REPO/$APP_NAME:latest
             docker pull $DOCKER_REPO/$APP_NAME:latest
+            docker ps -a
             
             # Stop and remove the existing container
             docker stop chat-service || true
