@@ -51,8 +51,8 @@ jobs:
             cd /home/$EC2_USER/$APP_NAME
             
             # Pull the latest Docker image
-            cat $DOCKER_REPO/$APP_NAME:latest
-            docker pull $DOCKER_REPO/$APP_NAME:latest
+            cat $DOCKER_REPO/$APP_NAME
+            docker pull $DOCKER_REPO/$APP_NAME
             docker ps -a
             
             # Stop and remove the existing container
