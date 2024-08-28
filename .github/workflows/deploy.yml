@@ -55,6 +55,13 @@ jobs:
           echo "$ENV_PROD" > .env.prod          
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
           
+          # Ensure the envs directory exists
+          mkdir -p envs
+          
+          # List files to verify that .env.prod was created
+          echo "Listing files in envs directory to verify .env.prod existence:"
+          ls -la envs/
+      
           # verify .env.prod file existence
           cd envs
           if [ -f .env.prod ]; then
