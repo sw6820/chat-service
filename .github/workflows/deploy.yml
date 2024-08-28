@@ -53,7 +53,6 @@ jobs:
           
           # Copy the .env.prod file to the EC2 instance
           echo "$ENV_PROD" > .env.prod          
-          cat "$ENV_PROD"
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
           
           # verify .env.prod file existence
