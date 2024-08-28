@@ -83,7 +83,7 @@ jobs:
             
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."          
-            docker run -d --name chat-service --env-file .env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            docker run -d --name chat-service --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
           
           # Clean up sensitive files
