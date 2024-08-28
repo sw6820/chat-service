@@ -27,9 +27,17 @@ jobs:
           APP_NAME: ${{ secrets.APP_NAME }}
           DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
         run: |
+          echo "Building Docker image..."
           docker build -t $APP_NAME:${{ github.sha }} .
+          
+          echo "Tagging Docker image..."
           docker tag $APP_NAME:${{ github.sha }} $DOCKER_REPO/$APP_NAME:latest
+          
+          echo "Pushing Docker image to Docker Hub..."
           docker push $DOCKER_REPO/$APP_NAME:latest 
+          
+          echo "Listing Docker images to confirm..."
+          docker images
 
       - name: SSH into EC2 and deploy
         env:
@@ -42,26 +50,31 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+          
           # Copy the .env.prod file to the EC2 instance
-          echo "$ENV_PROD" > .env.prod
-          cat .env.prod
+          echo "$ENV_PROD" > .env.prod          
           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
+          
           # SSH into the EC2 instance and deploy the Docker container
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
             
-            # Pull the latest Docker image
-            cat $DOCKER_REPO/$APP_NAME
-            docker pull $DOCKER_REPO/$APP_NAME
+            # Pull the latest Docker image            
+            docker pull $DOCKER_REPO/$APP_NAME:latest
+          
+            echo "Listing Docker containers..."          
             docker ps -a
             
             # Stop and remove the existing container
-            docker stop chat-service || true
-            docker rm chat-service || true
+            echo "Stopping and removing existing Docker container (if any)..."  
+            docker stop $APP_NAME || true
+            docker rm $APP_NAME || true
             
             # Run the new container with the .env.prod file
+            echo "Running new Docker container..."          
             docker run -d --name chat-service --env-file .env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
+          
           # Clean up sensitive files
           rm private_key.pem
               
