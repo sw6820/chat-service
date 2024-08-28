@@ -66,6 +66,7 @@ jobs:
             fi    
           
           # SSH into the EC2 instance and deploy the Docker container
+          cd ..
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
             
