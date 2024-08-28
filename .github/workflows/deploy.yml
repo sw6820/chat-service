@@ -78,8 +78,8 @@ jobs:
             
             # Stop and remove the existing container
             echo "Stopping and removing existing Docker container (if any)..."  
-            docker stop $APP_NAME || true
-            docker rm $APP_NAME || true
+            docker stop chat-service || true
+            docker rm chat-service || true
             
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."          
