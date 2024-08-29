@@ -64,9 +64,9 @@ jobs:
           mkdir -p envs
           
           # Set permissions to ensure Docker can access the file
-          echo "Setting permissions on .env.prod..."
-          chmod 644 /home/$EC2_USER/$APP_NAME/envs/.env.prod
-          chmod 755 /home/$EC2_USER/$APP_NAME/envs
+          # echo "Setting permissions on .env.prod..."
+          # chmod 644 /home/$EC2_USER/$APP_NAME/envs/.env.prod
+          # chmod 755 /home/$EC2_USER/$APP_NAME/envs
           
           # List files to verify that .env.prod was created
           echo "Listing files in envs directory to verify .env.prod existence:"
@@ -100,7 +100,7 @@ jobs:
             
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."          
-            docker run -d --name chat-service --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
           
           # Clean up sensitive files
