@@ -57,8 +57,8 @@ jobs:
           
           # Set permissions to ensure Docker can access the file
           echo "Setting permissions on .env.prod..."
-          chmod 644 envs/.env.prod
-          chmod 755 envs
+          sudo chmod 644 envs/.env.prod
+          sudo chmod 755 envs
           
           # Ensure the envs directory exists
           mkdir -p envs
