@@ -40,6 +40,9 @@ test-output/
 
 # dotenv environment variable files
 envs/.env
+envs/.env.prod
+envs/.env.local
+
 .env.development.local
 .env.test.local
 .env.production.local
