@@ -52,33 +52,33 @@ jobs:
           chmod 600 private_key.pem
           
           # Copy the .env.prod file to the EC2 instance
-          echo "$ENV_PROD" > .env.prod          
-          scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
+          # echo "$ENV_PROD" > .env.prod          
+          # scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
           
           # Set permissions to ensure Docker can access the file
-          echo "Setting permissions on .env.prod..."
-          chmod 644 envs/.env.prod
-          chmod 755 envs
+          # echo "Setting permissions on .env.prod..."
+          # chmod 644 envs/.env.prod
+          # chmod 755 envs
           
           # Ensure the envs directory exists
           mkdir -p envs
           
           # List files to verify that .env.prod was created
           echo "Listing files in envs directory to verify .env.prod existence:"
-          ls -la envs/
+          # ls -la envs/
       
           # verify .env.prod file existence
-          cd envs
-          if [ -f envs/.env.prod ]; then
-            echo ".env.prod file exists."
-            cat envs/.env.prod   # Optional: Show the contents of the file for verification
-          else
-            echo "Error: .env.prod file does not exist."
-            exit 1  # Exit with an error code to fail the workflow
-            fi    
+          # cd envs
+          # if [ -f envs/.env.prod ]; then
+            # echo ".env.prod file exists."
+            # cat envs/.env.prod   # Optional: Show the contents of the file for verification
+          # else
+            # echo "Error: .env.prod file does not exist."
+            # exit 1  # Exit with an error code to fail the workflow
+            # fi    
           
           # SSH into the EC2 instance and deploy the Docker container
-          cd ..
+          # cd ..
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
             
@@ -94,8 +94,8 @@ jobs:
             docker rm chat-service || true
             
             # Run the new container with the .env.prod file
-            echo "Running new Docker container..."          
-            sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            # echo "Running new Docker container..."          
+            # sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
           
           # Clean up sensitive files
