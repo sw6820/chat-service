@@ -54,10 +54,10 @@ jobs:
             sudo chown $EC2_USER:$EC2_USER envs  # Ensure the user owns the directory
           
             # verify .env.prod file
-            ls -la envs/.env.prod
+            ls -la envs
           
             # Set file permissions
-            sudo chmod 777 envs/.env.prod
+            # sudo chmod 777 envs
           
             # Retrieve secrets from AWS SSM Parameter Store and create .env.prod
             echo "Fetching secrets from AWS SSM Parameter Store..."
@@ -70,6 +70,9 @@ jobs:
             echo "DATABASE_USERNAME=\$(aws ssm get-parameter --name "/chat-service/production/DATABASE_USERNAME" --with-decryption --query Parameter.Value --output text)" >> envs/.env.prod
             echo "DATABASE_PASSWORD=\$(aws ssm get-parameter --name "/chat-service/production/DATABASE_PASSWORD" --with-decryption --query Parameter.Value --output text)" >> envs/.env.prod
             echo "DATABASE_NAME=\$(aws ssm get-parameter --name "/chat-service/production/DATABASE_NAME" --query Parameter.Value --output text)" >> envs/.env.prod
+          
+            # Set file permissions
+            sudo chmod 777 envs/.env.prod
           
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
