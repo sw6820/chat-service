@@ -54,7 +54,7 @@ jobs:
             sudo chown $EC2_USER:$EC2_USER envs  # Ensure the user owns the directory
           
             # Set file permissions
-            chmod 777 envs/.env.prod
+            sudo chmod 777 envs/.env.prod
           
             # Retrieve secrets from AWS SSM Parameter Store and create .env.prod
             echo "Fetching secrets from AWS SSM Parameter Store..."
