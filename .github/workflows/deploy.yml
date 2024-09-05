@@ -112,31 +112,17 @@ jobs:
            scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
 
           # Ensure the envs directory exists
-           mkdir -p envs
-          
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "mkdir -p /home/$EC2_USER/$APP_NAME/envs"
+
           # Set permissions to ensure Docker can access the file
-           echo "Setting permissions on .env.prod..."
-           chmod 777 envs/.env.prod
-           #chmod 755 envs
+          echo "Setting permissions on .env.prod..."
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "chmod 644 /home/$EC2_USER/$APP_NAME/envs/.env.prod"
 
-
-
-           List files to verify that .env.prod was created
-           echo "Listing files in envs directory to verify .env.prod existence:"
-           ls -la envs/
-
-          # verify .env.prod file existence
-          # cd envs
-          # if [ -f envs/.env.prod ]; then
-            # echo ".env.prod file exists."
-            # cat envs/.env.prod   # Optional: Show the contents of the file for verification
-          # else
-            # echo "Error: .env.prod file does not exist."
-            # exit 1  # Exit with an error code to fail the workflow
-            # fi
+          # List files to verify that .env.prod was created
+          echo "Listing files in envs directory to verify .env.prod existence:"
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "ls -la /home/$EC2_USER/$APP_NAME/envs/"
 
           # SSH into the EC2 instance and deploy the Docker container
-          # cd ..
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
 
@@ -152,12 +138,60 @@ jobs:
             docker rm chat-service || true
 
             # Run the new container with the .env.prod file
-             echo "Running new Docker container..."
-             sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            echo "Running new Docker container..."
+            sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
-
+          
           # Clean up sensitive files
           rm private_key.pem
+          
+          # Ensure the envs directory exists
+           # mkdir -p envs
+          
+          # Set permissions to ensure Docker can access the file
+           # echo "Setting permissions on .env.prod..."
+           # chmod 777 envs/.env.prod
+           #chmod 755 envs
+
+
+
+          # List files to verify that .env.prod was created
+           # echo "Listing files in envs directory to verify .env.prod existence:"
+           # ls -la envs/
+
+          # verify .env.prod file existence
+          # cd envs
+          # if [ -f envs/.env.prod ]; then
+            # echo ".env.prod file exists."
+            # cat envs/.env.prod   # Optional: Show the contents of the file for verification
+          # else
+            # echo "Error: .env.prod file does not exist."
+            # exit 1  # Exit with an error code to fail the workflow
+            # fi
+
+          # SSH into the EC2 instance and deploy the Docker container
+          # cd ..
+          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+            # cd /home/$EC2_USER/$APP_NAME
+
+            # Pull the latest Docker image
+            # docker pull $DOCKER_REPO/$APP_NAME:latest
+
+            # echo "Listing Docker containers..."
+            # docker ps -a
+
+            # Stop and remove the existing container
+            # echo "Stopping and removing existing Docker container (if any)..."
+            # docker stop chat-service || true
+            # docker rm chat-service || true
+
+            # Run the new container with the .env.prod file
+             # echo "Running new Docker container..."
+             # sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+          # EOF
+
+          # Clean up sensitive files
+          # rm private_key.pem
 
 
 #      - name: SSH into EC2 and deploy
