@@ -53,6 +53,9 @@ jobs:
             sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER envs  # Ensure the user owns the directory
           
+            # verify .env.prod file
+            ls -la envs/.env.prod
+          
             # Set file permissions
             sudo chmod 777 envs/.env.prod
           
