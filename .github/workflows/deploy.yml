@@ -107,20 +107,24 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
 
+          # Verify the values of environment variables
+          echo "APP_NAME is: $APP_NAME"
+          echo "DOCKER_REPO is: $DOCKER_REPO"
+          
           # Copy the .env.prod file to the EC2 instance
            echo "$ENV_PROD" > .env.prod
            scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
 
           # Ensure the envs directory exists
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "mkdir -p /home/$EC2_USER/$APP_NAME/envs"
+          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "mkdir -p /home/$EC2_USER/$APP_NAME/envs"
 
           # Set permissions to ensure Docker can access the file
-          echo "Setting permissions on .env.prod..."
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "chmod 644 /home/$EC2_USER/$APP_NAME/envs/.env.prod"
+          # echo "Setting permissions on .env.prod..."
+          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "chmod 644 /home/$EC2_USER/$APP_NAME/envs/.env.prod"
 
           # List files to verify that .env.prod was created
-          echo "Listing files in envs directory to verify .env.prod existence:"
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "ls -la /home/$EC2_USER/$APP_NAME/envs/"
+          # echo "Listing files in envs directory to verify .env.prod existence:"
+          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "ls -la /home/$EC2_USER/$APP_NAME/envs/"
 
           # SSH into the EC2 instance and deploy the Docker container
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
