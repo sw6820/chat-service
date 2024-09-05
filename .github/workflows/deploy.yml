@@ -112,8 +112,8 @@ jobs:
           echo "DOCKER_REPO is: $DOCKER_REPO"
           
           # Copy the .env.prod file to the EC2 instance
-           echo "$ENV_PROD" > .env.prod
-           scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
+           # echo "$ENV_PROD" > .env.prod
+           # scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
 
           # Ensure the envs directory exists
           # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "mkdir -p /home/$EC2_USER/$APP_NAME/envs"
@@ -131,7 +131,12 @@ jobs:
             cd /home/$EC2_USER/$APP_NAME
 
             # Pull the latest Docker image
-            docker pull $DOCKER_REPO/$APP_NAME:latest
+            FULL_IMAGE_REFERENCE="$DOCKER_REPO/$APP_NAME:latest"
+            echo "Full image reference: $FULL_IMAGE_REFERENCE"
+            # docker pull $DOCKER_REPO/$APP_NAME:latest
+
+            echo "Pulling Docker image from Docker Hub..."
+            docker pull $FULL_IMAGE_REFERENCE
 
             echo "Listing Docker containers..."
             docker ps -a
