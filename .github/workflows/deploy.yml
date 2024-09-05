@@ -50,8 +50,9 @@ jobs:
           
           # SSH into the EC2 instance and deploy the Docker container
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            cd /home/$EC2_USER/$APP_NAME
-            mkdir -p envs
+            sudo mkdir -p envs
+            sudo chown $EC2_USER:$EC2_USER envs  # Ensure the user owns the directory
+          
           
             # Retrieve secrets from AWS SSM Parameter Store and create .env.prod
             echo "Fetching secrets from AWS SSM Parameter Store..."
