@@ -66,7 +66,7 @@ jobs:
             echo "DATABASE_NAME=\$(aws ssm get-parameter --name "/chat-service/production/DATABASE_NAME" --query Parameter.Value --output text)" >> envs/.env.prod
           
             # Set file permissions
-            chmod 600 envs/.env.prod
+            chmod 777 envs/.env.prod
           
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
