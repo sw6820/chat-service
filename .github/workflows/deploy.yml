@@ -127,15 +127,15 @@ jobs:
           pwd
           
           # verify .env.prod file existence
-          cd envs
-          if [ -f envs/.env.prod ]; then
-           echo ".env.prod file exists."
-           chmod 755 envs/.env.prod
-           cat envs/.env.prod   # Optional: Show the contents of the file for verification
-          else
-           echo "Error: .env.prod file does not exist."
-           exit 1  # Exit with an error code to fail the workflow
-           fi
+          #cd envs
+          #if [ -f envs/.env.prod ]; then
+           #echo ".env.prod file exists."
+           #chmod 755 envs/.env.prod
+           #cat envs/.env.prod   # Optional: Show the contents of the file for verification
+          #else
+           #echo "Error: .env.prod file does not exist."
+           #exit 1  # Exit with an error code to fail the workflow
+           #fi
 
 
           # Ensure the envs directory exists
@@ -150,7 +150,7 @@ jobs:
           # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "ls -la /home/$EC2_USER/$APP_NAME/envs/"
 
           # SSH into the EC2 instance and deploy the Docker container
-          cd ..
+          #cd ..
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             cd /home/$EC2_USER/$APP_NAME
 
