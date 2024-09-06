@@ -64,9 +64,14 @@ jobs:
             # Ensure the envs directory exists
             sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER envs
+            sudo chmod 755 envs
 
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."
+            sudo touch envs/.env.prod
+            sudo chown $EC2_USER:$EC2_USER envs/.env.prod
+            sudo chmod 644 envs/.env.prod
+          
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > envs/.env.prod
             echo "SERVER_PORT=${SERVER_PORT}" >> envs/.env.prod
             echo "DATABASE_TYPE=${DATABASE_TYPE}" >> envs/.env.prod
@@ -75,9 +80,10 @@ jobs:
             echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> envs/.env.prod
             echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> envs/.env.prod
             echo "DATABASE_NAME=${DATABASE_NAME}" >> envs/.env.prod
-
-            # Set file permissions
-            sudo chmod 600 envs/.env.prod
+          
+          
+            # Set file permissions to ensure Docker can access it
+            sudo chmod 644 envs/.env.prod
 
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
