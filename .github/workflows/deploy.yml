@@ -68,9 +68,10 @@ jobs:
 
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."
+            pwd
             sudo touch envs/.env.prod
             sudo chown $EC2_USER:$EC2_USER envs/.env.prod
-            sudo chmod 644 envs/.env.prod
+            sudo chmod 777 envs/.env.prod
           
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > envs/.env.prod
             echo "SERVER_PORT=${SERVER_PORT}" >> envs/.env.prod
