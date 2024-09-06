@@ -126,7 +126,7 @@ jobs:
           cd envs
           if [ -f envs/.env.prod ]; then
            echo ".env.prod file exists."
-           chmod 600 envs/.env.prod
+           chmod 755 envs/.env.prod
            cat envs/.env.prod   # Optional: Show the contents of the file for verification
           else
            echo "Error: .env.prod file does not exist."
