@@ -121,7 +121,11 @@ jobs:
           # List files to verify that .env.prod was created
           echo "Listing files in envs directory to verify .env.prod existence:"
           ls -la envs/
-
+          
+          # current working directory
+          echo "Current working directory"
+          pwd
+          
           # verify .env.prod file existence
           cd envs
           if [ -f envs/.env.prod ]; then
