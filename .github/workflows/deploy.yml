@@ -39,6 +39,66 @@ jobs:
           echo "Listing Docker images to confirm..."
           docker images
 
+      - name: SSH into EC2 and deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+          SERVER_DOMAIN: ${{ secrets.SERVER_DOMAIN }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          DATABASE_TYPE: ${{ secrets.DATABASE_TYPE }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # SSH into the EC2 instance and create the .env.prod file
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+            cd /home/$EC2_USER/$APP_NAME
+
+            # Ensure the envs directory exists
+            sudo mkdir -p envs
+            sudo chown $EC2_USER:$EC2_USER envs
+
+            # Create the .env.prod file with environment variables directly
+            echo "Creating .env.prod file..."
+            echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > envs/.env.prod
+            echo "SERVER_PORT=${SERVER_PORT}" >> envs/.env.prod
+            echo "DATABASE_TYPE=${DATABASE_TYPE}" >> envs/.env.prod
+            echo "DATABASE_HOST=${DATABASE_HOST}" >> envs/.env.prod
+            echo "DATABASE_PORT=${DATABASE_PORT}" >> envs/.env.prod
+            echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> envs/.env.prod
+            echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> envs/.env.prod
+            echo "DATABASE_NAME=${DATABASE_NAME}" >> envs/.env.prod
+
+            # Set file permissions
+            sudo chmod 600 envs/.env.prod
+
+            # Pull the latest Docker image
+            echo "Pulling Docker image from Docker Hub..."
+            docker pull $DOCKER_REPO/$APP_NAME:latest
+
+            echo "Listing Docker containers..."
+            docker ps -a
+
+            # Stop and remove the existing container
+            echo "Stopping and removing existing Docker container (if any)..."
+            docker stop chat-service || true
+            docker rm chat-service || true
+
+            # Run the new container with the .env.prod file
+            echo "Running new Docker container..."
+            sudo docker run -d --name chat-service --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+          EOF
+
+          # Clean up sensitive files
+          rm private_key.pem
+
 #      - name: SSH into EC2 and deploy
 #        env:
 #          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -95,121 +155,125 @@ jobs:
 #          # Clean up sensitive files
 #          rm private_key.pem
 
-      - name: SSH into EC2 and deploy
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          APP_NAME: ${{ secrets.APP_NAME }}
-          ENV_PROD: ${{ secrets.ENV_PROD }}
-          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-
-          # Verify the values of environment variables
-          echo "APP_NAME is: $APP_NAME"
-          echo "DOCKER_REPO is: $DOCKER_REPO"
-          
-          # Copy the .env.prod file to the EC2 instance
-          echo "$ENV_PROD" > .env.prod
-          scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
-          
-          # Ensure the envs directory exists
-          mkdir -p envs
-          
-          # List files to verify that .env.prod was created
-          echo "Listing files in envs directory to verify .env.prod existence:"
-          ls -la envs/
-          
-          # current working directory
-          echo "Current working directory"
-          pwd
-          
-          # verify .env.prod file existence
-          #cd envs
-          #if [ -f envs/.env.prod ]; then
-           #echo ".env.prod file exists."
-           #chmod 755 envs/.env.prod
-           #cat envs/.env.prod   # Optional: Show the contents of the file for verification
-          #else
-           #echo "Error: .env.prod file does not exist."
-           #exit 1  # Exit with an error code to fail the workflow
-           #fi
-
-
-          # Ensure the envs directory exists
-          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "mkdir -p /home/$EC2_USER/$APP_NAME/envs"
-
-          # Set permissions to ensure Docker can access the file
-          # echo "Setting permissions on .env.prod..."
-          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "chmod 644 /home/$EC2_USER/$APP_NAME/envs/.env.prod"
-
-          # List files to verify that .env.prod was created
-          # echo "Listing files in envs directory to verify .env.prod existence:"
-          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "ls -la /home/$EC2_USER/$APP_NAME/envs/"
-
-          # SSH into the EC2 instance and deploy the Docker container
-          #cd ..
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            cd /home/$EC2_USER/$APP_NAME
-
-            # Pull the latest Docker image
-            FULL_IMAGE_REFERENCE="$DOCKER_REPO/$APP_NAME:latest"
-            echo "Full image reference: $FULL_IMAGE_REFERENCE"
-            docker pull $DOCKER_REPO/$APP_NAME:latest
-
-            echo "Pulling Docker image from Docker Hub..."
-            docker pull $FULL_IMAGE_REFERENCE
-
-            echo "Listing Docker containers..."
-            docker ps -a
-
-            # Stop and remove the existing container
-            echo "Stopping and removing existing Docker container (if any)..."
-            docker stop chat-service || true
-            docker rm chat-service || true
-
-            # Run the new container with the .env.prod file
-            echo "Running new Docker container..."
-            sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
-          EOF
-          
-          # Clean up sensitive files
-          rm private_key.pem
-          
-          
-          
-          # Set permissions to ensure Docker can access the file
-           # echo "Setting permissions on .env.prod..."
-           # chmod 777 envs/.env.prod
-           #chmod 755 envs
-
-
-
-          # SSH into the EC2 instance and deploy the Docker container
-          # cd ..
-          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            # cd /home/$EC2_USER/$APP_NAME
-
-            # Pull the latest Docker image
-            # docker pull $DOCKER_REPO/$APP_NAME:latest
-
-            # echo "Listing Docker containers..."
-            # docker ps -a
-
-            # Stop and remove the existing container
-            # echo "Stopping and removing existing Docker container (if any)..."
-            # docker stop chat-service || true
-            # docker rm chat-service || true
-
-            # Run the new container with the .env.prod file
-             # echo "Running new Docker container..."
-             # sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
-          # EOF
-
-          # Clean up sensitive files
-          # rm private_key.pem
+#      - name: SSH into EC2 and deploy
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#          EC2_HOST: ${{ secrets.EC2_HOST }}
+#          EC2_USER: ${{ secrets.EC2_USER }}
+#          APP_NAME: ${{ secrets.APP_NAME }}
+#          ENV_PROD: ${{ secrets.ENV_PROD }}
+#          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
+#        run: |
+#          echo "$SSH_PRIVATE_KEY" > private_key.pem
+#          chmod 600 private_key.pem
+#
+#          # Verify the values of environment variables
+#          #echo "APP_NAME is: $APP_NAME"
+#          #echo "DOCKER_REPO is: $DOCKER_REPO"
+#
+#          # Copy the .env.prod file to the EC2 instance
+#          #echo "$ENV_PROD" > .env.prod
+#          #scp -o StrictHostKeyChecking=no -i private_key.pem .env.prod $EC2_USER@$EC2_HOST:/home/$EC2_USER/$APP_NAME/envs/.env.prod
+#
+#          # Ensure the envs directory exists
+#          #mkdir -p envs
+#
+#          # List files to verify that .env.prod was created
+#          #echo "Listing files in envs directory to verify .env.prod existence:"
+#          #ls -la envs/
+#
+#          # current working directory
+#          #echo "Current working directory"
+#          #pwd
+#
+#          # verify .env.prod file existence
+#          #cd envs
+#          #if [ -f envs/.env.prod ]; then
+#           #echo ".env.prod file exists."
+#           #chmod 755 envs/.env.prod
+#           #cat envs/.env.prod   # Optional: Show the contents of the file for verification
+#          #else
+#           #echo "Error: .env.prod file does not exist."
+#           #exit 1  # Exit with an error code to fail the workflow
+#           #fi
+#
+#
+#          # Ensure the envs directory exists
+#          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "mkdir -p /home/$EC2_USER/$APP_NAME/envs"
+#
+#          # Set permissions to ensure Docker can access the file
+#          # echo "Setting permissions on .env.prod..."
+#          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "chmod 644 /home/$EC2_USER/$APP_NAME/envs/.env.prod"
+#
+#          # List files to verify that .env.prod was created
+#          # echo "Listing files in envs directory to verify .env.prod existence:"
+#          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "ls -la /home/$EC2_USER/$APP_NAME/envs/"
+#
+#          # SSH into the EC2 instance and deploy the Docker container
+#          #cd ..
+#          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+#            cd /home/$EC2_USER/$APP_NAME
+#
+#            # Ensure the envs directory exists
+#            sudo mkdir -p envs
+#            sudo chown $EC2_USER:$EC2_USER envs
+#
+#            # Pull the latest Docker image
+#            FULL_IMAGE_REFERENCE="$DOCKER_REPO/$APP_NAME:latest"
+#            echo "Full image reference: $FULL_IMAGE_REFERENCE"
+#            docker pull $DOCKER_REPO/$APP_NAME:latest
+#
+#            echo "Pulling Docker image from Docker Hub..."
+#            docker pull $FULL_IMAGE_REFERENCE
+#
+#            echo "Listing Docker containers..."
+#            docker ps -a
+#
+#            # Stop and remove the existing container
+#            echo "Stopping and removing existing Docker container (if any)..."
+#            docker stop chat-service || true
+#            docker rm chat-service || true
+#
+#            # Run the new container with the .env.prod file
+#            echo "Running new Docker container..."
+#            sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+#          EOF
+#
+#          # Clean up sensitive files
+#          rm private_key.pem
+#
+#
+#
+#          # Set permissions to ensure Docker can access the file
+#           # echo "Setting permissions on .env.prod..."
+#           # chmod 777 envs/.env.prod
+#           #chmod 755 envs
+#
+#
+#
+#          # SSH into the EC2 instance and deploy the Docker container
+#          # cd ..
+#          # ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+#            # cd /home/$EC2_USER/$APP_NAME
+#
+#            # Pull the latest Docker image
+#            # docker pull $DOCKER_REPO/$APP_NAME:latest
+#
+#            # echo "Listing Docker containers..."
+#            # docker ps -a
+#
+#            # Stop and remove the existing container
+#            # echo "Stopping and removing existing Docker container (if any)..."
+#            # docker stop chat-service || true
+#            # docker rm chat-service || true
+#
+#            # Run the new container with the .env.prod file
+#             # echo "Running new Docker container..."
+#             # sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+#          # EOF
+#
+#          # Clean up sensitive files
+#          # rm private_key.pem
 
 
 #      - name: SSH into EC2 and deploy
