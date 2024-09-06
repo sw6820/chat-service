@@ -67,11 +67,13 @@ jobs:
             sudo chmod 777 ./$EC2_USER/envs
 
             # Create the .env.prod file with environment variables directly
-            echo "Creating .env.prod file..."
-            pwd
+            echo "Creating .env.prod file..."                        
             sudo touch ./$EC2_USER/envs/.env.prod
             sudo chown $EC2_USER:$EC2_USER ./$EC2_USER/envs/.env.prod
             sudo chmod 777 ./$EC2_USER/envs/.env.prod
+          
+            # Verify env files           
+            ls -la ./$EC2_USER/envs 
           
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > ./$EC2_USER/envs/.env.prod
             echo "SERVER_PORT=${SERVER_PORT}" >> ./$EC2_USER/envs/.env.prod
@@ -99,12 +101,12 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service -v $(pwd)/$EC2_USER --env-file $(pwd)/$EC2_USER/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest"
+            echo "Docker run command: sudo docker run -d --name chat-service -v ./$EC2_USER --env-file ./$EC2_USER/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest"
             pwd
           
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service -v $(pwd)/$EC2_USER/envs --env-file $(pwd)/$EC2_USER/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            sudo docker run -d --name chat-service -v ./$EC2_USER/envs --env-file ./$EC2_USER/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
 
 
