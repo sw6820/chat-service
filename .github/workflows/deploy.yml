@@ -84,7 +84,7 @@ jobs:
           
           
             # Set file permissions to ensure Docker can access it
-            sudo chmod 644 envs/.env.prod
+            sudo chmod 777 envs/.env.prod
 
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
