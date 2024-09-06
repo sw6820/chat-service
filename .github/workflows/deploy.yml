@@ -118,7 +118,7 @@ jobs:
             pwd
             ls -la
             ls -la envs/
-            ls -la $EC2_USER/
+            ls -la $EC2_USER/home
           
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
