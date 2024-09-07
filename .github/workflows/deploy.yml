@@ -59,7 +59,7 @@ jobs:
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN}}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
+          chmod 400 private_key.pem
 
           # SSH into the EC2 instance and create the .env.prod file
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
@@ -80,14 +80,14 @@ jobs:
             echo "Creating 'envs' directory..."
             sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER envs
-            sudo chmod 600 envs
+            sudo chmod 644 envs
             ENV_DIR="$APP_DIR/envs"
           
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."                        
             sudo touch $ENV_DIR/.env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR/.env.prod
-            sudo chmod 600 $ENV_DIR/.env.prod          
+            sudo chmod 644 $ENV_DIR/.env.prod          
           
             # Verify env files
             echo "Checking env files from the env directory"
