@@ -125,7 +125,7 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_PATH"
+            echo "Docker run command: sudo docker run -d --name chat-service --env-file envs/.env.prod -p 3000:3000 $DOCKER_PATH"
             pwd
             ls -la
             ls -la $APP_DIR
@@ -133,7 +133,7 @@ jobs:
           
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_PATH
+            sudo docker run -d --name chat-service --env-file envs/.env.prod -p 3000:3000 $DOCKER_PATH
           EOF
 
 
