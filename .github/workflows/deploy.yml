@@ -61,8 +61,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             #cd /home/$EC2_USER/$APP_NAME
             # Define variables for paths
-            #APP_DIR="/home/$EC2_USER/$APP_NAME"
-            APP_DIR="/home/ubuntu/chat-service"
+            APP_DIR="/home/$EC2_USER/$APP_NAME"
+            #APP_DIR="/home/ubuntu/chat-service"
 
             # Ensure the application directory exists
             echo "Creating application directory at $APP_DIR..."
@@ -113,7 +113,8 @@ jobs:
             # Define variables for paths
             echo "$DOCKER_REPO/$APP_NAME docker path"
             
-            docker pull $DOCKER_REPO/$APP_NAME:latest
+            # docker pull $DOCKER_REPO/$APP_NAME:latest
+            docker pull s6820w/chat-service:latest
 
             echo "Listing Docker containers..."
             docker ps -a
