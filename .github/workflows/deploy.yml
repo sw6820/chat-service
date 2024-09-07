@@ -64,7 +64,7 @@ jobs:
           
           # SSH into the EC2 instance and create the .env.prod file
           ssh -v -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            echo "ssh -v -"
+            # echo "ssh -v -"
           
             # Define variables for paths
             APP_DIR="/home/$EC2_USER/$APP_NAME"
