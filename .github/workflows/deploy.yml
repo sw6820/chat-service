@@ -67,7 +67,7 @@ jobs:
             echo "Creating application directory at $APP_DIR..."
             sudo mkdir -p $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
-            sudo chmod 755 $APP_DIR
+            sudo chmod 777 $APP_DIR
 
             # Navigate to the application directory
             cd $APP_DIR
@@ -86,7 +86,7 @@ jobs:
           
             # Verify env files
             echo "Checking env files"
-            ls -la ./$EC2_USER/envs 
+            ls -la $APP_DIR/envs
           
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $APP_DIR/envs/.env.prod
             echo "SERVER_PORT=${SERVER_PORT}" >> $APP_DIR/envs/.env.prod
@@ -114,15 +114,15 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service -v /home/$EC2_USER/app/envs:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest"
+            echo "Docker run command: sudo docker run -d --name chat-service -v $APP_DIR/envs/ --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest"
             pwd
             ls -la
-            ls -la envs/
-            ls -la $EC2_USER/home
+            ls -la $APP_DIR
+            
           
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service -v $APP_DIR/envs:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            sudo docker run -d --name chat-service -v $APP_DIR/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
 
 
