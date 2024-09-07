@@ -68,6 +68,8 @@ jobs:
             sudo mkdir -p $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
             sudo chmod 777 $APP_DIR
+            echo " verify app directory at $APP_DIR"
+            ls -la $APP_DIR
 
             # Navigate to the application directory
             cd $APP_DIR
@@ -83,10 +85,10 @@ jobs:
             echo "Creating .env.prod file..."                        
             sudo touch $ENV_DIR/.env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR/.env.prod
-            sudo chmod 777 $ENV_DIR/.env.prod
+            sudo chmod 777 $ENV_DIR/.env.prod          
           
             # Verify env files
-            echo "Checking env files"
+            echo "Checking env files from the env directory"
             ls -la $ENV_DIR/
           
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_DIR/.env.prod
