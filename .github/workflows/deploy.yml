@@ -54,25 +54,23 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           APP_NAME: ${{ secrets.APP_NAME }}
+          DOCKER_VERSION: ${{ secrets.DOCKER_VERSION}}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
 
           # SSH into the EC2 instance and create the .env.prod file
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            #cd /home/$EC2_USER/$APP_NAME
+          
             # Define variables for paths
             APP_DIR="/home/$EC2_USER/$APP_NAME"
-            #APP_DIR="/home/ubuntu/chat-service"
 
             # Ensure the application directory exists
             echo "Creating application directory at $APP_DIR..."
             sudo mkdir -p $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
-            sudo chmod 644 $APP_DIR
-            echo " verify app directory at $APP_DIR"
-            echo "$APP_DIR"
-            ls -la $APP_DIR
+            sudo chmod 644 $APP_DIR            
 
             # Navigate to the application directory
             cd $APP_DIR
@@ -102,6 +100,7 @@ jobs:
             echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> $ENV_DIR/.env.prod
             echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $ENV_DIR/.env.prod
             echo "DATABASE_NAME=${DATABASE_NAME}" >> $ENV_DIR/.env.prod
+            echo "CORS_ORIGIN=${CORS_ORIGIN}" >> $ENV_DIR/.env.prod
           
             cat $ENV_DIR/.env.prod
           
@@ -111,6 +110,7 @@ jobs:
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
             DOCKER_PATH="$DOCKER_REPO/$APP_NAME:DOCKER_VERSION"
+            
             # Define variables for paths
             echo "$DOCKER_PATH docker path"
             
@@ -122,15 +122,15 @@ jobs:
 
             # Stop and remove the existing container
             echo "Stopping and removing existing Docker container ..."
-            docker stop chat-service || true
-            docker rm chat-service || true
+            docker stop $APP_NAME || true
+            docker rm $APP_NAME || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service --env-file envs/.env.prod -p 3000:3000 $DOCKER_PATH"            
+            echo "Docker run command: sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_PATH"            
           
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service --env-file envs/.env.prod -p 3000:3000 $DOCKER_PATH
+            sudo docker run -d --name $APP_NAME --env-file envs/.env.prod -p 3000:3000 $DOCKER_PATH
           EOF
 
 
