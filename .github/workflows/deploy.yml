@@ -119,7 +119,7 @@ jobs:
             docker ps -a
 
             # Stop and remove the existing container
-            echo "Stopping and removing existing Docker container (if any)..."
+            echo "Stopping and removing existing Docker container ..."
             docker stop chat-service || true
             docker rm chat-service || true
 
