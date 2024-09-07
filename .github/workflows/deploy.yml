@@ -69,6 +69,7 @@ jobs:
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
             sudo chmod 777 $APP_DIR
             echo " verify app directory at $APP_DIR"
+            echo "$APP_DIR"
             ls -la $APP_DIR
 
             # Navigate to the application directory
