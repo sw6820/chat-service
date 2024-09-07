@@ -109,12 +109,12 @@ jobs:
 
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
-            
+            DOCKER_PATH="s6820w/chat-service:latest"
             # Define variables for paths
             echo "$DOCKER_REPO/$APP_NAME docker path"
             
             # docker pull $DOCKER_REPO/$APP_NAME:latest
-            docker pull s6820w/chat-service:latest
+            docker pull $DOCKER_PATH
 
             echo "Listing Docker containers..."
             docker ps -a
@@ -125,7 +125,7 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest"
+            echo "Docker run command: sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_PATH
             pwd
             ls -la
             ls -la $APP_DIR
@@ -133,7 +133,7 @@ jobs:
           
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_PATH
           EOF
 
 
