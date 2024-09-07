@@ -62,7 +62,7 @@ jobs:
             #cd /home/$EC2_USER/$APP_NAME
             # Define variables for paths
             #APP_DIR="/home/$EC2_USER/$APP_NAME"
-            APP_DIR = "/home/ubuntu/chat-service
+            APP_DIR="/home/ubuntu/chat-service"
 
             # Ensure the application directory exists
             echo "Creating application directory at $APP_DIR..."
