@@ -61,7 +61,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             #cd /home/$EC2_USER/$APP_NAME
             # Define variables for paths
-            APP_DIR="/home/$EC2_USER/$APP_NAME"
+            APP_DIR="/home/$EC2_USER/$APP_NAME"          
 
             # Ensure the application directory exists
             echo "Creating application directory at $APP_DIR..."
@@ -77,36 +77,38 @@ jobs:
             sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER envs
             sudo chmod 777 envs
+            ENV_DIR="$APP_DIR/envs"
           
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."                        
-            sudo touch $APP_DIR/envs/.env.prod
-            sudo chown $EC2_USER:$EC2_USER $APP_DIR/envs/.env.prod
-            sudo chmod 777 $APP_DIR/envs/.env.prod
+            sudo touch $ENV_DIR/.env.prod
+            sudo chown $EC2_USER:$EC2_USER $ENV_DIR/.env.prod
+            sudo chmod 777 $ENV_DIR/.env.prod
           
             # Verify env files
             echo "Checking env files"
-            ls -la $APP_DIR/envs
+            ls -la $ENV_DIR/
           
-            echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $APP_DIR/envs/.env.prod
-            echo "SERVER_PORT=${SERVER_PORT}" >> $APP_DIR/envs/.env.prod
-            echo "DATABASE_TYPE=${DATABASE_TYPE}" >> $APP_DIR/envs/.env.prod
-            echo "DATABASE_HOST=${DATABASE_HOST}" >> $APP_DIR/envs/.env.prod
-            echo "DATABASE_PORT=${DATABASE_PORT}" >> $APP_DIR/envs/.env.prod
-            echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> $APP_DIR/envs/.env.prod
-            echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $APP_DIR/envs/.env.prod
-            echo "DATABASE_NAME=${DATABASE_NAME}" >> $APP_DIR/envs/.env.prod
+            echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_DIR/.env.prod
+            echo "SERVER_PORT=${SERVER_PORT}" >> $ENV_DIR/.env.prod
+            echo "DATABASE_TYPE=${DATABASE_TYPE}" >> $ENV_DIR/.env.prod
+            echo "DATABASE_HOST=${DATABASE_HOST}" >> $ENV_DIR/.env.prod
+            echo "DATABASE_PORT=${DATABASE_PORT}" >> $ENV_DIR/.env.prod
+            echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> $ENV_DIR/.env.prod
+            echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $ENV_DIR/.env.prod
+            echo "DATABASE_NAME=${DATABASE_NAME}" >> $ENV_DIR/.env.prod
           
-            cat $APP_DIR/envs/.env.prod
+            cat $ENV_DIR/.env.prod
           
             # Set file permissions to ensure Docker can access it
-            sudo chmod 777 $APP_DIR/envs/.env.prod
+            sudo chmod 777 $ENV_DIR/.env.prod
 
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
-            REPO = $DOCKER_REPO
-            APP = $APP_NAME
-            echo "$REPO/$APP"
+            
+            # Define variables for paths
+            echo "$DOCKER_REPO/$APP_NAME docker path"
+            
             docker pull $DOCKER_REPO/$APP_NAME:latest
 
             echo "Listing Docker containers..."
@@ -118,7 +120,7 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service -v $APP_DIR/envs/ --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest"
+            echo "Docker run command: sudo docker run -d --name chat-service -v $ENV_DIR/ --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest"
             pwd
             ls -la
             ls -la $APP_DIR
@@ -126,7 +128,7 @@ jobs:
           
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service -v $APP_DIR/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
+            sudo docker run -d --name chat-service -v $ENV_DIR --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_REPO/$APP_NAME:latest
           EOF
 
 
