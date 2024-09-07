@@ -82,7 +82,7 @@ jobs:
             echo "Creating 'envs' directory..."
             sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER envs
-            sudo chmod 644 envs
+            sudo chmod 777 envs
             ENV_DIR="$APP_DIR/envs"
           
             # Create the .env.prod file with environment variables directly
