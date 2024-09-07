@@ -71,7 +71,7 @@ jobs:
             echo "Creating application directory at $APP_DIR..."
             sudo mkdir -p $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
-            sudo chmod 644 $APP_DIR            
+            sudo chmod 600 $APP_DIR            
 
             # Navigate to the application directory
             cd $APP_DIR
@@ -80,14 +80,14 @@ jobs:
             echo "Creating 'envs' directory..."
             sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER envs
-            sudo chmod 644 envs
+            sudo chmod 600 envs
             ENV_DIR="$APP_DIR/envs"
           
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."                        
             sudo touch $ENV_DIR/.env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR/.env.prod
-            sudo chmod 644 $ENV_DIR/.env.prod          
+            sudo chmod 600 $ENV_DIR/.env.prod          
           
             # Verify env files
             echo "Checking env files from the env directory"
