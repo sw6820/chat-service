@@ -111,7 +111,7 @@ jobs:
             echo "Pulling Docker image from Docker Hub..."
             DOCKER_PATH="s6820w/chat-service:latest"
             # Define variables for paths
-            echo "$DOCKER_REPO/$APP_NAME docker path"
+            echo "$DOCKER_PATH docker path"
             
             # docker pull $DOCKER_REPO/$APP_NAME:latest
             docker pull $DOCKER_PATH
@@ -125,7 +125,7 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_PATH
+            echo "Docker run command: sudo docker run -d --name chat-service -v $ENV_DIR:/app/envs --env-file /app/envs/.env.prod -p 3000:3000 $DOCKER_PATH"
             pwd
             ls -la
             ls -la $APP_DIR
