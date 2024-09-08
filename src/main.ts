@@ -8,6 +8,9 @@ import passport from 'passport';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
+import { RateLimiterMemory } from 'rate-limiter-flexible';
+import * as compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -22,11 +25,33 @@ async function bootstrap() {
     `http://localhost:${port}`,
   );
 
+  const rateLimiter = new RateLimiterMemory({
+    points: 5, // Number of points
+    duration: 1, // Per second
+  });
+
+  app.use((req, res, next) => {
+    rateLimiter
+      .consume(req.ip)
+      .then(() => {
+        next();
+      })
+      .catch(() => {
+        res.status(429).send('Too Many Requests');
+      });
+  });
+
   // Global validation pipes
   app.useGlobalPipes(new ValidationPipe());
 
   // Cookie parser middleware
   app.use(cookieParser());
+
+  // Security Enhanced Middleware
+  app.use(helmet());
+
+  // Performance Optimization
+  app.use(compression());
 
   // Enable CORS for the specified origin or allow multiple origins based on your needs
   app.enableCors({
