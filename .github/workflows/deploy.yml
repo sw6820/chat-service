@@ -87,7 +87,7 @@ jobs:
             echo "Creating .env.prod file..."                        
             sudo touch $ENV_DIR/.env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR/.env.prod
-            sudo chmod 644 $ENV_DIR/.env.prod          
+            sudo chmod 777 $ENV_DIR/.env.prod          
           
             # Verify env files
             echo "Checking env files from the env directory"
