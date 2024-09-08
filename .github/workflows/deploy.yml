@@ -29,7 +29,7 @@ jobs:
           DOCKER_VERSION: ${{ secrets.DOCKER_VERSION}}
         run: |
           echo "Building Docker image..."
-          docker build -t $APP_NAME:${{ github.sha }} .
+          docker build -t $DOCKER_REPO/$APP_NAME:$DOCKER_VERSION -f Dockerfile .
           
           echo "Tagging Docker image..."
           docker tag $APP_NAME:${{ github.sha }} $DOCKER_REPO/$APP_NAME:$DOCKER_VERSION
