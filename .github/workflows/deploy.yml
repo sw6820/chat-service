@@ -103,7 +103,7 @@ jobs:
 
             # docker pull $DOCKER_PATH
             # docker pull s6820w/chat-service:latest
-            docker pull $DOCKER_IMAGE || { echo 'Docker pull failed'; exit 1; }
+            docker pull $DOCKER_IMAGE
 
             echo "Listing Docker containers..."
             docker ps -a
