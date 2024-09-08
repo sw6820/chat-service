@@ -102,8 +102,8 @@ jobs:
             echo "Pulling Docker image from Docker Hub..."
 
             # docker pull $DOCKER_PATH
-            # docker pull s6820w/chat-service:latest
-            docker pull $DOCKER_IMAGE
+            docker pull s6820w/chat-service:latest
+            
 
             echo "Listing Docker containers..."
             docker ps -a
@@ -114,7 +114,7 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
+            echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
 
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
