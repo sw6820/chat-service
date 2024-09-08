@@ -54,86 +54,154 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           APP_NAME: ${{ secrets.APP_NAME }}
-          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN}}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
 
-          # SSH into the EC2 instance and create the .env.prod file
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'          
+          # SSH into the EC2 instance and deploy
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
 
-            # Ensure the application directory exists
-            echo "Creating application directory at $APP_DIR..."
-            pwd
-            cd ubuntu
-            pwd
-            sudo mkdir -p chat-service
-            ls -lr
-          
-            # Define variables for paths
+            # Define and create application directory
             APP_DIR="/home/ubuntu/chat-service"
-            ls -lr /home/
-            ls -lr $APP_DIR
+            sudo mkdir -p $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
-            sudo chmod 644 $APP_DIR
+            sudo chmod 755 $APP_DIR
 
-            # Ensure the envs directory exists and set permissions
-            echo "Creating 'envs' directory..."
-            
-            cd $APP_DIR            
-            sudo mkdir -p envs
+            # Define and create environment directory
             ENV_DIR="$APP_DIR/envs"
+            sudo mkdir -p $ENV_DIR
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR
-            sudo chmod 644 $ENV_DIR
+            sudo chmod 755 $ENV_DIR
 
-            # Create the .env.prod file with environment variables directly
-            echo "Creating .env.prod file..."
-            cd envs
+            # Create the .env.prod file with environment variables
             ENV_PROD="$ENV_DIR/.env.prod"
-            sudo touch .env.prod
-            sudo chown $EC2_USER:$EC2_USER $ENV_PROD
-            sudo chmod 644 $ENV_PROD
-
-            # Verify env files
-            echo "Checking env files from the env directory"
-            ls -la $ENV_DIR/
-
-            echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_PROD
-            echo "SERVER_PORT=${SERVER_PORT}" >> $ENV_PROD
-            echo "DATABASE_TYPE=${DATABASE_TYPE}" >> $ENV_PROD
-            echo "DATABASE_HOST=${DATABASE_HOST}" >> $ENV_PROD
-            echo "DATABASE_PORT=${DATABASE_PORT}" >> $ENV_PROD
-            echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> $ENV_PROD
-            echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $ENV_PROD
-            echo "DATABASE_NAME=${DATABASE_NAME}" >> $ENV_PROD
-            echo "CORS_ORIGIN=${CORS_ORIGIN}" >> $ENV_PROD
-
-            cat $ENV_PROD
-
-            # Set file permissions to ensure Docker can access it
+            cat <<EOT > $ENV_PROD
+            SERVER_DOMAIN=${SERVER_DOMAIN}
+            SERVER_PORT=${SERVER_PORT}
+            DATABASE_TYPE=${DATABASE_TYPE}
+            DATABASE_HOST=${DATABASE_HOST}
+            DATABASE_PORT=${DATABASE_PORT}
+            DATABASE_USERNAME=${DATABASE_USERNAME}
+            DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            DATABASE_NAME=${DATABASE_NAME}
+            CORS_ORIGIN=${CORS_ORIGIN}
+            EOT
+  
             sudo chmod 600 $ENV_PROD
-
+  
             # Pull the latest Docker image
-            echo "Pulling Docker image from Docker Hub..."            
-
-            # docker pull $DOCKER_PATH
-            docker pull s6820w/chat-service:latest
-
-            echo "Listing Docker containers..."
-            docker ps -a
-
+            echo "Pulling Docker image from Docker Hub..."
+            docker pull $DOCKER_REPO/$APP_NAME:$DOCKER_VERSION
+            
             # Stop and remove the existing container
-            echo "Stopping and removing existing Docker container ..."
+            echo "Stopping and removing existing Docker container..."
             docker stop chat-service || true
             docker rm chat-service || true
-
-            # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
-
-            # Run the new container with the .env.prod file
+            
+            # Run the new Docker container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
+            sudo docker run -d --name chat-service --env-file $ENV_PROD -p 3000:3000 $DOCKER_REPO/$APP_NAME:$DOCKER_VERSION
+            
           EOF
 
           # Clean up sensitive files
           rm private_key.pem
+
+#      - name: SSH into EC2 and deploy
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#          EC2_HOST: ${{ secrets.EC2_HOST }}
+#          EC2_USER: ${{ secrets.EC2_USER }}
+#          SERVER_DOMAIN: ${{ secrets.SERVER_DOMAIN }}
+#          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+#          DATABASE_TYPE: ${{ secrets.DATABASE_TYPE }}
+#          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+#          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+#          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+#          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+#          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+#          APP_NAME: ${{ secrets.APP_NAME }}
+#          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN}}
+#        run: |
+#          echo "$SSH_PRIVATE_KEY" > private_key.pem
+#          chmod 600 private_key.pem
+#
+#          # SSH into the EC2 instance and create the .env.prod file
+#          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+#
+#            # Ensure the application directory exists
+#            echo "Creating application directory at $APP_DIR..."
+#            pwd
+#            cd ubuntu
+#            pwd
+#            sudo mkdir -p chat-service
+#            ls -lr
+#
+#            # Define variables for paths
+#            APP_DIR="/home/ubuntu/chat-service"
+#            ls -lr /home/
+#            ls -lr $APP_DIR
+#            sudo chown $EC2_USER:$EC2_USER $APP_DIR
+#            sudo chmod 644 $APP_DIR
+#
+#            # Ensure the envs directory exists and set permissions
+#            echo "Creating 'envs' directory..."
+#
+#            cd $APP_DIR
+#            sudo mkdir -p envs
+#            ENV_DIR="$APP_DIR/envs"
+#            sudo chown $EC2_USER:$EC2_USER $ENV_DIR
+#            sudo chmod 644 $ENV_DIR
+#
+#            # Create the .env.prod file with environment variables directly
+#            echo "Creating .env.prod file..."
+#            cd envs
+#            ENV_PROD="$ENV_DIR/.env.prod"
+#            sudo touch .env.prod
+#            sudo chown $EC2_USER:$EC2_USER $ENV_PROD
+#            sudo chmod 644 $ENV_PROD
+#
+#            # Verify env files
+#            echo "Checking env files from the env directory"
+#            ls -la $ENV_DIR/
+#
+#            echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_PROD
+#            echo "SERVER_PORT=${SERVER_PORT}" >> $ENV_PROD
+#            echo "DATABASE_TYPE=${DATABASE_TYPE}" >> $ENV_PROD
+#            echo "DATABASE_HOST=${DATABASE_HOST}" >> $ENV_PROD
+#            echo "DATABASE_PORT=${DATABASE_PORT}" >> $ENV_PROD
+#            echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> $ENV_PROD
+#            echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $ENV_PROD
+#            echo "DATABASE_NAME=${DATABASE_NAME}" >> $ENV_PROD
+#            echo "CORS_ORIGIN=${CORS_ORIGIN}" >> $ENV_PROD
+#
+#            cat $ENV_PROD
+#
+#            # Set file permissions to ensure Docker can access it
+#            sudo chmod 600 $ENV_PROD
+#
+#            # Pull the latest Docker image
+#            echo "Pulling Docker image from Docker Hub..."
+#
+#            # docker pull $DOCKER_PATH
+#            docker pull s6820w/chat-service:latest
+#
+#            echo "Listing Docker containers..."
+#            docker ps -a
+#
+#            # Stop and remove the existing container
+#            echo "Stopping and removing existing Docker container ..."
+#            docker stop chat-service || true
+#            docker rm chat-service || true
+#
+#            # Debugging: Print the Docker command to be run
+#            echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
+#
+#            # Run the new container with the .env.prod file
+#            echo "Running new Docker container..."
+#            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
+#          EOF
+#
+#          # Clean up sensitive files
+#          rm private_key.pem

@@ -20,10 +20,7 @@ async function bootstrap() {
   const secretKey = configService.get<string>('SECRET_KEY');
   const port = configService.get<string>('SERVER_PORT');
   const environment = configService.get<string>('NODE_ENV');
-  const corsOrigin = configService.get<string>(
-    'CORS_ORIGIN',
-    `http://localhost:${port}`,
-  );
+  const corsOrigin = configService.get<string>('CORS_ORIGIN');
 
   const rateLimiter = new RateLimiterMemory({
     points: 5, // Number of points
@@ -86,7 +83,7 @@ async function bootstrap() {
   }
 
   // Serve static assets
-  app.useStaticAssets(join(__dirname, '..', 'frontend', 'public'));
+  // app.useStaticAssets(join(__dirname, '..', 'frontend', 'public'));
 
   // Start the server
   await app.listen(port);
