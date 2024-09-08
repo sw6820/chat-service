@@ -71,7 +71,7 @@ jobs:
             ls -lr
           
             # Define variables for paths
-            APP_DIR="/home/$EC2_USER/$APP_NAME"
+            APP_DIR="/home/ubuntu/chat-service"
             ls -lr /home/
             ls -lr $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
