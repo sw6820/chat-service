@@ -8,10 +8,7 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
-
-# Install pm2 globally
-RUN npm install -g pm2
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -22,5 +19,8 @@ RUN npm run build
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Use pm2 to start the app
-CMD ["pm2-runtime", "start", "npm", "--name", "chat-service", "--", "run", "start:prod"]
+# Add a health check to verify if the app is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
+
+# Start the application using Node.js
+CMD ["npm", "run", "start:prod"]
