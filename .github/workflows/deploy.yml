@@ -65,8 +65,10 @@ jobs:
             # Ensure the application directory exists
             echo "Creating application directory at $APP_DIR..."
             pwd
-            cd $EC2_USER
-            sudo mkdir -p $APP_NAME
+            cd ubuntu
+            pwd
+            sudo mkdir -p chat-service
+            ls -lr
           
             # Define variables for paths
             APP_DIR="/home/$EC2_USER/$APP_NAME"
