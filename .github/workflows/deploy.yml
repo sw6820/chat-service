@@ -69,8 +69,8 @@ jobs:
             echo "Creating application directory at $APP_DIR..."
             pwd
             cd /home/$EC2_USER
-            sudo mkdir -p $APP_DIR
-            ls -lr /home/$EC2_USER
+            sudo mkdir -p $APP_NAME
+            ls -lr /home/
             ls -lr $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
             sudo chmod 777 $APP_DIR
@@ -78,7 +78,8 @@ jobs:
             # Ensure the envs directory exists and set permissions
             echo "Creating 'envs' directory..."
             ENV_DIR="$APP_DIR/envs"
-            sudo mkdir -p $ENV_DIR
+            cd $APP_DIR            
+            sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR
             sudo chmod 777 $ENV_DIR
 
