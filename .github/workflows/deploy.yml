@@ -103,7 +103,7 @@ jobs:
 
             # docker pull $DOCKER_PATH
             # docker pull s6820w/chat-service:latest
-            docker pull $DOCKER_IMAGE
+            docker pull $DOCKER_IMAGE || { echo 'Docker pull failed'; exit 1; }
 
             echo "Listing Docker containers..."
             docker ps -a
@@ -114,27 +114,11 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            # echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
+            echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
 
             # Run the new container with the .env.prod file
-            # echo "Running new Docker container..."
-            # sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
-
-            # Run the new container with environment variables
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service \
-              -e SERVER_DOMAIN=$SERVER_DOMAIN \
-              -e SERVER_PORT=$SERVER_PORT \
-              -e DATABASE_TYPE=$DATABASE_TYPE \
-              -e DATABASE_HOST=$DATABASE_HOST \
-              -e DATABASE_PORT=$DATABASE_PORT \
-              -e DATABASE_USERNAME=$DATABASE_USERNAME \
-              -e DATABASE_PASSWORD=$DATABASE_PASSWORD \
-              -e DATABASE_NAME=$DATABASE_NAME \
-              -e CORS_ORIGIN=$CORS_ORIGIN \
-              -p 3000:3000 $DOCKER_IMAGE
-                    
-          EOF
+            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
 
           # Clean up sensitive files
           rm private_key.pem
