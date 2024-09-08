@@ -75,7 +75,7 @@ jobs:
             ls -lr /home/
             ls -lr $APP_DIR
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
-            sudo chmod 777 $APP_DIR
+            sudo chmod 644 $APP_DIR
 
             # Ensure the envs directory exists and set permissions
             echo "Creating 'envs' directory..."
@@ -84,7 +84,7 @@ jobs:
             sudo mkdir -p envs
             ENV_DIR="$APP_DIR/envs"
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR
-            sudo chmod 777 $ENV_DIR
+            sudo chmod 644 $ENV_DIR
 
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."
@@ -92,7 +92,7 @@ jobs:
             ENV_PROD="$ENV_DIR/.env.prod"
             sudo touch .env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_PROD
-            sudo chmod 777 $ENV_PROD
+            sudo chmod 644 $ENV_PROD
 
             # Verify env files
             echo "Checking env files from the env directory"
