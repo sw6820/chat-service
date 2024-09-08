@@ -8,7 +8,7 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --only=production
 
 # Copy the rest of the application code
 COPY . .

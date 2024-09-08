@@ -55,6 +55,7 @@ jobs:
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           APP_NAME: ${{ secrets.APP_NAME }}
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN}}
+          DOCKER_IMAGE: ${{ secrets.DOCKER_REPO }}/{{ secrets.APP_NAME }}:${{ secrets.DOCKER_VERSION }}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
@@ -84,15 +85,15 @@ jobs:
             sudo chown $EC2_USER:$EC2_USER $ENV_PROD
             sudo chmod 644 $ENV_PROD
 
-            echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_PROD
-            echo "SERVER_PORT=${SERVER_PORT}" >> $ENV_PROD
-            echo "DATABASE_TYPE=${DATABASE_TYPE}" >> $ENV_PROD
-            echo "DATABASE_HOST=${DATABASE_HOST}" >> $ENV_PROD
-            echo "DATABASE_PORT=${DATABASE_PORT}" >> $ENV_PROD
-            echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> $ENV_PROD
-            echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $ENV_PROD
-            echo "DATABASE_NAME=${DATABASE_NAME}" >> $ENV_PROD
-            echo "CORS_ORIGIN=${CORS_ORIGIN}" >> $ENV_PROD
+            #echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_PROD
+            #echo "SERVER_PORT=${SERVER_PORT}" >> $ENV_PROD
+            #echo "DATABASE_TYPE=${DATABASE_TYPE}" >> $ENV_PROD
+            #echo "DATABASE_HOST=${DATABASE_HOST}" >> $ENV_PROD
+            #echo "DATABASE_PORT=${DATABASE_PORT}" >> $ENV_PROD
+            #echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> $ENV_PROD
+            #echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $ENV_PROD
+            #echo "DATABASE_NAME=${DATABASE_NAME}" >> $ENV_PROD
+            #echo "CORS_ORIGIN=${CORS_ORIGIN}" >> $ENV_PROD
 
             # Set file permissions to ensure Docker can access it
             sudo chmod 600 $ENV_PROD
@@ -101,7 +102,8 @@ jobs:
             echo "Pulling Docker image from Docker Hub..."
 
             # docker pull $DOCKER_PATH
-            docker pull s6820w/chat-service:latest
+            # docker pull s6820w/chat-service:latest
+            docker pull $DOCKER_IMAGE || { echo 'Docker pull failed'; exit 1; }
 
             echo "Listing Docker containers..."
             docker ps -a
@@ -112,11 +114,26 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
+            # echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
 
             # Run the new container with the .env.prod file
+            # echo "Running new Docker container..."
+            # sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
+
+            # Run the new container with environment variables
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
+            sudo docker run -d --name chat-service \
+              -e SERVER_DOMAIN=$SERVER_DOMAIN \
+              -e SERVER_PORT=$SERVER_PORT \
+              -e DATABASE_TYPE=$DATABASE_TYPE \
+              -e DATABASE_HOST=$DATABASE_HOST \
+              -e DATABASE_PORT=$DATABASE_PORT \
+              -e DATABASE_USERNAME=$DATABASE_USERNAME \
+              -e DATABASE_PASSWORD=$DATABASE_PASSWORD \
+              -e DATABASE_NAME=$DATABASE_NAME \
+              -e CORS_ORIGIN=$CORS_ORIGIN \
+              -p 3000:3000 $DOCKER_IMAGE
+                    
           EOF
 
           # Clean up sensitive files
