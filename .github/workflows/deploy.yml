@@ -63,7 +63,7 @@ jobs:
           # echo "chmod .pem"
           
           # SSH into the EC2 instance and create the .env.prod file
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+          ssh -tt -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
             # echo "ssh -v -"
           
             # Define variables for paths
