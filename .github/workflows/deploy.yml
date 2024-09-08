@@ -45,7 +45,6 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
-          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
           SERVER_DOMAIN: ${{ secrets.SERVER_DOMAIN }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           DATABASE_TYPE: ${{ secrets.DATABASE_TYPE }}
@@ -55,7 +54,6 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           APP_NAME: ${{ secrets.APP_NAME }}
-          DOCKER_VERSION: ${{ secrets.DOCKER_VERSION}}
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN}}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
@@ -112,12 +110,7 @@ jobs:
             sudo chmod 600 $ENV_PROD
 
             # Pull the latest Docker image
-            echo "Pulling Docker image from Docker Hub..."
-            # DOCKER_PATH="$DOCKER_REPO/$APP_NAME:$DOCKER_VERSION"
-            DOCKER_PATH=s6820w/chat-service:latest
-
-            # Define variables for paths
-            echo "$DOCKER_PATH docker path"
+            echo "Pulling Docker image from Docker Hub..."            
 
             # docker pull $DOCKER_PATH
             docker pull s6820w/chat-service:latest
@@ -131,11 +124,11 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name $APP_NAME --env-file /home/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
+            echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
 
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name $APP_NAME --env-file /home/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
+            sudo docker run -d --name chat-service --env-file /home/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
           EOF
 
 
