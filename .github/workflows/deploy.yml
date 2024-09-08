@@ -131,11 +131,11 @@ jobs:
             docker rm chat-service || true
 
             # Debugging: Print the Docker command to be run
-            echo "Docker run command: sudo docker run -d --name $APP_NAME --env-file /home/envs/.env.prod -p 3000:3000 $DOCKER_PATH"
+            echo "Docker run command: sudo docker run -d --name $APP_NAME --env-file /home/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest"
 
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name $APP_NAME --env-file /home/envs/.env.prod -p 3000:3000 $DOCKER_PATH
+            sudo docker run -d --name $APP_NAME --env-file /home/envs/.env.prod -p 3000:3000 s6820w/chat-service:latest
           EOF
 
 
