@@ -88,8 +88,9 @@ jobs:
 
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."
+            cd envs
             ENV_PROD="$ENV_DIR/.env.prod"
-            sudo touch $ENV_PROD
+            sudo touch .env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_PROD
             sudo chmod 777 $ENV_PROD
 
