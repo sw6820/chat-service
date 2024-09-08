@@ -55,6 +55,8 @@ jobs:
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           APP_NAME: ${{ secrets.APP_NAME }}
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
+          DOCKER_VERSION: ${{ secrets.DOCKER_VERSION}}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
