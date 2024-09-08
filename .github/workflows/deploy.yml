@@ -120,7 +120,7 @@ jobs:
             echo "$DOCKER_PATH docker path"
 
             # docker pull $DOCKER_PATH
-            docker pull $DOCKER_PATH
+            docker pull s6820w/chat-service:latest
 
             echo "Listing Docker containers..."
             docker ps -a
