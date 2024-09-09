@@ -11,9 +11,12 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import * as compression from 'compression';
+import logger from './logger/logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger,
+  });
   const configService = app.get(ConfigService);
 
   // Retrieve environment-specific settings
@@ -52,7 +55,7 @@ async function bootstrap() {
 
   // Enable CORS for the specified origin or allow multiple origins based on your needs
   app.enableCors({
-    origin: corsOrigin.split(','),
+    origin: configService.get<string>('CORS_ORIGIN').split(','), // corsOrigin.split(','),
     credentials: true,
   });
 
