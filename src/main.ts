@@ -12,10 +12,41 @@ import helmet from 'helmet';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import * as compression from 'compression';
 import logger from './logger/logger';
+import {
+  WinstonModule,
+  utilities as nestWinstonModuleUtilities,
+} from 'nest-winston';
+import winston from 'winston';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger,
+    logger: WinstonModule.createLogger({
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            nestWinstonModuleUtilities.format.nestLike('ChatService', {
+              prettyPrint: true,
+            }),
+          ),
+        }),
+        new winston.transports.File({
+          filename: 'combined.log',
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.json(),
+          ),
+        }),
+        new winston.transports.File({
+          filename: 'errors.log',
+          level: 'error',
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.json(),
+          ),
+        }),
+      ],
+    }),
   });
   const configService = app.get(ConfigService);
 
@@ -55,7 +86,7 @@ async function bootstrap() {
 
   // Enable CORS for the specified origin or allow multiple origins based on your needs
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGIN').split(','), // corsOrigin.split(','),
+    origin: corsOrigin.split(','),
     credentials: true,
   });
 
