@@ -18,7 +18,7 @@ RUN npm run build
 
 # Expose the port the app runs on
 EXPOSE 3000
-${{
+
 # Add a health check to verify if the app is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
 
