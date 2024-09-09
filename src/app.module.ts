@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './configs/configuration';
@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
 
 // console.log(`process : ${JSON.stringify(process)}`);
 // console.log('env : ' + process.env.NODE_ENV);
@@ -61,4 +62,10 @@ import { join } from 'path';
   controllers: [AuthController, ChatController],
   providers: [AuthService, ChatService, JwtService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequestLoggerMiddleware) // Apply the middleware
+      .forRoutes('*'); // Apply to all routes
+  }
+}
