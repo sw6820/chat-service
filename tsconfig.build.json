@@ -21,6 +21,5 @@
     "tests",
     "dist",
     "**/*spec.ts",
-    "frontend"
   ]
 }
