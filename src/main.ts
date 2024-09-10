@@ -121,5 +121,6 @@ async function bootstrap() {
 
   // Start the server
   await app.listen(port);
+  console.log(`start server port : ${port}`);
 }
 bootstrap();
