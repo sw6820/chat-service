@@ -8,7 +8,7 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install
 
 # Install @nestjs/cli globally
 RUN npm install -g @nestjs/cli
