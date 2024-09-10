@@ -25,7 +25,7 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy compiled code from the build stage
 COPY --from=build /usr/src/chat-service/dist ./dist
