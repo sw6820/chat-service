@@ -8,7 +8,7 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy the rest of the application code
 COPY . .
@@ -25,11 +25,13 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Copy compiled code from the build stage
 COPY --from=build /usr/src/chat-service/dist ./dist
 
+# Install curl for health check
+RUN apk add --no-cache curl
 
 # Add a health check to verify if the app is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
