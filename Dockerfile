@@ -17,6 +17,7 @@ COPY . .
 RUN npm run build
 
 # Verify that the dist directory was created
+echo listed dist
 RUN ls -la ./dist
 
 # Stage 2: Prepare production image
