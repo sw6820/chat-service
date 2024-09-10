@@ -16,6 +16,9 @@ COPY . .
 # Build the application
 RUN npm run build
 
+# Verify that the dist directory was created
+RUN ls -la ./dist
+
 # Stage 2: Prepare production image
 FROM node:20-alpine as production
 
