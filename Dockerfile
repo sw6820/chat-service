@@ -17,11 +17,7 @@ COPY . .
 RUN ls -la ./node_modules
 
 # Build the application
-RUN tsc --build --clean tsconfig.build.json
-
-# Verify that the dist directory was created
-RUN echo listed dist
-RUN ls -la ./dist
+RUN nest build
 
 # Stage 2: Prepare production image
 FROM node:20-alpine as production
