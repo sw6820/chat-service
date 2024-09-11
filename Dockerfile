@@ -14,7 +14,7 @@ RUN npm ci --legacy-peer-deps
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN tsc --build --clean tsconfig.build.json
 
 # Verify that the dist directory was created
 RUN echo listed dist
