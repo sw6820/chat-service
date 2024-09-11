@@ -13,6 +13,9 @@ RUN npm ci --legacy-peer-deps
 # Copy the rest of the application code
 COPY . .
 
+# Verify node_modules
+RUN ls -la ./node_modules
+
 # Build the application
 RUN tsc --build --clean tsconfig.build.json
 
