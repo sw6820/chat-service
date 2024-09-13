@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": false,
+//    "allowJs": true,
+//    "checkJs": false,
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -11,39 +11,39 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+//    "rootDir": "./src",
     "baseUrl": "./",
-    "paths": {
-      "*": ["node_modules/*"]
-    },
+//    "paths": {
+//      "*": ["node_modules/*"]
+//    },
     "incremental": true,
     "skipLibCheck": true,
-    "strict": false,
+//    "strict": false,
 //    "strictNullChecks": true,
-    "strictPropertyInitialization": false,
-    "esModuleInterop": true,
+//    "strictPropertyInitialization": false,
+//    "esModuleInterop": true,
     "noImplicitAny": false,
-    "alwaysStrict": false,
-    "noImplicitReturns": false,
+//    "alwaysStrict": false,
+//    "noImplicitReturns": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "typeRoots": ["node_modules/@types", "./src/types", "./typings"],
-    "types": ["node", "passport-github2", "jest"]
+//    "typeRoots": ["node_modules/@types", "./src/types", "./typings"],
+//    "types": ["node", "passport-github2", "jest"]
   },
-  "include": [
-    "src/**/*",
+//  "include": [
+//    "src/**/*",
 //    "src/types/express-request.d.ts",
 //    "frontend/public/**/*.js",
 //    "typings/**/*.d.ts",
 //    "tests",
 //    "tests/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
+//  ],
+//  "exclude": [
+//    "node_modules",
+//    "dist",
 //    "test",
 //    "**/*spec.ts",
 //    "frontend",
-  ]
+//  ]
 }
