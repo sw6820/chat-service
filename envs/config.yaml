@@ -1,0 +1,21 @@
+http:
+  host: '${SERVER_DOMAIN}'
+  port: ${SERVER_PORT}
+
+db:
+  postgres:
+    url: 'localhost' #'${DATABASE_HOST}'
+    port: 5432 #${DATABASE_PORT}
+    database: 'chatpostgres' #'${DATABASE_NAME}'
+    username: 'chatadmin' #'${DATABASE_USERNAME}'
+    password: '1234' #'${DATABASE_PASSWORD}'
+
+  redis:
+    host: '${REDIS_HOST}'
+    port: ${REDIS_PORT}
+
+  mysql:
+    url: 'localhost' #${DATABASE_HOST}
+    #    host: 'localhost'
+    port: 5432 #${DATABASE_PORT}
+    database: 'chatmysql'

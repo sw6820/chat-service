@@ -2,21 +2,21 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import cookieParser from 'cookie-parser';
-import session from 'express-session';
-import passport from 'passport';
+import * as cookieParser from 'cookie-parser';
+import * as session from 'express-session';
+// import passport from 'passport';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
+// import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import * as compression from 'compression';
-import logger from './logger/logger';
+// import logger from './logger/logger';
 import {
   WinstonModule,
   utilities as nestWinstonModuleUtilities,
 } from 'nest-winston';
-import winston from 'winston';
+import * as winston from 'winston';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -101,8 +101,8 @@ async function bootstrap() {
   );
 
   // Initialize Passport.js
-  app.use(passport.initialize());
-  app.use(passport.session());
+  // app.use(passport.initialize());
+  // app.use(passport.session());
 
   // Swagger setup (conditionally enable in non-production environments)
   if (environment !== 'prod') {

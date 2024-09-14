@@ -15,6 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
+import { WinstonModule } from 'nest-winston';
 
 // console.log(`process : ${JSON.stringify(process)}`);
 // console.log('env : ' + process.env.NODE_ENV);
@@ -51,16 +52,27 @@ import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
         connectTimeout: 30000,
       }),
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'frontend', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'frontend', 'public'),
+    // }),
+    WinstonModule.forRoot({}),
     UsersModule,
     ChatModule,
     RoomModule,
     AuthModule,
   ],
   controllers: [AuthController, ChatController],
-  providers: [AuthService, ChatService, JwtService],
+  providers: [
+    AuthService,
+    ChatService,
+    JwtService,
+    {
+      provide: 'NestWinston',
+      useValue: WinstonModule.createLogger({
+        // your winston configuration
+      }),
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
