@@ -14,7 +14,7 @@ RUN npm ci --legacy-peer-deps
 COPY . .
 
 # Build the application
-RUN nest build
+RUN npm run build
 
 # Stage 2: Prepare production image
 FROM node:20-alpine as production
