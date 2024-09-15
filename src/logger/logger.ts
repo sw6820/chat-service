@@ -14,11 +14,11 @@ const logger = WinstonModule.createLogger({
       ),
     }),
     new winston.transports.File({
-      filename: 'logs/error.log',
+      filename: '../../logs/error.log',
       level: 'error',
     }),
     new winston.transports.File({
-      filename: 'logs/combined.log',
+      filename: '../../logs/combined.log',
     }),
   ],
 });
