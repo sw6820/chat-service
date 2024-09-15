@@ -5,6 +5,7 @@
   "username": "${DATABASE_USERNAME}",
   "password": "${DATABASE_PASSWORD}",
   "database": "${DATABASE_NAME}",
-  "entities": ["dist/**/*.entity{.ts,.js}"],
-  "synchronize": true
+  "entities": ["dist/**/entities/*.entity{.ts,.js}"],
+  "synchronize": true,
+  "logging": true
 }
