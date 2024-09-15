@@ -31,14 +31,14 @@
 //    "typeRoots": ["node_modules/@types", "./src/types", "./typings"],
 //    "types": ["node", "passport-github2", "jest"]
   },
-//  "include": [
-//    "src/**/*",
-//    "src/types/express-request.d.ts",
+  "include": [
+    "src/**/*",
+    "src/types/express-request.d.ts",
 //    "frontend/public/**/*.js",
-//    "typings/**/*.d.ts",
+    "typings/**/*.d.ts",
 //    "tests",
 //    "tests/**/*.ts"
-//  ],
+  ],
 //  "exclude": [
 //    "node_modules",
 //    "dist",
