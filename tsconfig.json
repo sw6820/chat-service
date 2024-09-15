@@ -29,7 +29,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-//    "typeRoots": ["node_modules/@types", "./src/types", "./typings"],
+    "typeRoots": ["node_modules/@types", "./src/types", "./typings"],
     "types": [
       "node",
       "passport-github2",

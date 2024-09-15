@@ -18,10 +18,12 @@ import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
 import { WinstonModule } from 'nest-winston';
 
 // console.log(`process : ${JSON.stringify(process)}`);
-// console.log('env : ' + process.env.NODE_ENV);
-// console.log('current working directory : ' + process.cwd());
-// console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
+console.log('env : ' + process.env.NODE_ENV);
+console.log('current working directory : ' + process.cwd());
+console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
 // console.log(`dir: ${__dirname}`);
+// const configService = ConfigService;
+// console.log(`configService : ${configService.get('NODE_ENV')}`);
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,18 +39,18 @@ import { WinstonModule } from 'nest-winston';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres', //configService.get('DATABASE_TYPE'),
         host: configService.get('DATABASE_HOST'),
-        port: configService.get('DATABASE_PORT'),
+        port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
         username: configService.get('DATABASE_USERNAME'),
         password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
+        // database: configService.get('DATABASE_NAME'),
         // ...configService.get('DATABASE_'),
         // host: '0.0.0.0',
         // port: 5432,
         // username: 'chatadmin',
         // password: '1234',
-        // database: 'chatpostgres',
+        database: 'chatpostgres',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false, //configService.get('NODE_ENV') !== 'prod', // false in production
+        synchronize: configService.get('NODE_ENV') !== 'prod', // false in production
         connectTimeout: 30000,
       }),
     }),
