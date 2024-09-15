@@ -21,6 +21,7 @@ import { WinstonModule } from 'nest-winston';
 console.log('env : ' + process.env.NODE_ENV);
 console.log('current working directory : ' + process.cwd());
 console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
+
 // console.log(`dir: ${__dirname}`);
 // const configService = ConfigService;
 // console.log(`configService : ${configService.get('NODE_ENV')}`);
