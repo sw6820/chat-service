@@ -7,5 +7,5 @@
   "database": "${DATABASE_NAME}",
   "entities": ["dist/**/entities/*.entity{.ts,.js}"],
   "synchronize": true,
-  "logging": true
+  "logging": "all"
 }
