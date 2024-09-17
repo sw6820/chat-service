@@ -38,7 +38,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres', // configService.get<string>('DATABASE_TYPE'),
+        type: configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),
         host: configService.get<string>('DATABASE_HOST'),
         port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
         username: configService.get<string>('DATABASE_USERNAME'),
