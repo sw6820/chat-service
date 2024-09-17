@@ -94,6 +94,7 @@ jobs:
             sudo chown $EC2_USER:$EC2_USER $ENV_PROD
             sudo chmod 644 $ENV_PROD
 
+            echo "writing env.prod file..."
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_PROD
             echo "SERVER_PORT=${SERVER_PORT}" >> $ENV_PROD
             echo "DATABASE_TYPE=${DATABASE_TYPE}" >> $ENV_PROD
