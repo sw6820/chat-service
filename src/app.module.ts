@@ -49,7 +49,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
         // port: 5432,
         username: 'chatadmin',
         // password: '1234',
-        database: 'chatpostgres',
+        // database: 'chatpostgres',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get('NODE_ENV') !== 'prod', // false in production
         connectTimeout: 30000,
