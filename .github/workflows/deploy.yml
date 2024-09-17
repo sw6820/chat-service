@@ -92,7 +92,7 @@ jobs:
             ENV_PROD="$ENV_DIR/.env.prod"
             sudo touch .env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_PROD
-            sudo chmod 644 $ENV_PROD
+            sudo chmod 755 $ENV_PROD
 
             echo "writing env.prod file..."
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_PROD
