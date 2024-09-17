@@ -68,7 +68,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
   providers: [
     AuthService,
     ChatService,
-    JwtService,
+    // JwtService,
     {
       provide: 'NestWinston',
       useValue: WinstonModule.createLogger({
