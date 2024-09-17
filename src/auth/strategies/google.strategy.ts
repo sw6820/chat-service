@@ -11,8 +11,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     private readonly authService: AuthService,
   ) {
     super({
-      clientID: configService.get<string>('GITHUB_CLIENT_ID'),
-      clientSecret: configService.get<string>('GITHUB_CLIENT_SECRET'),
+      clientID: 'secretID', //configService.get<string>('GITHUB_CLIENT_ID'),
+      clientSecret: 'secretsecret', //configService.get<string>('GITHUB_CLIENT_SECRET'),
       callbackURL: 'http://localhost:3000/auth/google/redirect', // Adjust the callback URL as needed
       scope: ['email', 'profile'],
     });
