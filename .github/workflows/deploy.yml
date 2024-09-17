@@ -77,14 +77,14 @@ jobs:
             cd /home/ubuntu
             sudo mkdir -p chat-service
             sudo chown $EC2_USER:$EC2_USER $APP_DIR
-            sudo chmod 755 $APP_DIR
+            sudo chmod 777 $APP_DIR
 
             # Define and create environment directory
             ENV_DIR="$APP_DIR/envs"
             cd $APP_DIR
             sudo mkdir -p envs
             sudo chown $EC2_USER:$EC2_USER $ENV_DIR
-            sudo chmod 755 $ENV_DIR
+            sudo chmod 777 $ENV_DIR
 
             # Create the .env.prod file with environment variables directly
             echo "Creating .env.prod file..."
@@ -92,7 +92,7 @@ jobs:
             ENV_PROD="$ENV_DIR/.env.prod"
             sudo touch .env.prod
             sudo chown $EC2_USER:$EC2_USER $ENV_PROD
-            sudo chmod 755 $ENV_PROD
+            sudo chmod 777 $ENV_PROD
 
             echo "writing env.prod file..."
             echo "SERVER_DOMAIN=${SERVER_DOMAIN}" > $ENV_PROD
