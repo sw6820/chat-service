@@ -10,7 +10,7 @@
     "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
     "start": "nest start",
     "start:dev": "NODE_ENV=dev nest start --watch",
-    "start:local": "npm run build && NODE_ENV=local nest start --watch",
+    "start:local": "NODE_ENV=local nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_ENV=prod node dist/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
