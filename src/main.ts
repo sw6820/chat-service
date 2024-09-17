@@ -52,7 +52,7 @@ async function bootstrap() {
 
   // Retrieve environment-specific settings
   const secretKey = 'secretkey'; //configService.get<string>('SECRET_KEY');
-  const port = parseInt(configService.get<string>('SERVER_PORT'), 10);
+  const port = 3000; // parseInt(configService.get<string>('SERVER_PORT'), 10);
   console.log(`port -----> ${port}`);
   const environment = configService.get<string>('NODE_ENV');
   const corsOrigin = configService.get<string>('CORS_ORIGIN');
