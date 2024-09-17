@@ -104,7 +104,7 @@ jobs:
             #echo "CORS_ORIGIN=${CORS_ORIGIN}" >> $ENV_PROD
 
             # Set file permissions to ensure Docker can access it
-            sudo chmod 600 $ENV_PROD
+            sudo chmod 644 $ENV_PROD
 
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."
