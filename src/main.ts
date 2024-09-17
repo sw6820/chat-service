@@ -51,8 +51,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Retrieve environment-specific settings
-  const secretKey = configService.get<string>('SECRET_KEY');
+  const secretKey = 'secretkey'; //configService.get<string>('SECRET_KEY');
   const port = parseInt(configService.get<string>('SERVER_PORT'), 10);
+  console.log(`port -----> ${port}`);
   const environment = configService.get<string>('NODE_ENV');
   const corsOrigin = configService.get<string>('CORS_ORIGIN');
 
