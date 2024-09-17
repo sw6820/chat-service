@@ -4,11 +4,11 @@ http:
 
 db:
   postgres:
-    url: 'localhost' #'${DATABASE_HOST}'
-    port: 5432 #${DATABASE_PORT}
-    database: 'chatpostgres' #'${DATABASE_NAME}'
-    username: 'chatadmin' #'${DATABASE_USERNAME}'
-    password: '1234' #'${DATABASE_PASSWORD}'
+    url: '${DATABASE_HOST}'
+    port: ${DATABASE_PORT}
+    database: '${DATABASE_NAME}'
+    username: '${DATABASE_USERNAME}'
+    password: '${DATABASE_PASSWORD}'
 
   redis:
     host: '${REDIS_HOST}'
