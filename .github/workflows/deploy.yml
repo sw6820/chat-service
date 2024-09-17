@@ -72,6 +72,9 @@ jobs:
           # SSH into the EC2 instance and create the .env.prod file
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
           
+            # Stop Nginx before starting the Docker container
+            sudo systemctl stop nginx          
+          
             # Define and create application directory
             APP_DIR="/home/ubuntu/chat-service"
             cd /home/ubuntu
@@ -130,6 +133,10 @@ jobs:
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
             sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 80:3000 s6820w/chat-service:latest
+          
+            # Restart Nginx after Docker container is running
+            sudo systemctl start nginx
+          
           EOF
           
           # Clean up sensitive files
