@@ -126,14 +126,19 @@ jobs:
             echo "Stopping and removing existing Docker container ..."
             docker stop chat-service || true
             docker rm chat-service || true
+          
+            echo "remove stop containers"
+            docker stop $(docker ps -q)
+
+            echo "remove unnecessary containers"
+            docker rm $(docker ps -a -q)
 
             # Debugging: Print the Docker command to be run
             echo "Docker run command: sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 80:3000 s6820w/chat-service:latest"
 
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 80:3000 s6820w/chat-service:latest
-          
+            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod -p 80:3000 s6820w/chat-service:latest 
         
             # Wait a few seconds to ensure the Docker container is fully started
             sleep 10
