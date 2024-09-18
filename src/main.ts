@@ -55,7 +55,7 @@ async function bootstrap() {
   const port = 3000; // parseInt(configService.get<string>('SERVER_PORT'), 10);
   console.log(`port -----> ${port}`);
   const environment = configService.get<string>('NODE_ENV');
-  const corsOrigin = 'https://2ca1feb2.chat-service-frontend.pages.dev'; //configService.get<string>('CORS_ORIGIN');
+  const corsOrigin = 'https://1479d390.chat-service-frontend.pages.dev'; //configService.get<string>('CORS_ORIGIN');
 
   const rateLimiter = new RateLimiterMemory({
     points: 5, // Number of points
