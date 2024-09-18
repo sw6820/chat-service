@@ -45,7 +45,8 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
         // password: configService.get<string>('DATABASE_PASSWORD'),
         // database: configService.get<string>('DATABASE_NAME'),
         // ...configService.get('DATABASE_'),
-        host: '10.0.9.28',
+        host:
+          configService.get('NODE_ENV') !== 'prod' ? 'localhost' : '10.0.9.28',
         // port: 5432,
         username: 'chatadmin',
         password: '1234',
