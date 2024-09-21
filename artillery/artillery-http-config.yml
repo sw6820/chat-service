@@ -1,0 +1,31 @@
+config:
+  target: "http://localhost:3000"  # Your server address
+  phases:
+    - duration: 60  # Test duration in seconds
+      arrivalRate: 10  # 10 users per second
+scenarios:
+  # Scenario for registering and logging in users
+  - flow:
+      - post:
+          url: "/auth/signup"
+          json:
+            username: "user{{ $loop }}@example.com"
+            email: "user{{ $loop }}@example.com"
+            password: "password123"
+      - post:
+          url: "/auth/login"
+          json:
+            email: "user{{ $loop }}@example.com"
+            password: "password123"
+
+  # Scenario for sending chat messages over HTTP
+  - flow:
+      - post:
+          url: "/chat/rooms/1/logs"
+          json:
+            message: "Hello from Artillery user{{ $loop }}"
+
+  # Scenario for retrieving chat logs for a room
+  - flow:
+      - get:
+          url: "/chat/rooms/1/logs"

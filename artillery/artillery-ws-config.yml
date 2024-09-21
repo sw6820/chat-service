@@ -1,0 +1,23 @@
+config:
+  target: "http://localhost:3000"  # Change this to your server URL if necessary
+  phases:
+    - duration: 60  # Test duration of 1 minute
+      arrivalRate: 20  # 20 users per second
+  engines:
+    ws: {}  # Enable WebSocket engine
+  payload:
+    path: "data/messages.json"  # Use dynamic data for message payload
+    fields:
+      - username
+      - message
+scenarios:
+  - engine: "ws"
+    flow:
+      - connect: "/chat"  # WebSocket connection to the /chat endpoint
+      - send:
+          text: "{ \"action\": \"send_message\", \"roomId\": 1, \"message\": \"{{ message }}\" }"
+      - think: 2  # Simulate a 2-second delay before sending another message
+      - send:
+          text: "{ \"action\": \"send_message\", \"roomId\": 1, \"message\": \"Another test message\" }"
+      - think: 2
+      - close  # Close the WebSocket connection
