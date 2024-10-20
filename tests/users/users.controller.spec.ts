@@ -5,6 +5,7 @@ import { CreateUserDto } from '../../src/users/dto/create-user.dto';
 import { UpdateUserDto } from '../../src/users/dto/update-user.dto';
 import { User } from '../../src/users/entities/user.entity';
 import { AuthenticatedSessionGuard } from '../../src/auth/guards/local.auth.guard';
+import { PassportModule } from '@nestjs/passport';
 describe('UsersController', () => {
   let usersController: UsersController;
   let usersService: UsersService;

@@ -1,0 +1,45 @@
+config:
+  target: "http://localhost:3000"  # Change this if you're testing a deployed server
+  phases:
+    - duration: 60  # Test duration in seconds (1 minute)
+      arrivalRate: 10  # New users per second
+  engines:
+    socketio:   # Socketio engine
+      socketioPath: "./node_modules/socket.io-client/dist/socket.io.js"
+
+  payload:
+    path: "data/chat-users.csv"  # Path to file with user data
+#    format: json  # Specify that the payload is in JSON format
+    fields:
+      - userId
+      - roomId
+      - message
+scenarios:
+  # Scenario 1: Simulate users joining rooms and sending messages
+  - engine: "socketio"
+    flow:
+      - connect:
+          options:
+            namespace: "/chat"  # Specify the Socket.IO namespace
+        # Connect to the WebSocket namespace
+      - emit:
+          channel: "joinRoom"
+          data: { roomId: "{{ roomId }}" }  # Simulate joining the room
+      - emit:
+          channel: "sendMessage"
+          data:
+            roomId: "{{ roomId }}"
+            userId: "{{ userId }}"
+            content: "{{ message }}"  # Simulate sending a message
+      - think: 5  # Wait for 5 seconds
+      - emit:
+          channel: "sendMessage"
+          data:
+            roomId: "{{ roomId }}"
+            userId: "{{ userId }}"
+            content: "Another test message"
+      - think: 10  # Wait for 10 seconds
+      - emit:
+          channel: "leaveRoom"
+          data: { roomId: "{{ roomId }}" }  # Simulate leaving the room
+      - close: {}  # Close WebSocket connection

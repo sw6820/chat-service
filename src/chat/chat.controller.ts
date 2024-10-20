@@ -10,23 +10,29 @@ import {
 import { ChatService } from './chat.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthenticatedSessionGuard } from '../auth/guards/local.auth.guard';
+import { PassportModule } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/guards/jtw.auth.guard';
 
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @UseGuards(AuthenticatedSessionGuard)
+  // @UseGuards(AuthenticatedSessionGuard)
+  @UseGuards(JwtAuthGuard)
   @Get(':roomId')
   async getChatRoom(@Param('roomId') roomId: number, @Req() req: any) {
-    const userId = req.session.user.id;
+    // const userId = req.session.user.id;
+    const userId = req.user['userId'];
     const messages = await this.chatService.getChatLogs(roomId, userId);
     return { messages };
   }
 
-  @UseGuards(AuthenticatedSessionGuard)
+  // @UseGuards(AuthenticatedSessionGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('rooms/:roomId/logs')
   async getRoomLogs(@Param('roomId') roomId: number, @Req() req: any) {
-    const userId = req.session.user.id;
+    // const userId = req.session.user.id;
+    const userId = req.user['userId'];
     const messages = await this.chatService.getChatLogs(roomId, userId);
     return { messages };
   }
@@ -37,7 +43,7 @@ export class ChatController {
   }
 
   @Patch('rooms/:roomId/name')
-  @UseGuards(AuthGuard())
+  @UseGuards(JwtAuthGuard)
   async changeRoomName(
     @Param('roomId') roomId: number,
     @Body('newRoomName') newRoomName: string,

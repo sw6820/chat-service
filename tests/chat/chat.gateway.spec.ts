@@ -27,8 +27,8 @@ describe('ChatGateway', () => {
       ],
     }).compile();
 
-    gateway = module.get<ChatGateway>(ChatGateway);
-    chatService = module.get<ChatService>(ChatService);
+    gateway = module.get<ChatGateway>(ChatGateway) as ChatGateway;
+    chatService = module.get<ChatService>(ChatService) as ChatService;
 
     server = new Server();
     gateway.server = server;

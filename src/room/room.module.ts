@@ -8,11 +8,13 @@ import { UserRoom } from '../chat/entities/user-room.entity';
 import { UsersModule } from '../users/users.module';
 import { Message } from '../chat/entities/message.entity';
 import { RoomController } from './room.controller';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Room, User, UserRoom, Message]),
     UsersModule,
+    // PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   providers: [Room, RoomService],
   exports: [RoomService, TypeOrmModule],

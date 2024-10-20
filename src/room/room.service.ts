@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
@@ -11,6 +11,7 @@ import { AddUserToRoomDto } from './dto/add-user-to-room.dto';
 
 @Injectable()
 export class RoomService {
+  private readonly logger = new Logger(RoomService.name);
   constructor(
     @InjectRepository(Room)
     private roomRepository: Repository<Room>,
@@ -22,37 +23,60 @@ export class RoomService {
   ) {}
 
   async findOrCreateRoom(userId: number, friendId: number): Promise<Room> {
-    console.log(`findOrCreateRoom`);
-    let room = await this.roomRepository
-      .createQueryBuilder('room')
-      .innerJoin('room.userRooms', 'userRoom1', 'userRoom1.userId = :userId', {
-        userId,
-      })
-      .innerJoin(
-        'room.userRooms',
-        'userRoom2',
-        'userRoom2.userId = :friendId',
-        { friendId },
-      )
-      .getOne();
+    this.logger.log(
+      `Finding or creating room for users: ${userId} and ${friendId}`,
+    );
 
-    if (!room) {
-      const user = await this.userRepository.findOne({ where: { id: userId } });
-      const friend = await this.userRepository.findOne({
-        where: { id: friendId },
-      });
+    try {
+      let room = await this.roomRepository
+        .createQueryBuilder('room')
+        .innerJoin(
+          'room.userRooms',
+          'userRoom1',
+          'userRoom1.userId = :userId',
+          {
+            userId,
+          },
+        )
+        .innerJoin(
+          'room.userRooms',
+          'userRoom2',
+          'userRoom2.userId = :friendId',
+          { friendId },
+        )
+        .getOne();
 
-      room = this.roomRepository.create({
-        name: `${user.username}-${friend.username}`,
-        isGroup: false,
-      });
-      room = await this.roomRepository.save(room);
+      if (!room) {
+        this.logger.log('Room not found, creating a new one');
+        const user = await this.userRepository.findOne({
+          where: { id: userId },
+        });
+        const friend = await this.userRepository.findOne({
+          where: { id: friendId },
+        });
 
-      await this.addUserToRoom({ roomId: room.id, userId: user.id });
-      await this.addUserToRoom({ roomId: room.id, userId: friend.id });
+        if (!user || !friend) {
+          throw new NotFoundException('User or friend not found');
+        }
+
+        room = this.roomRepository.create({
+          name: `${user.username}-${friend.username}`,
+          isGroup: false,
+        });
+        room = await this.roomRepository.save(room);
+
+        await this.addUserToRoom({ roomId: room.id, userId: user.id });
+        await this.addUserToRoom({ roomId: room.id, userId: friend.id });
+      }
+
+      return room;
+    } catch (error) {
+      this.logger.error(
+        `Error in findOrCreateRoom: ${error.message}`,
+        error.stack,
+      );
+      throw error;
     }
-
-    return room;
   }
 
   async createRoom(createRoomDto: CreateRoomDto): Promise<Room> {

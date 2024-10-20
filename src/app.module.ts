@@ -25,6 +25,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
 // console.log(`dir: ${__dirname}`);
 // const configService = ConfigService;
 // console.log(`configService : ${configService.get('NODE_ENV')}`);
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,24 +38,38 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres', // configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),
-        // host: configService.get<string>('DATABASE_HOST'),
-        port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
-        // username: configService.get<string>('DATABASE_USERNAME'),
-        // password: configService.get<string>('DATABASE_PASSWORD'),
-        // database: configService.get<string>('DATABASE_NAME'),
-        // ...configService.get('DATABASE_'),
-        host:
-          configService.get('NODE_ENV') !== 'prod' ? 'localhost' : '10.0.9.28',
-        // port: 5432,
-        username: 'chatadmin',
-        password: '1234',
-        database: 'chatpostgres',
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV') !== 'prod', // false in production
-        connectTimeout: 30000,
-      }),
+
+      useFactory: (configService: ConfigService) => {
+        const isProduction = configService.get('NODE_ENV') === 'prod';
+        return {
+          type: 'postgres', // configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),
+          // host: configService.get<string>('DATABASE_HOST'),
+          port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
+          // host: 'localhost',
+          // username: configService.get<string>('DATABASE_USERNAME'),
+          // password: configService.get<string>('DATABASE_PASSWORD'),
+          // database: configService.get<string>('DATABASE_NAME'),
+          // ...configService.get('DATABASE_'),
+
+          host:
+            configService.get('NODE_ENV') === 'local'
+              ? 'localhost'
+              : '10.0.9.28',
+          // port: 5432,
+          username: `${configService.get<string>('DATABASE_USERNAME')}`,
+          password: `${configService.get<string>('DATABASE_PASSWORD')}`,
+          database: `${configService.get<string>('DATABASE_NAME')}`,
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: false, //false, //configService.get('NODE_ENV') !== 'prod', // false in production
+          connectTimeout: 30000,
+          logging: !isProduction,
+          logger: 'advanced-console',
+          extra: {
+            connectionLimit: 5,
+          },
+          ssl: isProduction ? { rejectUnauthorized: false } : false,
+        };
+      },
     }),
     // ServeStaticModule.forRoot({
     //   rootPath: join(__dirname, '..', 'frontend', 'public'),
@@ -79,6 +94,13 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
   ],
 })
 export class AppModule implements NestModule {
+  constructor(private configService: ConfigService) {
+    console.log('NODE_ENV:', this.configService.get<string>('NODE_ENV')); // Check environment
+    console.log(
+      'JWT_SECRET in AppModule:',
+      this.configService.get<string>('JWT_SECRET'),
+    ); // Check JWT_SECRET
+  }
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(RequestLoggerMiddleware) // Apply the middleware

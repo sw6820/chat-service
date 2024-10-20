@@ -1,0 +1,6 @@
+[
+  { "userId": 1, "roomId": 1, "message": "Hello, this is user 1!" },
+  { "userId": 2, "roomId": 1, "message": "User 2 here!" },
+  { "userId": 3, "roomId": 2, "message": "User 3 sending a message." },
+  { "userId": 4, "roomId": 2, "message": "User 4 joining the chat." }
+]

@@ -5,6 +5,7 @@ import {
   // UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from '../auth.service';
+import { PassportModule } from '@nestjs/passport';
 
 // @Injectable()
 // export class LoginGuard implements CanActivate {
@@ -58,11 +59,13 @@ export class LoginSessionGuard implements CanActivate {
 
     const { email, password } = request.body;
     if (!email || !password) {
+      console.log(`Invalid email or password`);
       return false;
     }
 
     const user = await this.authService.validateUser(email, password);
     if (!user) {
+      console.log(`Invalid User`);
       return false;
     }
 

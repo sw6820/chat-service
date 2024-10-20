@@ -1,7 +1,7 @@
 // src/chat/chat.service.ts
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Room } from '../room/entities/room.entity';
 import { Message } from './entities/message.entity';
@@ -25,6 +25,7 @@ export class ChatService {
     private userRoomRepository: Repository<UserRoom>,
     // private userService: UsersService,
     // private roomService: RoomService,
+    private dataSource: DataSource,
   ) {}
 
   private readonly logger = new Logger(ChatService.name);
@@ -154,47 +155,113 @@ export class ChatService {
   //   return this.messageRepository.save(message);
   // }
 
-  async sendMessage(
-    createChatDto: CreateChatDto,
-    // userId: number,
-  ): Promise<Message> {
+  async sendMessage(createChatDto: CreateChatDto): Promise<Message> {
     const { roomId, content, userId } = createChatDto;
 
-    if (!content) {
-      this.logger.error('Message content cannot be empty');
-      throw new Error('Message content cannot be empty');
-    }
     this.logger.log(
-      `Sending message: ${content} to room: ${roomId} by user: ${userId}`,
+      `Attempting to send message: ${content} to room: ${roomId} by user: ${userId}`,
     );
 
-    const userRoom = await this.userRoomRepository.findOne({
-      where: { room: { id: roomId }, user: { id: userId } },
-    });
-    if (!userRoom) {
-      this.logger.error(
-        `Room not found or user not in room: roomId=${roomId}, userId=${userId}`,
+    return this.dataSource.transaction(async (transactionalEntityManager) => {
+      // Check if content is empty
+      if (!content || content.trim() === '') {
+        this.logger.error('Message content cannot be empty');
+        throw new Error('Message content cannot be empty');
+      }
+
+      // Check if user is in the room
+      const userRoom = await transactionalEntityManager.findOne(UserRoom, {
+        where: {
+          room: { id: roomId },
+          user: { id: userId },
+        },
+        relations: ['room', 'user'],
+      });
+
+      if (!userRoom) {
+        this.logger.error(
+          `Room not found or user not in room: roomId=${roomId}, userId=${userId}`,
+        );
+        throw new NotFoundException('Room not found or user not in room');
+      }
+
+      // Check if user exists
+      const user = await transactionalEntityManager.findOne(User, {
+        where: { id: userId },
+      });
+      if (!user) {
+        this.logger.error(`User not found: userId=${userId}`);
+        throw new NotFoundException('User not found');
+      }
+
+      this.logger.log(`Creating message with content: ${content}`);
+
+      // Create and save the message
+      const message = transactionalEntityManager.create(Message, {
+        content: content.trim(),
+        room: { id: roomId },
+        user: { id: userId },
+        createdAt: new Date(),
+      });
+
+      const savedMessage = await transactionalEntityManager.save(
+        Message,
+        message,
       );
-      throw new NotFoundException('Room not found or user not in room');
-    }
+      this.logger.log(`Message saved successfully: ${savedMessage.id}`);
 
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      this.logger.error(`User not found: userId=${userId}`);
-      throw new NotFoundException('User not found');
-    }
-
-    const message = this.messageRepository.create({
-      content,
-      room: { id: roomId }, //
-      user: { id: userId }, //
-      createdAt: new Date(),
+      return savedMessage;
     });
-
-    console.log(`Creating message with content: ${content}`);
-
-    return this.messageRepository.save(message);
   }
+
+  // async sendMessage(
+  //   createChatDto: CreateChatDto,
+  //   // userId: number,
+  // ): Promise<Message> {
+  //   console.log(`sendMessage in chat service`);
+  //   const { roomId, content, userId } = createChatDto;
+  //   // console.log(`${createChatDto}`);
+  //   this.logger.log(`Attempting to send message: ${content} to room: ${roomId} by user: ${userId}`);
+  //
+  //   if (!content) {
+  //     this.logger.error('Message content cannot be empty');
+  //     throw new Error('Message content cannot be empty');
+  //   }
+  //   this.logger.log(
+  //     `Sending message: ${content} to room: ${roomId} by user: ${userId}`,
+  //   );
+  //
+  //   const userRoom = await this.userRoomRepository.findOne({
+  //     where: {
+  //       room: { id: roomId },
+  //       user: { id: userId },
+  //     },
+  //     relations: ['room', 'user'],
+  //   });
+  //   if (!userRoom) {
+  //     this.logger.error(
+  //       `Room not found or user not in room: roomId=${roomId}, userId=${userId}`,
+  //     );
+  //     throw new NotFoundException('Room not found or user not in room');
+  //   }
+  //
+  //   const user = await this.userRepository.findOne({ where: { id: userId } });
+  //   if (!user) {
+  //     this.logger.error(`User not found: userId=${userId}`);
+  //     throw new NotFoundException('User not found');
+  //   }
+  //   console.log(`find user for message ${user}`);
+  //   const message = this.messageRepository.create({
+  //     content,
+  //     room: { id: roomId }, //
+  //     user: { id: userId }, //
+  //     createdAt: new Date(),
+  //   });
+  //
+  //   console.log(`Creating message with content: ${content}`);
+  //
+  //   return this.messageRepository.save(message);
+  // }
 
   async getChatLogs(roomId: number, userId: number): Promise<Message[]> {
     const userRoom = await this.userRoomRepository.findOne({
