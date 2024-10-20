@@ -5,7 +5,7 @@ config:
       arrivalRate: 10  # New users per second
   engines:
     socketio:   # Socketio engine
-      socketioPath: "./node_modules/socket.io-client/dist/socket.io.js"
+      socketioPath: "./node_modules/socket.io/dist/socket.io.js"
 
   payload:
     path: "data/chat-users.csv"  # Path to file with user data

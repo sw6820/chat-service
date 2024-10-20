@@ -1,0 +1,28 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+  socketio:
+    transports: ["websocket"]
+scenarios:
+  - name: "Connect and send messages"
+    engine: "socketio"
+    flow:
+      - connect:
+          headers:
+            Authorization: "Bearer YOUR_JWT_TOKEN_HERE"
+      - emit:
+          channel: "joinRoom"
+          data: { roomId: 1 }
+      - think: 2
+      - emit:
+          channel: "sendMessage"
+          data:
+            roomId: 1
+            userId: 123
+            content: "Hello from Artillery test!"
+      - think: 5
+      - emit:
+          channel: "leaveRoom"
+          data: { roomId: 1 }

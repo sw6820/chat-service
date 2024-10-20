@@ -138,7 +138,20 @@ jobs:
 
             # Run the new container with the .env.prod file
             echo "Running new Docker container..."
-            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod s6820w/chat-service:latest 
+            sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod s6820w/chat-service:latest
+          
+            # Add debugging steps here
+            echo "Debugging: Check environment variables in the container"
+            sudo docker exec chat-service env
+        
+            echo "Debugging: Check if JWT_SECRET is set in the container"
+            sudo docker exec chat-service sh -c 'echo $JWT_SECRET'
+        
+            echo "Debugging: Print the contents of .env.prod file"
+            sudo cat /home/ubuntu/chat-service/envs/.env.prod
+        
+            echo "Debugging: Check Docker logs"
+            sudo docker logs chat-service          
         
             # Wait a few seconds to ensure the Docker container is fully started
             sleep 10
