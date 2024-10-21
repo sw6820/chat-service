@@ -19,7 +19,7 @@ RUN npm run build
 # Stage 2: Prepare production image
 FROM node:20-alpine as production
 
-WORKDIR /usr/src/chat-service
+WORKDIR /home/ubuntu/chat-service
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
