@@ -16,6 +16,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
 import { WinstonModule } from 'nest-winston';
+import * as path from 'node:path';
 
 // console.log(`process : ${JSON.stringify(process)}`);
 console.log('env : ' + process.env.NODE_ENV);
@@ -30,7 +31,14 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `${process.cwd()}/envs/.env.${process.env.NODE_ENV}`,
+      // envFilePath: `${process.cwd()}/envs/.env.${process.env.NODE_ENV}`,
+      envFilePath:
+        process.env.NODE_ENV === 'prod'
+          ? '/app/envs/.env.prod'
+          : path.resolve(
+              process.cwd(),
+              `envs/.env.${process.env.NODE_ENV || 'local'}`,
+            ),
       load: [configuration],
       cache: true,
       expandVariables: true,
@@ -101,6 +109,10 @@ export class AppModule implements NestModule {
       this.configService.get<string>('JWT_SECRET'),
       typeof this.configService.get<string>('JWT_SECRET'),
     ); // Check JWT_SECRET
+    console.log(
+      'All env variables:',
+      this.configService.get<Record<string, any>>(''),
+    );
   }
   configure(consumer: MiddlewareConsumer) {
     consumer

@@ -20,8 +20,20 @@ import winston from 'winston';
 import { Logger } from '@nestjs/common';
 import passport from 'passport';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 async function bootstrap() {
+  const nodeEnv = process.env.NODE_ENV || 'local';
+  const envPath =
+    nodeEnv === 'prod'
+      ? '/app/envs/.env.prod'
+      : path.resolve(process.cwd(), `envs/.env.${nodeEnv}`);
+
+  if (!fs.existsSync(envPath)) {
+    console.error(`Environment file not found at ${envPath}`);
+    process.exit(1);
+  }
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     // logger: WinstonModule.createLogger({
     //   transports: [
