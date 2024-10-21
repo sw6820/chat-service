@@ -34,7 +34,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
       // envFilePath: `${process.cwd()}/envs/.env.${process.env.NODE_ENV}`,
       envFilePath:
         process.env.NODE_ENV === 'prod'
-          ? '/app/envs/.env.prod'
+          ? '/app/chat-service/envs/.env.prod'
           : path.resolve(
               process.cwd(),
               `envs/.env.${process.env.NODE_ENV || 'local'}`,
