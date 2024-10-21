@@ -101,9 +101,31 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
     },
   ],
 })
+
+// EC2_HOST: ${{ secrets.EC2_HOST }}
+// EC2_USER: ${{ secrets.EC2_USER }}
+// SERVER_DOMAIN: ${{ secrets.SERVER_DOMAIN }}
+// SERVER_PORT: ${{ secrets.SERVER_PORT }}
+// DATABASE_TYPE: ${{ secrets.DATABASE_TYPE }}
+// DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+// DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+// DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+// DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+// DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+// APP_NAME: ${{ secrets.APP_NAME }}
+// CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+// JWT_SECRET: ${{ secrets.JWT_SECRET }}
+// DOCKER_IMAGE: ${{ secrets.DOCKER_REPO }}/{{ secrets.APP_NAME }}:${{ secrets.DOCKER_TAG }}
 export class AppModule implements NestModule {
   constructor(private configService: ConfigService) {
     console.log('NODE_ENV:', this.configService.get<string>('NODE_ENV')); // Check environment
+    console.log(
+      `EC2 host, user, domain, port, application 
+      ${this.configService.get<string>('EC2_HOST')}, 
+      ${this.configService.get<string>('EC2_USER')}, 
+      ${this.configService.get<string>('SERVER_DOMAIN')}, 
+      ${this.configService.get<number>('SERVER_PORT')}`,
+    );
     console.log(
       'JWT_SECRET in AppModule:',
       this.configService.get<string>('JWT_SECRET'),
