@@ -27,7 +27,7 @@ async function bootstrap() {
   const nodeEnv = process.env.NODE_ENV || 'local';
   const envPath =
     nodeEnv === 'prod'
-      ? '/app/envs/.env.prod'
+      ? '/app/chat-service/envs/.env.prod'
       : path.resolve(process.cwd(), `envs/.env.${nodeEnv}`);
 
   if (!fs.existsSync(envPath)) {
