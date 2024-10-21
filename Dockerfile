@@ -2,7 +2,7 @@
 FROM node:20-alpine as build
 
 # Set the working directory in the container
-WORKDIR /home/ubuntu/chat-service
+WORKDIR /usr/src/chat-service
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -19,8 +19,7 @@ RUN npm run build
 # Stage 2: Prepare production image
 FROM node:20-alpine as production
 
-#WORKDIR /usr/src/chat-service
-WORKDIR /home/ubuntu/chat-service
+WORKDIR /usr/src/chat-service
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -29,7 +28,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev --legacy-peer-deps
 
 # Copy compiled code from the build stage
-COPY --from=build /home/ubuntu/chat-service/dist ./dist
+COPY --from=build /usr/src/chat-service/dist ./dist
 
 # Install curl for health check
 RUN apk add --no-cache curl

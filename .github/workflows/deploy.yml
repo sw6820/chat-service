@@ -141,7 +141,7 @@ jobs:
             #sudo docker run -d --name chat-service --env-file /home/ubuntu/chat-service/envs/.env.prod s6820w/chat-service:latest
             sudo docker run -d --name chat-service \
             -e NODE_ENV=prod \
-            -v /home/ubuntu/chat-service/envs/.env.prod:/app/envs/.env.prod \
+            -v /home/ubuntu/chat-service/envs/.env.prod:/app/chat-service/envs/.env.prod \
             s6820w/chat-service:latest
           
             # Add debugging steps here
