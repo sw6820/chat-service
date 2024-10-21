@@ -111,7 +111,7 @@ jobs:
             echo "JWT_SECRET=${JWT_SECRET}" >> $ENV_PROD
 
             # Set file permissions to ensure Docker can access it
-            sudo chmod 644 $ENV_PROD
+            sudo chmod 777 $ENV_PROD
 
             # Pull the latest Docker image
             echo "Pulling Docker image from Docker Hub..."

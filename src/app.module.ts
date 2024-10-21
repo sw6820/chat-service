@@ -99,6 +99,7 @@ export class AppModule implements NestModule {
     console.log(
       'JWT_SECRET in AppModule:',
       this.configService.get<string>('JWT_SECRET'),
+      typeof this.configService.get<string>('JWT_SECRET'),
     ); // Check JWT_SECRET
   }
   configure(consumer: MiddlewareConsumer) {
