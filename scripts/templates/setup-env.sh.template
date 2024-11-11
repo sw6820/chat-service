@@ -1,0 +1,19 @@
+#!/bin/bash
+# scripts/templates/setup-env.sh.template
+
+# Copy this file to scripts/production/setup-env.sh and fill in your values
+# DO NOT commit the filled version
+
+# AWS SSM Parameter Setup
+setup_ssm_parameters() {
+    # Database
+    aws ssm put-parameter --name "/prod/chat-service/DATABASE_HOST" --value "your-db-host" --type "SecureString" --overwrite
+    aws ssm put-parameter --name "/prod/chat-service/DATABASE_USERNAME" --value "your-username" --type "SecureString" --overwrite
+    aws ssm put-parameter --name "/prod/chat-service/DATABASE_PASSWORD" --value "your-password" --type "SecureString" --overwrite
+
+    # JWT
+    aws ssm put-parameter --name "/prod/chat-service/JWT_SECRET" --value "your-jwt-secret" --type "SecureString" --overwrite
+}
+
+# Run setup
+setup_ssm_parameters

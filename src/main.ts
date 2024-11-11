@@ -71,7 +71,8 @@ async function bootstrap() {
   // Retrieve environment-specific settings
   // console.log(`jwt secret : ${configService.get('JWT_SECRET')}`);
   // const secretKey = 'secretKey'; //configService.get('SECRET_KEY');
-  const jwtSecret = configService.get('JWT_SECRET');
+  // const jwtSecret = configService.get<string>('JWT_SECRET');
+  const jwtSecret = 'eTl2a14AzJUOfjxi9C3RTglKk0ijdecVJ9a5ZIwsfoo=';
   console.log(`main jwt secret : ${jwtSecret}`);
   console.log(`JWT Secret: ${jwtSecret ? 'Set' : 'Not set'}`);
   // if (!jwtSecret) {
