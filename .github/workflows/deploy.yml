@@ -58,89 +58,89 @@ jobs:
 
       - name: SSH into EC2 and deploy
         env:
-          # Deployment-specific secrets (keep in GitHub)
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-          # Non-sensitive configuration (keep in GitHub)
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          DATABASE_TYPE: ${{ secrets.DATABASE_TYPE }}
-          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          APP_NAME: ${{ secrets.APP_NAME }}
-          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
-
-          # AWS SSM path
-          SSM_PATH: "/prod/chat-service"
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            # Directory setup
-            APP_DIR="/home/ubuntu/chat-service"
-            ENV_DIR="$APP_DIR/envs"
-            mkdir -p $ENV_DIR
-          
-          
-            # Create base .env.prod with non-sensitive configs
-            cat > $ENV_DIR/.env.prod << EOL
-            SERVER_PORT=${SERVER_PORT}
-            DATABASE_TYPE=${DATABASE_TYPE}
-            DATABASE_PORT=${DATABASE_PORT}
-            CORS_ORIGIN=${CORS_ORIGIN}
-            EOL
-
-            # Fetch sensitive configs from SSM and append to .env.prod
-            echo "Fetching sensitive configurations from SSM..."
-            aws ssm get-parameters-by-path \
-              --path "${SSM_PATH}" \
-              --with-decryption \
-              --recursive \
-              --query "Parameters[*].{Name:Name,Value:Value}" \
-              --output text | while read -r param_name param_value; do
-                # Extract the parameter name without path
-                param_key=$(basename "$param_name")
-                echo "$param_key=$param_value" >> $ENV_DIR/.env.prod
-            done
-
-            # Stop existing services
-            sudo systemctl stop nginx
-            docker stop chat-service || true
-            docker rm chat-service || true
-
-            # Deploy new container
-            docker pull s6820w/chat-service:latest
-          
-            # Run new container with AWS credentials
-            docker run -d \
-              --name chat-service \
-              -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
-              -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
-              -e AWS_DEFAULT_REGION=ap-northeast-2 \
-              -e NODE_ENV=prod \
-              -p 3000:3000 \
-              s6820w/chat-service:latest
-
-            # Wait for container to be healthy
-            echo "Waiting for container to be healthy..."
-            timeout 30 sh -c 'until docker ps --filter "name=chat-service" --filter "health=healthy" | grep chat-service; do sleep 1; done'
-          
-          
-            # Debug output
-            echo "Container environment:"
-            docker exec chat-service env
-          
-            echo "Container logs:"
-            docker logs chat-service
-
-            # Restart nginx
-            sudo systemctl start nginx
-          EOF
-          
-          rm private_key.pem
+#          # Deployment-specific secrets (keep in GitHub)
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#          EC2_HOST: ${{ secrets.EC2_HOST }}
+#          EC2_USER: ${{ secrets.EC2_USER }}
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#
+#          # Non-sensitive configuration (keep in GitHub)
+#          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+#          DATABASE_TYPE: ${{ secrets.DATABASE_TYPE }}
+#          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+#          APP_NAME: ${{ secrets.APP_NAME }}
+#          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+#
+#          # AWS SSM path
+#          SSM_PATH: "/prod/chat-service"
+#        run: |
+#          echo "$SSH_PRIVATE_KEY" > private_key.pem
+#          chmod 600 private_key.pem
+#
+#          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+#            # Directory setup
+#            APP_DIR="/home/ubuntu/chat-service"
+#            ENV_DIR="$APP_DIR/envs"
+#            mkdir -p $ENV_DIR
+#
+#
+#            # Create base .env.prod with non-sensitive configs
+#            cat > $ENV_DIR/.env.prod << EOL
+#            SERVER_PORT=${SERVER_PORT}
+#            DATABASE_TYPE=${DATABASE_TYPE}
+#            DATABASE_PORT=${DATABASE_PORT}
+#            CORS_ORIGIN=${CORS_ORIGIN}
+#            EOL
+#
+#            # Fetch sensitive configs from SSM and append to .env.prod
+#            echo "Fetching sensitive configurations from SSM..."
+#            aws ssm get-parameters-by-path \
+#              --path "${SSM_PATH}" \
+#              --with-decryption \
+#              --recursive \
+#              --query "Parameters[*].{Name:Name,Value:Value}" \
+#              --output text | while read -r param_name param_value; do
+#                # Extract the parameter name without path
+#                param_key=$(basename "$param_name")
+#                echo "$param_key=$param_value" >> $ENV_DIR/.env.prod
+#            done
+#
+#            # Stop existing services
+#            sudo systemctl stop nginx
+#            docker stop chat-service || true
+#            docker rm chat-service || true
+#
+#            # Deploy new container
+#            docker pull s6820w/chat-service:latest
+#
+#            # Run new container with AWS credentials
+#            docker run -d \
+#              --name chat-service \
+#              -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+#              -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+#              -e AWS_DEFAULT_REGION=ap-northeast-2 \
+#              -e NODE_ENV=prod \
+#              -p 3000:3000 \
+#              s6820w/chat-service:latest
+#
+#            # Wait for container to be healthy
+#            echo "Waiting for container to be healthy..."
+#            timeout 30 sh -c 'until docker ps --filter "name=chat-service" --filter "health=healthy" | grep chat-service; do sleep 1; done'
+#
+#
+#            # Debug output
+#            echo "Container environment:"
+#            docker exec chat-service env
+#
+#            echo "Container logs:"
+#            docker logs chat-service
+#
+#            # Restart nginx
+#            sudo systemctl start nginx
+#          EOF
+#
+#          rm private_key.pem
 
 #          SERVER_DOMAIN: ${{ secrets.SERVER_DOMAIN }}
 #          SERVER_PORT: ${{ secrets.SERVER_PORT }}
