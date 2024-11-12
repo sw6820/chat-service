@@ -64,7 +64,7 @@ ENV NODE_ENV=production \
     PORT=3000 \
     NODE_OPTIONS="--max-old-space-size=2048" \
     NPM_CONFIG_LOGLEVEL=warn
-    AWS_DEFAULT_REGION=ap-northeast-2
+#    AWS_DEFAULT_REGION=ap-northeast-2
 
 # Switch to non-root user
 USER nodejs
