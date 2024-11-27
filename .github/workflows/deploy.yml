@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -24,9 +24,14 @@ jobs:
           DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
           DOCKER_TAG: ${{ secrets.DOCKER_TAG}}
         run: |
-          echo "Building Docker image using Dockerfile..."
-          docker build -t s6820w/chat-service:latest .
-          docker push s6820w/chat-service:latest
+          echo "Building Docker image using Dockerfile..."          
+          docker build -t $DOCKER_REPO/$APP_NAME:$DOCKER_TAG -f Dockerfile .
+          
+          echo "Pushing Docker image to Docker Hub..."
+          docker push $DOCKER_REPO/$APP_NAME:$DOCKER_TAG 
+          
+          echo "Listing Docker images to confirm..."
+          docker images
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -45,7 +50,7 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_DEFAULT_REGION=ap-northeast-2 && bash /opt/chat-service/scripts/deploy.sh"
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "bash /opt/chat-service/scripts/deploy.sh"
           rm private_key.pem
 
       # - name: Deploy to EC2
