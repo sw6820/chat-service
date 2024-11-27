@@ -47,17 +47,20 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Create necessary directories with proper permissions
-RUN mkdir -p /usr/src/chat-service/envs \
-    && mkdir -p /usr/src/chat-service/scripts \
+RUN mkdir -p /usr/src/chat-service/{envs,scripts} \
+    # && mkdir -p /usr/src/chat-service/scripts \
     && chown -R nodejs:nodejs /usr/src/chat-service
 
 # Copy built assets from build stage
 COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
 COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/node_modules ./node_modules
 
+
 # Create script to fetch SSM parameters
-COPY --chown=nodejs:nodejs scripts/fetch-ssm-params.sh ./scripts/
-RUN chmod +x ./scripts/fetch-ssm-params.sh
+# COPY --chown=nodejs:nodejs scripts/fetch-ssm-params.sh ./scripts/
+# RUN chmod +x ./scripts/fetch-ssm-params.sh
+COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
+RUN chmod +x ./scripts/deploy.sh
 
 # Set environment variables
 ENV NODE_ENV=production \
@@ -68,6 +71,9 @@ ENV NODE_ENV=production \
 
 # Switch to non-root user
 USER nodejs
+
+# Expose the port the app runs on
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
@@ -85,13 +91,12 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 ## Add a health check to verify if the app is running
 #HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
 
-# Expose the port the app runs on
-EXPOSE 3000
+
 
 # Switch to non-root user
 USER nodejs
 
 # Start the application using Node.js
 #CMD ["node", "dist/main.js"]
-ENTRYPOINT ["/usr/src/chat-service/scripts/fetch-ssm-params.sh"]
+ENTRYPOINT ["/usr/src/chat-service/workflows/scripts/deploy.sh"]
 CMD ["npm", "run", "start:prod"]

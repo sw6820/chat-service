@@ -9,6 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
       - uses: actions/checkout@v4
 
       - name: Login to Docker Hub
@@ -18,7 +19,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
+        env:
+          APP_NAME: ${{ secrets.APP_NAME }}
+          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
+          DOCKER_TAG: ${{ secrets.DOCKER_TAG}}
         run: |
+          echo "Building Docker image using Dockerfile..."
           docker build -t s6820w/chat-service:latest .
           docker push s6820w/chat-service:latest
 
