@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY bash /opt/chat-service/scripts/deploy.sh"
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_DEFAULT_REGION=ap-northeast-2 && bash /opt/chat-service/scripts/deploy.sh"
           rm private_key.pem
 
       # - name: Deploy to EC2
