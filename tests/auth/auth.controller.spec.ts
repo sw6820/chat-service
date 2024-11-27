@@ -9,6 +9,8 @@ import { User } from '../../src/users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Response as ExpressResponse } from 'express';
+
 jest.mock('bcryptjs');
 const hashedPassword =
   '$2a$10$6D9qyX7T3vc7k1M2kd4gzOhzDVMQPDGam6x1P30tYOhZXIGIo8rd6';
@@ -115,7 +117,7 @@ describe('AppController', () => {
 
       jest.spyOn(authService, 'validateUser').mockResolvedValue(user);
 
-      await authController.login(req.body, req, res);
+      await authController.login(req.body, req);
 
       expect(req.session.user).toEqual(userInfo);
       expect(res.send).toHaveBeenCalledWith({
@@ -141,7 +143,7 @@ describe('AppController', () => {
 
       // await authController.login(req, res);
       //
-      await expect(authController.login(req.body, req, res)).rejects.toThrow(
+      await expect(authController.login(req.body, req)).rejects.toThrow(
         new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED),
       );
       expect(res.send).not.toHaveBeenCalled();
@@ -160,7 +162,7 @@ describe('AppController', () => {
         send: jest.fn(),
       } as any as Response;
 
-      await authController.logout(req, res);
+      await authController.logout(req);
 
       expect(req.session.destroy).toHaveBeenCalled();
       expect(res.clearCookie).toHaveBeenCalledWith('connect.sid');
@@ -178,48 +180,144 @@ describe('AppController', () => {
         send: jest.fn(),
       } as any as Response;
 
-      await authController.logout(req, res);
+      await authController.logout(req);
 
       expect(req.session.destroy).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith('Logout failed');
     });
-  });
 
-  describe('checkSession', () => {
-    it('should return the user if session is active', async () => {
-      const req = {
-        session: {
-          user: {
-            id: 1,
-            username: 'testuser',
-            email: 'tests@example.com',
-          },
-        },
-      } as any;
+    it('should handle logout when session is not active', async () => {
       const res = {
+        clearCookie: jest.fn(),
         send: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      } as any as Response;
+      } as any as Response; //
 
-      await authController.checkSession(req, res);
+      await authController.logout(res);
 
-      expect(res.send).toHaveBeenCalledWith({ user: req.session.user });
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
     });
 
-    it('should return a 401 error if no active session', async () => {
-      const req = {
-        session: {},
-      } as any;
+    it('should clear the access_token cookie and return a success message', async () => {
       const res = {
+        clearCookie: jest.fn(),
         send: jest.fn(),
-        status: jest.fn().mockReturnThis(),
+      } as any as ExpressResponse; //
+
+      await authController.logout(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
+    });
+
+    it('should clear access_token cookie and return success message', async () => {
+      const res = {
+        clearCookie: jest.fn(),
+        send: jest.fn(),
       } as any as Response;
 
-      await authController.checkSession(req, res);
+      await authController.logout(res);
 
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.send).toHaveBeenCalledWith('No active session');
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
+    });
+
+    it('should clear access_token cookie and return success message', async () => {
+      const res = {
+        clearCookie: jest.fn(),
+        send: jest.fn(),
+      } as any as Response;
+
+      await authController.logout(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
+    });
+
+    it('should clear the access_token cookie and return a success message', async () => {
+      const res = {
+        clearCookie: jest.fn(),
+        send: jest.fn(),
+      } as any as ExpressResponse;
+
+      await authController.logout(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
+    });
+
+    it('should clear access_token cookie and return success message', async () => {
+      const res = {
+        clearCookie: jest.fn(),
+        send: jest.fn(),
+      } as any as Response;
+
+      await authController.logout(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
+    });
+
+    it('should clear the access_token cookie and return a success message', async () => {
+      const res = {
+        clearCookie: jest.fn(),
+        send: jest.fn(),
+      } as any as Response;
+
+      await authController.logout(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
+    });
+
+    it('should clear the access_token cookie and return a success message', async () => {
+      const res = {
+        clearCookie: jest.fn(),
+        send: jest.fn(),
+      } as any as ExpressResponse;
+
+      await authController.logout(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(res.send).toHaveBeenCalledWith({ message: 'Logout successful' });
     });
   });
+
+  // describe('checkSession', () => {
+  //   it('should return the user if session is active', async () => {
+  //     const req = {
+  //       session: {
+  //         user: {
+  //           id: 1,
+  //           username: 'testuser',
+  //           email: 'tests@example.com',
+  //         },
+  //       },
+  //     } as any;
+  //     const res = {
+  //       send: jest.fn(),
+  //       status: jest.fn().mockReturnThis(),
+  //     } as any as Response;
+  //
+  //     await authController.checkSession(req, res);
+  //
+  //     expect(res.send).toHaveBeenCalledWith({ user: req.session.user });
+  //   });
+  //
+  //   it('should return a 401 error if no active session', async () => {
+  //     const req = {
+  //       session: {},
+  //     } as any;
+  //     const res = {
+  //       send: jest.fn(),
+  //       status: jest.fn().mockReturnThis(),
+  //     } as any as Response;
+  //
+  //     await authController.checkSession(req, res);
+  //
+  //     expect(res.status).toHaveBeenCalledWith(401);
+  //     expect(res.send).toHaveBeenCalledWith('No active session');
+  //   });
+  // });
 });

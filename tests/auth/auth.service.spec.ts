@@ -193,7 +193,7 @@ describe('AuthService', () => {
       const token = 'testtoken';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      const result = await service.login(user);
+      const result = await service.login(user.email, user.password);
       expect(result).toEqual({ access_token: token });
       expect(jwtService.sign).toHaveBeenCalledWith({ sub: user.id });
     });

@@ -121,3 +121,8 @@ docker/volumes/
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db
+
+# Production scripts
+/scripts/production/
+*.prod.sh

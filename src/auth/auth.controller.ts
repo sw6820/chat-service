@@ -35,6 +35,7 @@ import { JwtAuthGuard } from './guards/jtw.auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // TODO: using JWT & guard
   @Post('signup')
   async register(@Body() userDto: CreateUserDto) {
     // console.log('Received signup request:', userDto);
@@ -52,12 +53,6 @@ export class AuthController {
   //   const user = await this.authService.register(userDto);
   //   const token = this.authService.generateToken(user);
   //   return { user, token };
-  // }
-
-  // @Get('check-token')
-  // @UseGuards(JwtAuthGuard)
-  // async checkToken(@Req() req) {
-  //   return { user: req.user };
   // }
 
   // Use the JWT guard to protect the route
@@ -98,6 +93,7 @@ export class AuthController {
   // User login
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  // TODO: guard
   async login(@Body() loginDto: LoginDto, @Res() res: ExpressResponse) {
     try {
       console.log(`auth controller login`);
@@ -180,20 +176,6 @@ export class AuthController {
   //   return { user, token };
   // }
 
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(LocalAuthGuard)
-  // @Post('/login2')
-  // async login2(@Request() req: any, @Response() res: any) {
-  //   if (!req.cookies['login'] && req.user) {
-  //     res.cookie('login', JSON.stringify(req.user), {
-  //       httpOnly: true,
-  //       maxAge: 1000 * 10, // 10 seconds for testing
-  //     });
-  //     return res.send({ message: 'Login2 successful', user: req.user });
-  //   }
-  //   return res.send({ message: 'Already logged in' });
-  // }
-
   // Protected route example
   @UseGuards(JwtAuthGuard)
   @Get('profile')
@@ -208,107 +190,4 @@ export class AuthController {
     res.clearCookie('access_token');
     return res.send({ message: 'Logout successful' });
   }
-
-  // @Post('logout')
-  // async logout(@Req() req: ExpressRequest, @Res() res: ExpressResponse) {
-  //   req.session.destroy((err: any) => {
-  //     if (err) {
-  //       res.status(500).send('Logout failed');
-  //     } else {
-  //       res.clearCookie('connect.sid');
-  //       res.send({ message: 'Logout successful' });
-  //     }
-  //   });
-  // }
-
-  // @Get('google')
-  // @UseGuards(GoogleAuthGuard)
-  // async googleAuth(@Req() req) {
-  //   // Initiates the Google OAuth2 login flow
-  // }
-
-  // @Get('google/redirect')
-  // @UseGuards(GoogleAuthGuard)
-  // async googleAuthRedirect(@Req() req, @Res() res) {
-  //   const { user } = req;
-  //   res.cookie('login', JSON.stringify(user), {
-  //     httpOnly: true,
-  //     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  //   });
-  //   return res.redirect('/success'); // Redirect to your desired route after successful login
-  // }
-
-  // @UseGuards(LoginGuard)
-  // @Get('tests-guard')
-  // testGuard() {
-  //   return 'logged in';
-  // }
-
-  // @UseGuards(LocalAuthGuard)
-  // @Post('login3')
-  // login3(@Request() req: any) {
-  //   return req.user;
-  // }
-
-  // @UseGuards(AuthenticatedGuard)
-  // @Get('tests-guard2')
-  // testGuardWithSession(@Request() req: any) {
-  //   return req.user;
-  // }
-
-  // @Get('google')
-  // @UseGuards(GoogleAuthGuard)
-  // async googleAuth(@Req() req: ExpressRequest) {
-  //   console.log('get to-google');
-  // }
-
-  // @Get('google/redirect')
-  // @UseGuards(GoogleAuthGuard)
-  // async googleAuthRedirect(
-  //   @Req() req: ExpressRequest,
-  //   @Res() res: ExpressResponse,
-  // ) {
-  //   const { user } = req;
-  //   console.log('req : ', user);
-  //   // return res.send(user);
-  //   res.cookie('login', JSON.stringify(user), {
-  //     httpOnly: true,
-  //     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  //   });
-  //   return res.redirect('/success');
-  // }
-
-  // @UseGuards(AuthenticatedGuard)
-  // @Post('logout')
-  // async logout(@Req() req: ExpressRequest, @Res() res: ExpressResponse) {
-  //   req.logout((err: any) => {
-  //     if (err) {
-  //       return res
-  //         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-  //         .send({ message: 'Logout failed', error: err });
-  //     }
-  //     res.clearCookie('login');
-  //     return res.send({ message: 'Logout successful' });
-  //   });
-  // }
-
-  // @UseGuards(GithubAuthGuard)
-  // @Get('github')
-  // async githubAuth(@Req() req: ExpressRequest) {
-  //   // Initiates the GitHub OAuth2 login flow
-  // }
-
-  // @UseGuards(GithubAuthGuard)
-  // @Get('github/redirect')
-  // async githubAuthRedirect(
-  //   @Req() req: ExpressRequest,
-  //   @Res() res: ExpressResponse,
-  // ) {
-  //   const { user } = req;
-  //   res.cookie('login', JSON.stringify(user), {
-  //     httpOnly: true,
-  //     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  //   });
-  //   return res.redirect('/success'); // Redirect to your desired route after successful login
-  // }
 }
