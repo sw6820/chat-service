@@ -5,6 +5,11 @@ set -e
 
 echo "Starting deployment..."
 
+# Setup AWS config
+export AWS_DEFAULT_REGION=ap-northeast-2
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+
 # Setup directories
 APP_DIR="/home/ubuntu/chat-service"
 mkdir -p "$APP_DIR/envs"
