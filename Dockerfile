@@ -54,6 +54,7 @@ RUN mkdir -p /usr/src/chat-service/{envs,scripts} \
 # Copy built assets from build stage
 COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
 COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/node_modules ./node_modules
+COPY --from=build /usr/src/chat-service/envs ./envs
 
 
 # Create script to fetch SSM parameters
@@ -93,10 +94,10 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 
 
-# Switch to non-root user
-USER nodejs
+## Switch to non-root user
+# USER nodejs
 
 # Start the application using Node.js
 #CMD ["node", "dist/main.js"]
-ENTRYPOINT ["/usr/src/chat-service/workflows/scripts/deploy.sh"]
+# ENTRYPOINT ["/usr/src/chat-service/workflows/scripts/deploy.sh"]
 CMD ["npm", "run", "start:prod"]

@@ -1,0 +1,47 @@
+name: Setup SSM Parameters
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    paths:
+      - 'config/ssm-params.json'
+
+jobs:
+  setup-ssm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+          
+      - name: Set SSM Parameters
+        run: |
+          aws ssm put-parameter \
+            --name "/chat-service/production/HOST" \
+            --value "${{ secrets.DB_HOST }}" \
+            --type "SecureString"
+
+          aws ssm put-parameter \
+            --name "/chat-service/production/PORT" \
+            --value "${{ secrets.DB_PORT }}" \
+            --type "String"
+
+          aws ssm put-parameter \
+            --name "/chat-service/production/JWT_SECRET" \
+            --value "${{ secrets.JWT_SECRET }}" \
+            --type "SecureString"
+
+          aws ssm put-parameter \
+            --name "/chat-service/production/NODE_ENV" \
+            --value "production" \
+            --type "String"
+
+          # aws ssm put-parameter \
+          #   --name "/chat-service/production/REDIS_URL" \
+          #   --value "${{ secrets.REDIS_URL }}" \
+          #   --type "SecureString"            
