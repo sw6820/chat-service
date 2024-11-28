@@ -11,10 +11,10 @@ DOCKER_IMAGE="$DOCKER_REPO/$APP_NAME:$DOCKER_TAG"
 echo "Starting deployment..."
 
 # Setup AWS config
-export AWS_DEFAULT_REGION=ap-northeast-2
+export AWS_DEFAULT_REGION=$AWS_REGION
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-aws configure set region ap-northeast-2
+aws configure set region $AWS_REGION
 
 # Setup directories
 APP_DIR="/home/ubuntu/chat-service"
