@@ -54,7 +54,7 @@ jobs:
           chmod 600 private_key.pem
           
           echo "$EC2_HOST $EC2_USER $DOCKER_REPO $APP_NAME $DOCKER_TAG"
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "bash /home/ubuntu/chat-service/scripts/deploy.sh $DOCKER_REPO $APP_NAME $DOCKER_TAG"
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "bash /usr/src/chat-service/scripts/deploy.sh $DOCKER_REPO $APP_NAME $DOCKER_TAG"
           rm private_key.pem
       # - name: Deploy to EC2
       #   env:
