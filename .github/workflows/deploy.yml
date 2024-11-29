@@ -53,7 +53,8 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           
-          ls -la "/opt/chat-service"
+          pwd
+
 
 
 
