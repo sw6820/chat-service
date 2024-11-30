@@ -54,6 +54,9 @@ jobs:
           chmod 600 private_key.pem
           # Create necessary directories and fetch SSM parameters
           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
+            # Setup AWS region
+            export AWS_DEFAULT_REGION=ap-northeast-2            
+            
             # Setup directories
             APP_DIR="/home/ubuntu/chat-service"
             mkdir -p "$APP_DIR/envs"
@@ -65,6 +68,7 @@ jobs:
               --path "/chat-service/production" \
               --recursive \
               --with-decryption \
+              --region ap-northeast-2 \
               --query "Parameters[*].{Name:Name,Value:Value}" \
               --output text | while read -r param_name param_value; do
               param_key=$(basename "$param_name" | tr '[:lower:]' '[:upper:]')
