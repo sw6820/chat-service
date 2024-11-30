@@ -52,12 +52,14 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-                    # Create necessary directories and fetch SSM parameters
+          # Create necessary directories and fetch SSM parameters
           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
             # Setup directories
             APP_DIR="/home/ubuntu/chat-service"
             mkdir -p "$APP_DIR/envs"
             
+            echo "connected to $EC2_HOST"
+
             # Fetch SSM parameters and create .env.prod
             aws ssm get-parameters-by-path \
               --path "/chat-service/production" \
