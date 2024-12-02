@@ -41,7 +41,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
       useFactory: (configService: ConfigService) => {
         const isProduction = configService.get('NODE_ENV') === 'prod';
         return {
-          type: `${configService.get<string>('DATABASE_TYPE')}`, // configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),          
+          type: 'postgres', // configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),          
           port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
           host:
             configService.get('NODE_ENV') === 'local'
