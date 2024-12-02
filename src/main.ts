@@ -25,10 +25,10 @@ import * as path from 'node:path';
 
 async function bootstrap() {
   const nodeEnv = process.env.NODE_ENV || 'local';
-  const envPath =
-    nodeEnv === 'prod'
-      ? '/app/chat-service/envs/.env.prod'
-      : path.resolve(process.cwd(), `envs/.env.${nodeEnv}`);
+  const envPath = path.resolve(process.cwd(), `envs/.env.${nodeEnv}`);
+    // nodeEnv === 'prod'
+    //   ? '//chat-service/envs/.env.prod'
+    //   : 
   console.log(`nodeEnv: ${nodeEnv}`);
   console.log(`envPath : ${envPath}`);
   if (!fs.existsSync(envPath)) {
