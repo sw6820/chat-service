@@ -2,23 +2,14 @@ name: Deploy to EC2
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
+      - uses: actions/checkout@v4
+      
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -26,76 +17,130 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        env:
-          APP_NAME: ${{ secrets.APP_NAME }}
-          DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
-          DOCKER_TAG: ${{ secrets.DOCKER_TAG}}
         run: |
-          echo "Building Docker image: $DOCKER_REPO/$APP_NAME:$DOCKER_TAG"
-          docker build -t $DOCKER_REPO/$APP_NAME:$DOCKER_TAG .
-          
-          echo "Pushing Docker image to registry..."
-          docker push $DOCKER_REPO/$APP_NAME:$DOCKER_TAG
-                    
-          echo "Verifying pushed image..."
-          docker images | grep $APP_NAME
+          docker build -t s6820w/chat-service:latest .
+          docker push s6820w/chat-service:latest
 
       - name: Deploy to EC2
         env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
-          APP_NAME: ${{ secrets.APP_NAME }}
-          DOCKER_TAG: ${{ secrets.DOCKER_TAG }}
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          # Create necessary directories and fetch SSM parameters
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
-            # Setup AWS region
-            export AWS_DEFAULT_REGION=ap-northeast-2            
-            
-            # Setup directories
-            APP_DIR="/home/ubuntu/chat-service"
-            mkdir -p "$APP_DIR/envs"
-            
-            echo "connected to $EC2_HOST"
-
-            # Fetch SSM parameters and create .env.prod
-            aws ssm get-parameters-by-path \
-              --path "/chat-service/production" \
-              --recursive \
-              --with-decryption \
-              --region ap-northeast-2 \
-              --query "Parameters[*].{Name:Name,Value:Value}" \
-              --output text | while read -r param_name param_value; do
-              param_key=$(basename "$param_name" | tr '[:lower:]' '[:upper:]')
-              param_key=${param_key/DATABASE_HOST/HOST}
-              echo "$param_key=$param_value" >> "$APP_DIR/envs/.env.prod"
-            done
-            
-            # Pull and run Docker container
-            DOCKER_IMAGE="${DOCKER_REPO}/${APP_NAME}:${DOCKER_TAG}"
-            
-            echo "Pulling new image: $DOCKER_IMAGE"
-            docker pull $DOCKER_IMAGE
-            
-            echo "Stopping existing container..."
-            docker stop chat-service || true
-            docker rm chat-service || true
-            
-            echo "Starting new container..."
-            docker run -d \
-              --name chat-service \
-              --restart unless-stopped \
-              -v "$APP_DIR/envs/.env.prod:/usr/src/chat-service/envs/.env.prod:ro" \
-              -p 3000:3000 \
-              $DOCKER_IMAGE
-          EOF
+          
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST \
+            "docker pull s6820w/chat-service:latest && \
+             docker stop chat-service || true && \
+             docker rm chat-service || true && \
+             docker run -d \
+               --name chat-service \
+               --restart unless-stopped \
+               -v /home/ubuntu/chat-service/envs/.env.prod:/usr/src/chat-service/envs/.env.prod:ro \
+               -p 3000:3000 \
+               s6820w/chat-service:latest"
           
           rm private_key.pem
+
+# name: Deploy to EC2
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_REGION }}
+
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+
+#       - name: Build and push Docker image
+#         env:
+#           APP_NAME: ${{ secrets.APP_NAME }}
+#           DOCKER_REPO: ${{ secrets.DOCKER_REPO}}
+#           DOCKER_TAG: ${{ secrets.DOCKER_TAG}}
+#         run: |
+#           echo "Building Docker image: $DOCKER_REPO/$APP_NAME:$DOCKER_TAG"
+#           docker build -t $DOCKER_REPO/$APP_NAME:$DOCKER_TAG .
+          
+#           echo "Pushing Docker image to registry..."
+#           docker push $DOCKER_REPO/$APP_NAME:$DOCKER_TAG
+                    
+#           echo "Verifying pushed image..."
+#           docker images | grep $APP_NAME
+
+#       - name: Deploy to EC2
+#         env:
+#           EC2_HOST: ${{ secrets.EC2_HOST }}
+#           EC2_USER: ${{ secrets.EC2_USER }}
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+#           APP_NAME: ${{ secrets.APP_NAME }}
+#           DOCKER_TAG: ${{ secrets.DOCKER_TAG }}
+#         run: |
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+#           chmod 600 private_key.pem
+#           # Create necessary directories and fetch SSM parameters
+#           ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
+#             # Setup AWS region
+#             export AWS_DEFAULT_REGION=ap-northeast-2            
+            
+#             # Setup directories
+#             APP_DIR="/home/ubuntu/chat-service"
+#             mkdir -p "$APP_DIR/envs"
+            
+#             echo "connected to $EC2_HOST"
+
+#             # Fetch SSM parameters and create .env.prod
+#             aws ssm get-parameters-by-path \
+#               --path "/chat-service/production" \
+#               --recursive \
+#               --with-decryption \
+#               --region ap-northeast-2 \
+#               --query "Parameters[*].{Name:Name,Value:Value}" \
+#               --output text | while read -r param_name param_value; do
+#               param_key=$(basename "$param_name" | tr '[:lower:]' '[:upper:]')
+#               param_key=${param_key/DATABASE_HOST/HOST}
+#               echo "$param_key=$param_value" >> "$APP_DIR/envs/.env.prod"
+#             done
+            
+#             # Pull and run Docker container
+#             DOCKER_IMAGE="${DOCKER_REPO}/${APP_NAME}:${DOCKER_TAG}"
+            
+#             echo "Pulling new image: $DOCKER_IMAGE"
+#             docker pull $DOCKER_IMAGE
+            
+#             echo "Stopping existing container..."
+#             docker stop chat-service || true
+#             docker rm chat-service || true
+            
+#             echo "Starting new container..."
+#             docker run -d \
+#               --name chat-service \
+#               --restart unless-stopped \
+#               -v "$APP_DIR/envs/.env.prod:/usr/src/chat-service/envs/.env.prod:ro" \
+#               -p 3000:3000 \
+#               $DOCKER_IMAGE
+#           EOF
+          
+#           rm private_key.pem
       # ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "bash /home/ubuntu/chat-service/.github/workflows/scripts/deploy.sh $DOCKER_REPO $APP_NAME $DOCKER_TAG"
       # rm private_key.pem
       # - name: Deploy to EC2
