@@ -17,6 +17,9 @@ import { join } from 'path';
 import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
 import { WinstonModule } from 'nest-winston';
 import * as path from 'node:path';
+import { HealthController } from './health/health.controller';
+import { TerminusModule } from '@nestjs/terminus';
+import { HttpModule } from '@nestjs/axios';
 
 console.log('env : ' + process.env.NODE_ENV);
 console.log('current working directory : ' + process.cwd());
@@ -67,8 +70,10 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
     ChatModule,
     RoomModule,
     AuthModule,
+    TerminusModule,
+    HttpModule,
   ],
-  controllers: [AuthController, ChatController],
+  controllers: [AuthController, ChatController, HealthController],
   providers: [
     AuthService,
     ChatService,
