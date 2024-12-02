@@ -84,7 +84,7 @@ async function bootstrap() {
   } else {
     logger.log(`JWT_SECRET is set (length: ${jwtSecret.length})`);
   }
-  const port = 3000; // parseInt(configService.get<string>('SERVER_PORT'), 10);
+  const port = parseInt(configService.get<string>('SERVER_PORT'), 10);
   console.log(`port -----> ${port}`);
   const environment = configService.get<string>('NODE_ENV');
   // consol

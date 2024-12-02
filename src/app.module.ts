@@ -26,13 +26,13 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'prod'
-          ? '/app/chat-service/envs/.env.prod'
-          : path.resolve(
-              process.cwd(),
-              `envs/.env.${process.env.NODE_ENV || 'local'}`,
-            ),
+      envFilePath: path.resolve(
+        process.cwd(),
+        `envs/.env.${process.env.NODE_ENV || 'local'}`,
+      ),
+        // process.env.NODE_ENV === 'prod'
+        //   ? `${ process.cwd() }/envs/.env.${ process.env.NODE_ENV }`
+        //   : ,
       load: [configuration],
       cache: true,
       expandVariables: true,
@@ -56,14 +56,14 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
           host:
             configService.get('NODE_ENV') === 'local'
               ? 'localhost'
-              : '10.0.9.28',
+              : `${configService.get<string>('DATABASE_HOST')}`,// 10.0.9.28
           // port: 5432,
           username: `${configService.get<string>('DATABASE_USERNAME')}`,
           password: `${configService.get<string>('DATABASE_PASSWORD')}`,
           database: `${configService.get<string>('DATABASE_NAME')}`,
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: false, //false, //configService.get('NODE_ENV') !== 'prod', // false in production
-          connectTimeout: 30000,
+          connectTimeout: 30000, // TODO: .env file
           logging: !isProduction,
           logger: 'advanced-console',
           extra: {
