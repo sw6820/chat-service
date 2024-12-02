@@ -30,9 +30,6 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
         process.cwd(),
         `envs/.env.${process.env.NODE_ENV || 'local'}`,
       ),
-        // process.env.NODE_ENV === 'prod'
-        //   ? `${ process.cwd() }/envs/.env.${ process.env.NODE_ENV }`
-        //   : ,
       load: [configuration],
       cache: true,
       expandVariables: true,
@@ -44,20 +41,12 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
       useFactory: (configService: ConfigService) => {
         const isProduction = configService.get('NODE_ENV') === 'prod';
         return {
-          type: 'postgres', // configService.get<string>('DATABASE_TYPE'), // configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),
-          // host: configService.get<string>('DATABASE_HOST'),
+          type: `${configService.get<string>('DATABASE_TYPE')}`, // configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),          
           port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
-          // host: 'localhost',
-          // username: configService.get<string>('DATABASE_USERNAME'),
-          // password: configService.get<string>('DATABASE_PASSWORD'),
-          // database: configService.get<string>('DATABASE_NAME'),
-          // ...configService.get('DATABASE_'),
-
           host:
             configService.get('NODE_ENV') === 'local'
               ? 'localhost'
-              : `${configService.get<string>('DATABASE_HOST')}`,// 10.0.9.28
-          // port: 5432,
+              : `${configService.get<string>('DATABASE_HOST')}`,
           username: `${configService.get<string>('DATABASE_USERNAME')}`,
           password: `${configService.get<string>('DATABASE_PASSWORD')}`,
           database: `${configService.get<string>('DATABASE_NAME')}`,

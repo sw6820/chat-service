@@ -26,9 +26,6 @@ import * as path from 'node:path';
 async function bootstrap() {
   const nodeEnv = process.env.NODE_ENV || 'local';
   const envPath = path.resolve(process.cwd(), `envs/.env.${nodeEnv}`);
-    // nodeEnv === 'prod'
-    //   ? '//chat-service/envs/.env.prod'
-    //   : 
   console.log(`nodeEnv: ${nodeEnv}`);
   console.log(`envPath : ${envPath}`);
   if (!fs.existsSync(envPath)) {
@@ -69,15 +66,10 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
   // Retrieve environment-specific settings
-  // console.log(`jwt secret : ${configService.get('JWT_SECRET')}`);
-  // const secretKey = 'secretKey'; //configService.get('SECRET_KEY');
-  // const jwtSecret = configService.get<string>('JWT_SECRET');
-  const jwtSecret = 'eTl2a14AzJUOfjxi9C3RTglKk0ijdecVJ9a5ZIwsfoo=';
+  const jwtSecret = configService.get<string>('JWT_SECRET');
   console.log(`main jwt secret : ${jwtSecret}`);
   console.log(`JWT Secret: ${jwtSecret ? 'Set' : 'Not set'}`);
-  // if (!jwtSecret) {
-  //   throw new Error('JWT_SECRET is not set in the environment variables');
-  // }
+  
   if (!jwtSecret) {
     logger.error('JWT_SECRET is not set in the environment variables');
     process.exit(1);
@@ -89,15 +81,6 @@ async function bootstrap() {
   const environment = configService.get<string>('NODE_ENV');
   // consol
   console.log(`node env : ${environment}`);
-  // const corsOrigin =
-  //   environment === 'prod'
-  //     ? 'https://1479d390.chat-service-frontend.pages.dev/'
-  //     : [
-  //         'http://localhost:3000',
-  //         'http://localhost:8080',
-  //         'http://127.0.0.1:8080',
-  //       ]; //configService.get<string>('CORS_ORIGIN');
-
   const rateLimiter = new RateLimiterMemory({
     points: 5, // Number of points
     duration: 1, // Per second
