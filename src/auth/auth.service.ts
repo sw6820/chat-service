@@ -64,10 +64,8 @@ export class AuthService {
     return bcrypt.compare(plainTextPassword, hashedPassword);
   }
 
-  async register(userDto: CreateUserDto): Promise<Omit<User, 'password'>> {
-    // console.log(`registering ${JSON.stringify(userDto)}`);
+  async register(userDto: CreateUserDto): Promise<{ user: Omit<User, 'password'>, access_token: string }> {
     const existingUser = await this.userService.findOneByEmail(userDto.email);
-    // console.log(`found ${existingUser}`);
     if (existingUser) {
       throw new HttpException(
         'User with this email already exists.',
@@ -80,7 +78,11 @@ export class AuthService {
       ...userDto,
       password: hashedPassword,
     });
-    return this.omitPassword(newUser);
+    
+    const user = this.omitPassword(newUser);
+    const access_token = await this.generateToken(user);
+    
+    return { user, access_token };
   }
 
   private omitPassword(user: User): Omit<User, 'password'> {

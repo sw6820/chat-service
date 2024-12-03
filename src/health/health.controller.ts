@@ -11,6 +11,14 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
-    return this.health.check([]);
+    return this.health.check([
+      // Basic HTTP check
+      () => this.http.pingCheck('basic-check', 'http://localhost:3000'),
+      
+      // Memory health check
+      // () => Promise.resolve({ memory: { status: 'up' } }),
+
+      // You can add more health checks here
+    ]);
   }
 } 

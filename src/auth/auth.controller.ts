@@ -37,12 +37,17 @@ export class AuthController {
 
   // TODO: using JWT & guard
   @Post('signup')
-  async register(@Body() userDto: CreateUserDto) {
-    // console.log('Received signup request:', userDto);
+  async register(@Body() userDto: CreateUserDto, @Res() res: ExpressResponse) {
     try {
-      const user = await this.authService.register(userDto);
-      // console.log(`user: ${user}`);
-      return { message: 'User registered successfully', user };
+      const { user, access_token } = await this.authService.register(userDto);
+      
+      res.cookie('access_token', access_token, {
+        httpOnly: true,
+        secure: false, // Set to true if using HTTPS
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      });
+      
+      return res.send({ message: 'User registered successfully', user, access_token });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
