@@ -20,6 +20,7 @@ import * as path from 'node:path';
 import { HealthController } from './health/health.controller';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
+import * as winston from 'winston';
 
 console.log('env : ' + process.env.NODE_ENV);
 console.log('current working directory : ' + process.cwd());
@@ -28,50 +29,53 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
 @Module({
   imports: [
     ConfigModule.forRoot({
+      load: [configuration],
       isGlobal: true,
       envFilePath: path.resolve(
         process.cwd(),
         `envs/.env.${process.env.NODE_ENV || 'local'}`,
       ),
-      load: [configuration],
       cache: true,
       expandVariables: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DATABASE_HOST', 'localhost'),
+        port: configService.get('DATABASE_PORT', 5432),
+        username: configService.get('DATABASE_USERNAME'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: false, // configService.get('NODE_ENV') === 'local',
+        logging: configService.get('NODE_ENV') === 'local',
+      }),
       inject: [ConfigService],
-
-      useFactory: (configService: ConfigService) => {
-        const isProduction = configService.get('NODE_ENV') === 'prod';
-        return {
-          type: 'postgres', // configService.get<'postgres' | 'mysql'>('DATABASE_TYPE'),          
-          port: parseInt(configService.get<string>('DATABASE_PORT'), 10),
-          host:
-            configService.get('NODE_ENV') === 'local'
-              ? 'localhost'
-              : `${configService.get<string>('DATABASE_HOST')}`,
-          username: `${configService.get<string>('DATABASE_USERNAME')}`,
-          password: `${configService.get<string>('DATABASE_PASSWORD')}`,
-          database: `${configService.get<string>('DATABASE_NAME')}`,
-          entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: false, //false, //configService.get('NODE_ENV') !== 'prod', // false in production
-          connectTimeout: 30000, // TODO: .env file
-          logging: !isProduction,
-          logger: 'advanced-console',
-          extra: {
-            connectionLimit: 5,
-          },
-          ssl: isProduction ? { rejectUnauthorized: false } : false,
-        };
-      },
     }),
-    WinstonModule.forRoot({}),
+    TerminusModule,
+    HttpModule,
     UsersModule,
     ChatModule,
     RoomModule,
     AuthModule,
-    TerminusModule,
-    HttpModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
+    WinstonModule.forRoot({
+      transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({
+          dirname: path.join(__dirname, '../logs'),
+          filename: 'error.log',
+          level: 'error',
+        }),
+        new winston.transports.File({
+          dirname: path.join(__dirname, '../logs'),
+          filename: 'combined.log',
+        }),
+      ],
+    }),
   ],
   controllers: [AuthController, ChatController, HealthController],
   providers: [
