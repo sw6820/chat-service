@@ -22,6 +22,7 @@ import passport from 'passport';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import express from 'express';
 
 async function bootstrap() {
   const nodeEnv = process.env.NODE_ENV || 'local';
@@ -105,7 +106,18 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // Security Enhanced Middleware
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "wss:", "https:"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }));
 
   // Performance Optimization
   app.use(compression());
@@ -114,15 +126,43 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://stahc.uk',
-      // 'https://01d601fe.chat-service-frontend.pages.dev',
+      'https://chat-service-frontend.pages.dev',
       /\.stahc\.uk$/,  // Allows all subdomains
+      'http://localhost:3000',  // For local development
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Set-Cookie'],
   });
 
   // Trust proxy (Cloudflare)
-  app.set('trust proxy', true);
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', true);
+
+  // Block access to sensitive files
+  app.use((req, res, next) => {
+    const blockedPaths = ['.env', '.git', '.aws', 'config', '.config'];
+    if (blockedPaths.some(path => req.path.toLowerCase().includes(path))) {
+      res.status(403).send('Forbidden');
+      return;
+    }
+    next();
+  });
+
+  // Global prefix for API routes
+  app.setGlobalPrefix('api');
+
+  // Root path handler
+  const router = express.Router();
+  router.get('/', (req, res) => {
+    res.json({
+      status: 'ok',
+      message: 'Chat Service API is running',
+      docs: '/api/docs',
+    });
+  });
+  expressApp.use('/', router);
 
   // Session management
   app.use(
@@ -160,9 +200,10 @@ async function bootstrap() {
   }
 
   // Start the server
-  await app.listen(port, '0.0.0.0');  // Listen on all network interfaces
+  const portToUse = configService.get('SERVER_PORT') || 3000;
+  await app.listen(portToUse, '0.0.0.0');  // Listen on all network interfaces
   console.log(`Application is running on: ${await app.getUrl()}`);
-  console.log(`start server port : ${port}`);
+  console.log(`start server port : ${portToUse}`);
 }
 bootstrap();
 
