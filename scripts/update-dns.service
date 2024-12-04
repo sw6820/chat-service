@@ -1,0 +1,18 @@
+[Unit]
+Description=Update Cloudflare DNS with EC2 Public IP
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/update-cloudflare.sh
+User=ubuntu
+Group=ubuntu
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Run every 5 minutes
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=multi-user.target

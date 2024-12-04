@@ -110,13 +110,19 @@ async function bootstrap() {
   // Performance Optimization
   app.use(compression());
 
-  // Enable CORS for the specified origin or allow multiple origins based on your needs
-  console.log(`cors origin ${configService.get<string>('CORS_ORIGIN')}`);
+  // CORS configuration with dynamic origin handling
   app.enableCors({
-    origin: `${configService.get<string>('CORS_ORIGIN')}`, // '*', // Array.isArray(corsOrigin) ? corsOrigin : corsOrigin.split(','),
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: [
+      'https://stahc.uk',
+      // 'https://01d601fe.chat-service-frontend.pages.dev',
+      /\.stahc\.uk$/,  // Allows all subdomains
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
+
+  // Trust proxy (Cloudflare)
+  app.set('trust proxy', true);
 
   // Session management
   app.use(
@@ -148,8 +154,13 @@ async function bootstrap() {
   // Serve static assets
   // app.useStaticAssets(join(__dirname, '..', 'frontend', 'public'));
 
+  // Add global prefix if running as the secondary service
+  if (process.env.SERVICE_TYPE === 'newnest') {
+    app.setGlobalPrefix('newnest');
+  }
+
   // Start the server
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');  // Listen on all network interfaces
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`start server port : ${port}`);
 }

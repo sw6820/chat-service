@@ -12,7 +12,6 @@ import { ChatModule } from './chat/chat.module';
 import { RoomModule } from './room/room.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
 import { WinstonModule } from 'nest-winston';
@@ -59,9 +58,6 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
     ChatModule,
     RoomModule,
     AuthModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console(),
