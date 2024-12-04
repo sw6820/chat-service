@@ -129,11 +129,15 @@ async function bootstrap() {
       'https://chat-service-frontend.pages.dev',
       /\.stahc\.uk$/,  // Allows all subdomains
       'http://localhost:3000',  // For local development
+      'http://localhost:8080',  // For local development
+      'http://127.0.0.1:8080',  // For local development
+      'http://127.0.0.1:3000',  // For local development
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     exposedHeaders: ['Set-Cookie'],
+    maxAge: 86400, // 24 hours in seconds
   });
 
   // Trust proxy (Cloudflare)
@@ -150,19 +154,29 @@ async function bootstrap() {
     next();
   });
 
-  // Global prefix for API routes
-  app.setGlobalPrefix('api');
-
-  // Root path handler
+  // Root path and health check handlers (before global prefix)
   const router = express.Router();
   router.get('/', (req, res) => {
     res.json({
       status: 'ok',
       message: 'Chat Service API is running',
-      docs: '/api/docs',
+      docs: '/docs',
     });
   });
-  expressApp.use('/', router);
+
+  router.get('/health', (req, res) => {
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
+  });
+  expressApp.use(router);
+
+  // Remove global prefix - all routes will be accessible directly
+  // app.setGlobalPrefix('api', {
+  //   exclude: ['/', '/health'],
+  // });
 
   // Session management
   app.use(
@@ -188,7 +202,7 @@ async function bootstrap() {
       .addTag('tag')
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('docs', app, document);
   }
 
   // Serve static assets
