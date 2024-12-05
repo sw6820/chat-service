@@ -113,8 +113,12 @@ export class AuthService {
 
       // console.log(`generating token ${JSON.stringify(payload)}`);
       const token = await this.jwtService.signAsync(payload, {
-        secret,
-        expiresIn: '1d',
+        secret: secret,
+        expiresIn: '7d',                 // Match module configuration
+        algorithm: 'HS256',              // Explicit algorithm
+        issuer: 'chat-service',          // Service identifier
+        audience: ['chat-service-api'],   // Intended recipients
+        notBefore: 0                     // Token is valid immediately
       });
       this.logger.log('JWT token generated successfully');
       console.log('Generated JWT Token:', token); // Debugging generated JWT token

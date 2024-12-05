@@ -191,7 +191,7 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.useGlobalFilters(new GlobalExceptionFilter());
+  // app.useGlobalFilters(new GlobalExceptionFilter());
 
   // Swagger setup (conditionally enable in non-production environments)
   if (environment !== 'prod') {
