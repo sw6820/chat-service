@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!secretOrKey) {
       throw new Error('JWT_SECRET is not defined in the environment variables');
     }
-    console.log('Loaded JWT_SECRET in JwtStrategy:', secretOrKey);
+    // console.log('Loaded JWT_SECRET in JwtStrategy:', secretOrKey);
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,

@@ -91,15 +91,15 @@ export class AppModule implements NestModule {
     console.log('NODE_ENV:', this.configService.get<string>('NODE_ENV')); // Check environment
     console.log(
       `EC2 host, user, domain, port, application 
-      ${this.configService.get<string>('EC2_HOST')}, 
-      ${this.configService.get<string>('EC2_USER')}, 
+      // ${this.configService.get<string>('EC2_HOST')}, 
+      // ${this.configService.get<string>('EC2_USER')}, 
       ${this.configService.get<string>('SERVER_DOMAIN')}, 
       ${this.configService.get<number>('SERVER_PORT')}`,
     );
-    console.log(
-      'JWT_SECRET in AppModule:',
-      this.configService.get<string>('JWT_SECRET'),
-    ); // Check JWT_SECRET
+    // console.log(
+    //   'JWT_SECRET in AppModule:',
+    //   this.configService.get<string>('JWT_SECRET'),
+    // ); // Check JWT_SECRET
     console.log(
       'All env variables:',
       this.configService.get<Record<string, any>>(''),

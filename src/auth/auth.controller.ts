@@ -102,25 +102,43 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Res() res: ExpressResponse) {
     try {
       console.log(`auth controller login`);
-      console.log('Login Request:', loginDto); // Debugging login request data
-      // console.log(`login ${JSON.stringify(loginDto)}`);
       const { access_token } = await this.authService.login(
         loginDto.email,
         loginDto.password,
       );
-      console.log(`create token ${access_token}`);
-      console.log('Access Token generated in Controller:', access_token); // Debugging access token in controller
-      // Optionally set the token in an HTTP-only cookie
+      
+      // Set CORS headers explicitly
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Expose-Headers', 'Set-Cookie, Authorization');
+      
+      // Set the token in an HTTP-only cookie
       res.cookie('access_token', access_token, {
         httpOnly: true,
-        secure: false, // Set to true if using HTTPS
+        secure: process.env.NODE_ENV === 'prod', // true in production
+        sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax', // Required for cross-site cookies
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        path: '/', // Ensure cookie is available for all paths
+        domain: process.env.NODE_ENV === 'prod' ? '.stahc.uk' : undefined // Adjust domain in production
       });
-      console.log(`success login`);
-      return res.send({ message: 'Login successful', access_token });
+      
+      // Set Authorization header as well
+      res.header('Authorization', `Bearer ${access_token}`);
+      
+      // Send response with token and user info
+      return res.status(200).json({ 
+        status: 'success',
+        message: 'Login successful',
+        access_token,
+        user: {
+          email: loginDto.email
+        }
+      });
     } catch (error) {
-      console.error('Login Error:', error.message); // Debugging login errors
-      throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
+      console.error('Login Error:', error.message);
+      throw new HttpException(
+        error.message || 'Authentication failed',
+        HttpStatus.UNAUTHORIZED
+      );
     }
   }
 

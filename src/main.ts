@@ -68,7 +68,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   // Retrieve environment-specific settings
   const jwtSecret = configService.get<string>('JWT_SECRET');
-  console.log(`main jwt secret : ${jwtSecret}`);
+  // console.log(`main jwt secret : ${jwtSecret}`);
   console.log(`JWT Secret: ${jwtSecret ? 'Set' : 'Not set'}`);
   
   if (!jwtSecret) {
@@ -127,6 +127,7 @@ async function bootstrap() {
     origin: [
       'https://stahc.uk',
       'https://chat-service-frontend.pages.dev',
+      'https://*.pages.dev', // Allow all Cloudflare Pages subdomains
       /\.stahc\.uk$/,  // Allows all subdomains
       'http://localhost:3000',  // For local development
       'http://localhost:8080',  // For local development
@@ -135,8 +136,15 @@ async function bootstrap() {
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-    exposedHeaders: ['Set-Cookie'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'X-Requested-With', 
+      'Accept', 
+      'Origin',
+      'Access-Control-Allow-Origin'
+    ],
+    exposedHeaders: ['Set-Cookie', 'Authorization'],
     maxAge: 86400, // 24 hours in seconds
   });
 

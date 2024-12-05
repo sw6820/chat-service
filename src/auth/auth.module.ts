@@ -16,25 +16,22 @@ import { AuthController } from './auth.controller';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        // const jwtSecret = configService.get<string>('JWT_SECRET');
-        // console.log('Loaded JWT_SECRET in AuthModule:', jwtSecret); // Debugging JWT_SECRET
-        // return {
-        //   secret: `a`, //jwtSecret,
-        //   signOptions: { expiresIn: '7d' },
-        // secret: 'YOUR_HARDCODED_SECRET_FOR_TESTING', // `${configService.get<string>('JWT_SECRET')}`,
-        // signOptions: { expiresIn: '1h' },
-        // algorithm: 'HS256',
-        console.log(
-          `Loading environment from: ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`,
-        );
-
+        console.log('Configuring JWT Module...');
         const secret = configService.get<string>('JWT_SECRET');
+        console.log('JWT_SECRET length:', secret?.length);
+        
         if (!secret) {
           throw new Error('JWT_SECRET is not defined in environment variables');
         }
+        
         return {
           secret: secret,
-          signOptions: { expiresIn: '1h' },
+          signOptions: { 
+            expiresIn: '7d',
+            algorithm: 'HS256',
+            issuer: 'chat-service',
+            audience: ['chat-service-api'],
+          },
         };
       },
       inject: [ConfigService],
