@@ -124,11 +124,15 @@ async function bootstrap() {
 
   // CORS configuration with dynamic origin handling
   app.enableCors({
-    origin: ['https://chat-service-frontend.pages.dev', 'http://localhost:3000'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: [
+      'https://chat-service-frontend.pages.dev',
+      'http://localhost:3000',
+      'http://localhost:8080',
+    ],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    exposedHeaders: ['Authorization'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['Authorization', 'Set-Cookie'],
     preflightContinue: false,
     optionsSuccessStatus: 204
   });

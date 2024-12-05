@@ -101,7 +101,7 @@ export class AuthController {
   // TODO: guard
   async login(@Body() loginDto: LoginDto, @Res() res: ExpressResponse) {
     try {
-      console.log('Login attempt for email:', loginDto.email);
+      this.logger.log('Login attempt for email:', loginDto.email);
       const { access_token } = await this.authService.login(
         loginDto.email,
         loginDto.password,
@@ -117,11 +117,11 @@ export class AuthController {
       // Set Authorization header
       res.header('Authorization', `Bearer ${access_token}`);
       
-      // Set cookie with appropriate options
+      // Set cookie with appropriate options for cross-site usage
       res.cookie('access_token', access_token, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        secure: true, // Required for cross-site cookies
+        sameSite: 'none', // Required for cross-site cookies
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
@@ -130,8 +130,8 @@ export class AuthController {
       
       return res.status(200).json({
         status: 'success',
-        message: 'Login successful',
-        access_token
+        access_token,
+        message: 'Login successful'
       });
     } catch (error) {
       console.error('Login failed:', error.message);
