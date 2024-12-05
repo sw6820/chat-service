@@ -124,28 +124,13 @@ async function bootstrap() {
 
   // CORS configuration with dynamic origin handling
   app.enableCors({
-    origin: [
-      'https://stahc.uk',
-      'https://chat-service-frontend.pages.dev',
-      'https://*.pages.dev', // Allow all Cloudflare Pages subdomains
-      /\.stahc\.uk$/,  // Allows all subdomains
-      'http://localhost:3000',  // For local development
-      'http://localhost:8080',  // For local development
-      'http://127.0.0.1:8080',  // For local development
-      'http://127.0.0.1:3000',  // For local development
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    origin: ['https://chat-service-frontend.pages.dev', 'http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    allowedHeaders: [
-      'Content-Type', 
-      'Authorization', 
-      'X-Requested-With', 
-      'Accept', 
-      'Origin',
-      'Access-Control-Allow-Origin'
-    ],
-    exposedHeaders: ['Set-Cookie', 'Authorization'],
-    maxAge: 86400, // 24 hours in seconds
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Authorization', 'Set-Cookie'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   });
 
   // Trust proxy (Cloudflare)

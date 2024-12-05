@@ -101,44 +101,44 @@ export class AuthController {
   // TODO: guard
   async login(@Body() loginDto: LoginDto, @Res() res: ExpressResponse) {
     try {
-      console.log(`auth controller login`);
+      console.log('Login attempt for email:', loginDto.email);
       const { access_token } = await this.authService.login(
         loginDto.email,
         loginDto.password,
       );
       
-      // Set CORS headers explicitly
+      console.log('Token generated successfully');
+      
+      // Set explicit CORS headers
+      res.header('Access-Control-Allow-Origin', 'https://chat-service-frontend.pages.dev');
       res.header('Access-Control-Allow-Credentials', 'true');
-      res.header('Access-Control-Expose-Headers', 'Set-Cookie, Authorization');
+      res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');
       
-      // Set the token in an HTTP-only cookie
-      res.cookie('access_token', access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'prod', // true in production
-        sameSite: process.env.NODE_ENV === 'prod' ? 'none' : 'lax', // Required for cross-site cookies
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-        path: '/', // Ensure cookie is available for all paths
-        domain: process.env.NODE_ENV === 'prod' ? '.stahc.uk' : undefined // Adjust domain in production
-      });
-      
-      // Set Authorization header as well
+      // Set Authorization header
       res.header('Authorization', `Bearer ${access_token}`);
       
-      // Send response with token and user info
-      return res.status(200).json({ 
+      // Set cookie with appropriate options
+      res.cookie('access_token', access_token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      
+      console.log('Response headers set successfully');
+      
+      return res.status(200).json({
         status: 'success',
         message: 'Login successful',
-        access_token,
-        user: {
-          email: loginDto.email
-        }
+        access_token
       });
     } catch (error) {
-      console.error('Login Error:', error.message);
-      throw new HttpException(
-        error.message || 'Authentication failed',
-        HttpStatus.UNAUTHORIZED
-      );
+      console.error('Login failed:', error.message);
+      return res.status(401).json({
+        status: 'error',
+        message: error.message || 'Authentication failed'
+      });
     }
   }
 
