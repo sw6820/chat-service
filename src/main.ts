@@ -126,6 +126,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://chat-service-frontend.pages.dev',
+      'https://*.chat-service-frontend.pages.dev',
       'http://localhost:3000',
       'http://localhost:8080',
     ],

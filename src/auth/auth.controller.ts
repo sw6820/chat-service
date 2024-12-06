@@ -39,7 +39,9 @@ export class AuthController {
   @Post('signup')
   async register(@Body() userDto: CreateUserDto, @Res() res: ExpressResponse) {
     try {
+      console.log('Registration attempt for:', userDto.email);
       const { user, access_token } = await this.authService.register(userDto);        
+
       // Set cookie with appropriate options for cross-site usage
       res.cookie('access_token', access_token, {
         httpOnly: true,
@@ -54,9 +56,7 @@ export class AuthController {
       // Set explicit CORS headers
       res.header('Access-Control-Allow-Origin', 'https://chat-service-frontend.pages.dev');
       res.header('Access-Control-Allow-Credentials', 'true');
-      res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');
-      
-      // Set Authorization header
+      res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');      
       res.header('Authorization', `Bearer ${access_token}`);
       
       console.log('Response headers set successfully');
@@ -65,12 +65,14 @@ export class AuthController {
         status: 'success',
         user,
         access_token,
-        message: 'Login successful'
+        message: 'Registration successful'
       });
-
-      // return res.send({ message: 'User registered successfully', user, access_token });
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      console.error('Registration error:', error);
+      return res.status(400).json({
+        status: 'error',
+        message: error.message || 'Registration failed'
+      });
     }
   }
 
