@@ -39,26 +39,40 @@ export class AuthController {
   @Post('signup')
   async register(@Body() userDto: CreateUserDto, @Res() res: ExpressResponse) {
     try {
-      const { user, access_token } = await this.authService.register(userDto);
-      
+      const { user, access_token } = await this.authService.register(userDto);        
+      // Set cookie with appropriate options for cross-site usage
       res.cookie('access_token', access_token, {
         httpOnly: true,
-        secure: false, // Set to true if using HTTPS
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        secure: true, // Required for cross-site cookies
+        sameSite: 'none', // Required for cross-site cookies
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
+
+      console.log('Token generated successfully');
       
-      return res.send({ message: 'User registered successfully', user, access_token });
+      // Set explicit CORS headers
+      res.header('Access-Control-Allow-Origin', 'https://chat-service-frontend.pages.dev');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');
+      
+      // Set Authorization header
+      res.header('Authorization', `Bearer ${access_token}`);
+      
+      console.log('Response headers set successfully');
+      
+      return res.status(201).json({
+        status: 'success',
+        user,
+        access_token,
+        message: 'Login successful'
+      });
+
+      // return res.send({ message: 'User registered successfully', user, access_token });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
-
-  // @Post('signup')
-  // async register(@Body() userDto: CreateUserDto) {
-  //   const user = await this.authService.register(userDto);
-  //   const token = this.authService.generateToken(user);
-  //   return { user, token };
-  // }
 
   // Use the JWT guard to protect the route
   @Get('check-token')
@@ -101,7 +115,7 @@ export class AuthController {
   // TODO: guard
   async login(@Body() loginDto: LoginDto, @Res() res: ExpressResponse) {
     try {
-      this.logger.log('Login attempt for email:', loginDto.email);
+      console.log(`auth controller login`);
       const { access_token } = await this.authService.login(
         loginDto.email,
         loginDto.password,
