@@ -1,58 +1,58 @@
-name: Setup SSM Parameters
+# name: Setup SSM Parameters
 
-on:
-  workflow_dispatch:  # Manual trigger
-  push:
-    paths:
-      - 'config/ssm-params.json'
+# on:
+#   workflow_dispatch:  # Manual trigger
+#   push:
+#     paths:
+#       - 'config/ssm-params.json'
 
-jobs:
-  setup-ssm:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+# jobs:
+#   setup-ssm:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
       
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.ap-northeast-2 }}
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.ap-northeast-2 }}
           
-      - name: Set SSM Parameters
-        run: |
-          aws ssm put-parameter \
-            --name "/chat-service/production/HOST" \
-            --value "${{ secrets.DATABASE_HOST }}" \
-            --type "SecureString" \
-            --overwrite              
+#       - name: Set SSM Parameters
+#         run: |
+#           aws ssm put-parameter \
+#             --name "/chat-service/production/HOST" \
+#             --value "${{ secrets.DATABASE_HOST }}" \
+#             --type "SecureString" \
+#             --overwrite              
 
-          aws ssm put-parameter \
-            --name "/chat-service/production/PORT" \
-            --value "${{ secrets.DATABASE_PORT }}" \
-            --type "String" \
-            --overwrite
+#           aws ssm put-parameter \
+#             --name "/chat-service/production/PORT" \
+#             --value "${{ secrets.DATABASE_PORT }}" \
+#             --type "String" \
+#             --overwrite
 
-          aws ssm put-parameter \
-            --name "/chat-service/production/JWT_SECRET" \
-            --value "${{ secrets.JWT_SECRET }}" \
-            --type "SecureString" \
-            --overwrite              
+#           aws ssm put-parameter \
+#             --name "/chat-service/production/JWT_SECRET" \
+#             --value "${{ secrets.JWT_SECRET }}" \
+#             --type "SecureString" \
+#             --overwrite              
 
-          aws ssm put-parameter \
-            --name "/chat-service/production/NODE_ENV" \
-            --value "production" \
-            --type "String" \
-            --overwrite              
+#           aws ssm put-parameter \
+#             --name "/chat-service/production/NODE_ENV" \
+#             --value "production" \
+#             --type "String" \
+#             --overwrite              
 
-          # aws ssm put-parameter \
-          #   --name "/chat-service/production/REDIS_URL" \
-          #   --value "${{ secrets.REDIS_URL }}" \
-          #   --type "SecureString" \
-          #   --overwrite                  
+#           # aws ssm put-parameter \
+#           #   --name "/chat-service/production/REDIS_URL" \
+#           #   --value "${{ secrets.REDIS_URL }}" \
+#           #   --type "SecureString" \
+#           #   --overwrite                  
           
-          # aws ssm put-parameter \
-          #   --name "/chat-service/production/JWT_EXPIRATION_TIME" \
-          #   --value "${{ secrets.JWT_EXPIRATION_TIME }}" \
-          #   --type "String" \
-          #   --overwrite              
+#           # aws ssm put-parameter \
+#           #   --name "/chat-service/production/JWT_EXPIRATION_TIME" \
+#           #   --value "${{ secrets.JWT_EXPIRATION_TIME }}" \
+#           #   --type "String" \
+#           #   --overwrite              

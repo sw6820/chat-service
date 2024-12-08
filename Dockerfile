@@ -36,6 +36,7 @@ RUN apk add --no-cache \
     curl \
     aws-cli \
     jq \
+    postgresql-client \  # Add this for database CLI tools
     && apk upgrade --no-cache \
     && addgroup -g 1001 nodejs \
     && adduser -S -u 1001 -G nodejs nodejs
@@ -61,6 +62,8 @@ COPY --from=build /usr/src/chat-service/envs ./envs
 # COPY --chown=nodejs:nodejs scripts/fetch-ssm-params.sh ./scripts/
 # RUN chmod +x ./scripts/fetch-ssm-params.sh
 COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
+COPY --chown=nodejs:nodejs src/migrations ./migrations  # Copy migrations
+COPY --chown=nodejs:nodejs src/config/typeorm.config.ts ./config/  # Copy TypeORM config
 RUN chmod +x ./scripts/deploy.sh
 
 # Set environment variables

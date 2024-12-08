@@ -130,3 +130,33 @@ Thumbs.db
 *.prod.sh
 
 
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Debug files
+debug/
+.debug/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Production build files
+/build
+/dist
+
+# Coverage directory
+coverage/

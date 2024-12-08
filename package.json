@@ -73,7 +73,7 @@
     "@types/express-session": "^1.18.0",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.16.7",
+    "@types/node": "^20.17.9",
     "@types/passport": "^1.0.10",
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.16",
@@ -94,7 +94,7 @@
     "supertest": "^6.3.4",
     "ts-jest": "^29.1.4",
     "ts-loader": "^9.4.3",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.2"
   },
