@@ -40,6 +40,6 @@ jobs:
                -v /home/ubuntu/chat-service/envs/.env.prod:/usr/src/chat-service/envs/.env.prod:ro \
                -p 3000:3000 \
                s6820w/chat-service:latest && \
-            docker exec chat-service npm run typeorm:run-migrations""
+            docker exec chat-service npm run typeorm:run-migrations"
           
           rm private_key.pem
