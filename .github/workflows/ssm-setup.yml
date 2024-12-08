@@ -1,5 +1,4 @@
 # name: Setup SSM Parameters
-
 # on:
 #   workflow_dispatch:  # Manual trigger
 #   push:

@@ -63,7 +63,7 @@ COPY --from=build /usr/src/chat-service/envs ./envs
 # RUN chmod +x ./scripts/fetch-ssm-params.sh
 COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
 # COPY --chown=nodejs:nodejs src/migrations ./migrations
-# COPY --chown=nodejs:nodejs src/config/typeorm.config.ts ./config/
+COPY --chown=nodejs:nodejs src/configs/typeorm.config.ts ./configs/
 RUN chmod +x ./scripts/deploy.sh
 
 # Set environment variables
