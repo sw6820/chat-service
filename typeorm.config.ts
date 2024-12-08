@@ -12,7 +12,7 @@ module.exports = new DataSource({
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: ['src/**/*.entity.ts'],
-  migrations: ['src/migrations/*.ts'],
+  entities: ["dist/**/entities/*.entity{.ts,.js}"],
+  // migrations: ['src/migrations/*.ts'],
   synchronize: false,
 });
