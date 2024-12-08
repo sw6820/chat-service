@@ -62,7 +62,7 @@ COPY --from=build /usr/src/chat-service/envs ./envs
 # COPY --chown=nodejs:nodejs scripts/fetch-ssm-params.sh ./scripts/
 # RUN chmod +x ./scripts/fetch-ssm-params.sh
 COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
-COPY --chown=nodejs:nodejs src/migrations ./migrations
+# COPY --chown=nodejs:nodejs src/migrations ./migrations
 # COPY --chown=nodejs:nodejs src/config/typeorm.config.ts ./config/
 RUN chmod +x ./scripts/deploy.sh
 
