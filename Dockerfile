@@ -11,10 +11,10 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Install dependencies with specific flags for better security and performance
-RUN npm ci --legacy-peer-deps \
-    --ignore-scripts \
-    --no-optional \
-    && npm cache clean --force
+# RUN npm ci --legacy-peer-deps \
+#     --ignore-scripts \
+#     --no-optional \
+#     && npm cache clean --force
 
 ## Install dependencies
 #RUN npm ci --legacy-peer-deps
