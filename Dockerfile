@@ -64,7 +64,7 @@ COPY --from=build /usr/src/chat-service/envs ./envs
 COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
 # COPY --chown=nodejs:nodejs src/migrations ./migrations
 # COPY --chown=nodejs:nodejs src/configs/typeorm.config.ts ./configs/w
-RUN chmod +x ./scripts/deploy.sh
+# RUN chmod +x ./scripts/deploy.sh
 
 # Set environment variables
 ENV NODE_ENV=production \
