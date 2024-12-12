@@ -12,7 +12,7 @@ import { ChatModule } from './chat/chat.module';
 import { RoomModule } from './room/room.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
-import { join } from 'path';
+// import { join } from 'path';
 import { RequestLoggerMiddleware } from './logger/request-logger.middleware';
 import { WinstonModule } from 'nest-winston';
 import * as path from 'node:path';
@@ -46,9 +46,10 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
         username: configService.get('DATABASE_USERNAME'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [__dirname + '/**/**/*.entity{.ts,.js}'],
         synchronize: false, // configService.get('NODE_ENV') === 'local',
         logging: configService.get('NODE_ENV') === 'local',
+        autoLoadEntities: true,
       }),
       inject: [ConfigService],
     }),
