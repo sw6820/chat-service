@@ -46,7 +46,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
         username: configService.get('DATABASE_USERNAME'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
-        entities: [__dirname + '/**/**/*.entity{.ts,.js}'],
+        entities: [__dirname + 'dist/**/entities/*.entity{.ts,.js}'],
         synchronize: true, // configService.get('NODE_ENV') === 'local',
         logging: configService.get('NODE_ENV') === 'local',
         autoLoadEntities: true,
