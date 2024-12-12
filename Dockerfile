@@ -17,14 +17,11 @@ RUN npm ci --legacy-peer-deps \
     --no-optional \
     && npm cache clean --force
 
-## Install dependencies
-#RUN npm ci --legacy-peer-deps
-
 # Copy the rest of the application code
 COPY . .
 
 # Build the application
-# RUN npm run build
+RUN npm run build
 
 # Remove development dependencies
 RUN npm prune --production
