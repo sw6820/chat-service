@@ -129,14 +129,16 @@ async function bootstrap() {
       'https://*.chat-service-frontend.pages.dev',
       'http://localhost:3000',
       'http://localhost:8080',
+      '*',
     ],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     exposedHeaders: ['Authorization'],
     credentials: true,
     preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 204,
   });
+  // app.use(cors());
 
   // Trust proxy (Cloudflare)
   const expressApp = app.getHttpAdapter().getInstance();
