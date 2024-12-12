@@ -2,7 +2,8 @@
 FROM node:20-alpine as build
 
 # Add necessary build tools
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 make g++ \
+    && npm install -g rimraf
 
 # Set the working directory in the container
 WORKDIR /usr/src/chat-service
@@ -59,12 +60,8 @@ COPY --from=build /usr/src/chat-service/envs ./envs
 
 
 # Create script to fetch SSM parameters
-# COPY --chown=nodejs:nodejs scripts/fetch-ssm-params.sh ./scripts/
-# RUN chmod +x ./scripts/fetch-ssm-params.sh
 COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
-# COPY --chown=nodejs:nodejs src/migrations ./migrations
-# COPY --chown=nodejs:nodejs src/configs/typeorm.config.ts ./configs/w
-# RUN chmod +x ./scripts/deploy.sh
+RUN chmod +x ./scripts/deploy.sh
 
 # Set environment variables
 ENV NODE_ENV=production \
