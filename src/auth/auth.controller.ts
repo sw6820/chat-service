@@ -40,7 +40,7 @@ export class AuthController {
   async register(@Body() userDto: CreateUserDto, @Res() res: ExpressResponse) {
     try {
       console.log('Registration attempt for:', userDto.email);
-      const { user, access_token } = await this.authService.register(userDto);        
+      const { user, access_token } = await this.authService.register(userDto);
 
       // Set cookie with appropriate options for cross-site usage
       res.cookie('access_token', access_token, {
@@ -52,26 +52,29 @@ export class AuthController {
       });
 
       console.log('Token generated successfully');
-      
+
       // Set explicit CORS headers
-      res.header('Access-Control-Allow-Origin', 'https://chat-service-frontend.pages.dev');
+      res.header(
+        'Access-Control-Allow-Origin',
+        'https://chat-service-frontend.pages.dev',
+      );
       res.header('Access-Control-Allow-Credentials', 'true');
-      res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');      
+      res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');
       res.header('Authorization', `Bearer ${access_token}`);
-      
+
       console.log('Response headers set successfully');
-      
+
       return res.status(201).json({
         status: 'success',
         user,
         access_token,
-        message: 'Registration successful'
+        message: 'Registration successful',
       });
     } catch (error) {
       console.error('Registration error:', error);
       return res.status(400).json({
         status: 'error',
-        message: error.message || 'Registration failed'
+        message: error.message || 'Registration failed',
       });
     }
   }
@@ -114,7 +117,6 @@ export class AuthController {
   // User login
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  // TODO: guard
   async login(@Body() loginDto: LoginDto, @Res() res: ExpressResponse) {
     try {
       console.log(`auth controller login`);
@@ -122,17 +124,20 @@ export class AuthController {
         loginDto.email,
         loginDto.password,
       );
-      
+
       console.log('Token generated successfully');
-      
+
       // Set explicit CORS headers
-      res.header('Access-Control-Allow-Origin', 'https://chat-service-frontend.pages.dev');
+      res.header(
+        'Access-Control-Allow-Origin',
+        'https://chat-service-frontend.pages.dev',
+      );
       res.header('Access-Control-Allow-Credentials', 'true');
       res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');
-      
+
       // Set Authorization header
       res.header('Authorization', `Bearer ${access_token}`);
-      
+
       // Set cookie with appropriate options for cross-site usage
       res.cookie('access_token', access_token, {
         httpOnly: true,
@@ -141,19 +146,19 @@ export class AuthController {
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-      
+
       console.log('Response headers set successfully');
-      
+
       return res.status(200).json({
         status: 'success',
         access_token,
-        message: 'Login successful'
+        message: 'Login successful',
       });
     } catch (error) {
       console.error('Login failed:', error.message);
       return res.status(401).json({
         status: 'error',
-        message: error.message || 'Authentication failed'
+        message: error.message || 'Authentication failed',
       });
     }
   }

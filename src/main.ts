@@ -133,7 +133,7 @@ async function bootstrap() {
     ],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-    exposedHeaders: ['Authorization'],
+    exposedHeaders: ['Authorization', 'Set-Cookie'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
