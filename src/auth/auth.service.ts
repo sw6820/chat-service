@@ -64,7 +64,9 @@ export class AuthService {
     return bcrypt.compare(plainTextPassword, hashedPassword);
   }
 
-  async register(userDto: CreateUserDto): Promise<{ user: Omit<User, 'password'>, access_token: string }> {
+  async register(
+    userDto: CreateUserDto,
+  ): Promise<{ user: Omit<User, 'password'>; access_token: string }> {
     const existingUser = await this.userService.findOneByEmail(userDto.email);
     if (existingUser) {
       throw new HttpException(
@@ -78,10 +80,10 @@ export class AuthService {
       ...userDto,
       password: hashedPassword,
     });
-    
+
     const user = this.omitPassword(newUser);
     const access_token = await this.generateToken(user);
-    
+
     return { user, access_token };
   }
 
@@ -94,7 +96,7 @@ export class AuthService {
   async generateToken(user: Omit<User, 'password'>): Promise<string> {
     try {
       this.logger.log('Generating token');
-      
+
       // Create the JWT payload
       const payload = {
         sub: user.id,
@@ -102,7 +104,7 @@ export class AuthService {
         email: user.email,
       };
       this.logger.log(`JWT Payload: ${JSON.stringify(payload)}`);
-      
+
       // Ensure we have a secret key
       const secret = this.configService.get<string>('JWT_SECRET');
       if (!secret) {
@@ -116,13 +118,16 @@ export class AuthService {
         algorithm: 'HS256',
         issuer: 'chat-service',
         audience: ['chat-service-api'],
-        notBefore: 0
+        notBefore: 0,
       });
-      
+
       this.logger.log('JWT token generated successfully');
       return token;
     } catch (error) {
-      this.logger.error(`Error generating JWT token: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error generating JWT token: ${error.message}`,
+        error.stack,
+      );
       throw new UnauthorizedException('Failed to generate JWT token');
     }
   }

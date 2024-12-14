@@ -19,11 +19,11 @@ import { AuthController } from './auth.controller';
         console.log('Configuring JWT Module...');
         const secret = configService.get<string>('JWT_SECRET');
         console.log('JWT_SECRET length:', secret?.length);
-        
+
         if (!secret) {
           throw new Error('JWT_SECRET is not defined in environment variables');
         }
-        
+
         return {
           secret: secret,
           signOptions: { 
