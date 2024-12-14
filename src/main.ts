@@ -127,6 +127,8 @@ async function bootstrap() {
     origin: [
       'https://chat-service-frontend.pages.dev',
       'https://*.chat-service-frontend.pages.dev',
+      'http://chat-service-frontend.pages.dev',
+      'http://*.chat-service-frontend.pages.dev',
       'http://localhost:3000',
       'http://localhost:8080',
       '*',
