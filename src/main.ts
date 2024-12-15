@@ -12,11 +12,11 @@ import helmet from 'helmet';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import compression from 'compression';
 // import logger from './logger/logger';
-import {
-  WinstonModule,
-  utilities as nestWinstonModuleUtilities,
-} from 'nest-winston';
-import winston from 'winston';
+// import {
+  // WinstonModule,
+  // utilities as nestWinstonModuleUtilities,
+// } from 'nest-winston';
+// import winston from 'winston';
 import { Logger } from '@nestjs/common';
 import passport from 'passport';
 import { IoAdapter } from '@nestjs/platform-socket.io';
@@ -70,7 +70,7 @@ async function bootstrap() {
   const jwtSecret = configService.get<string>('JWT_SECRET');
   // console.log(`main jwt secret : ${jwtSecret}`);
   console.log(`JWT Secret: ${jwtSecret ? 'Set' : 'Not set'}`);
-  
+
   if (!jwtSecret) {
     logger.error('JWT_SECRET is not set in the environment variables');
     process.exit(1);
@@ -106,18 +106,20 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // Security Enhanced Middleware
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "wss:", "https:"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'", 'wss:', 'https:'],
+        },
       },
-    },
-    crossOriginEmbedderPolicy: false,
-  }));
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   // Performance Optimization
   app.use(compression());
@@ -131,7 +133,7 @@ async function bootstrap() {
       'http://*.chat-service-frontend.pages.dev',
       'http://localhost:3000',
       'http://localhost:8080',
-      '*',
+      // '*',
     ],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
@@ -149,7 +151,7 @@ async function bootstrap() {
   // Block access to sensitive files
   app.use((req, res, next) => {
     const blockedPaths = ['.env', '.git', '.aws', 'config', '.config'];
-    if (blockedPaths.some(path => req.path.toLowerCase().includes(path))) {
+    if (blockedPaths.some((path) => req.path.toLowerCase().includes(path))) {
       res.status(403).send('Forbidden');
       return;
     }
@@ -223,19 +225,19 @@ async function bootstrap() {
 }
 bootstrap();
 
-class GlobalExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger('GlobalExceptionFilter');
+// class GlobalExceptionFilter implements ExceptionFilter {
+//   private readonly logger = new Logger('GlobalExceptionFilter');
 
-  catch(exception: any, host: ArgumentsHost) {
-    this.logger.error(
-      `Unhandled exception: ${exception.message}`,
-      exception.stack,
-    );
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    response.status(500).json({
-      statusCode: 500,
-      message: 'Internal server error',
-    });
-  }
-}
+//   catch(exception: any, host: ArgumentsHost) {
+//     this.logger.error(
+//       `Unhandled exception: ${exception.message}`,
+//       exception.stack,
+//     );
+//     const ctx = host.switchToHttp();
+//     const response = ctx.getResponse();
+//     response.status(500).json({
+//       statusCode: 500,
+//       message: 'Internal server error',
+//     });
+//   }
+// }

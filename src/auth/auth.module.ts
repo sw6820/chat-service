@@ -26,7 +26,7 @@ import { AuthController } from './auth.controller';
 
         return {
           secret: secret,
-          signOptions: { 
+          signOptions: {
             expiresIn: '7d',
             algorithm: 'HS256',
             issuer: 'chat-service',
