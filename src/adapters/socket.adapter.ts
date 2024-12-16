@@ -10,10 +10,26 @@ export class CustomSocketAdapter extends IoAdapter {
         'http://localhost:3000',
         'http://localhost:8080',
         'http://127.0.0.1:8080',
+        'https://api.stahc.uk',
       ],
-      methods: ['GET', 'POST'],
+      methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'],
+      allowedHeaders: [
+        'Origin',
+        // 'DNT',
+        // 'User-Agent',
+        // 'X-Requested-With',
+        'If-Modified-Since',
+        'Cache-Control',
+        'Content-Type',
+        // 'Range',
+        'Accept',
+        'Authorization',
+      ],
       credentials: true,
       exposedHeaders: ['Authorization'],
+      maxAge: 86400, // 24 hours in seconds
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
     };
 
     options = { ...options, cors };
