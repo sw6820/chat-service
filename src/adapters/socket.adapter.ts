@@ -13,6 +13,7 @@ export class CustomSocketAdapter extends IoAdapter {
       ],
       methods: ['GET', 'POST'],
       credentials: true,
+      exposedHeaders: ['Authorization'],
     };
 
     options = { ...options, cors };
