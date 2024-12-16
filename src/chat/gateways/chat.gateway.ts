@@ -85,6 +85,7 @@ export class ChatGateway
       console.log(
         `Received message: userId=${userId}, roomId=${roomId}, content="${content}"`,
       );
+      console.log(`client data ${JSON.stringify(client.data)}`);
 
       // if (isNaN(userId) || isNaN(roomId) || !content) {
       //   // console.log(
@@ -117,9 +118,8 @@ export class ChatGateway
       this.server.to(`room-${roomId}`).emit('newMessage', {
         ...message,
         timestamp,
-        // senderUserId: userId, // Include this to help frontend distinguish sender
+        senderUserId: userId,
       });
-      // return { success: true };
     } catch (error) {
       console.error(`Error handling message: ${error.message}`);
       client.emit('error', error.message);

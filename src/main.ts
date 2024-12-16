@@ -13,8 +13,8 @@ import { RateLimiterMemory } from 'rate-limiter-flexible';
 import compression from 'compression';
 // import logger from './logger/logger';
 // import {
-  // WinstonModule,
-  // utilities as nestWinstonModuleUtilities,
+// WinstonModule,
+// utilities as nestWinstonModuleUtilities,
 // } from 'nest-winston';
 // import winston from 'winston';
 import { Logger } from '@nestjs/common';
@@ -23,6 +23,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import express from 'express';
+import { CustomSocketAdapter } from '../src/adapters/socket.adapter';
 
 async function bootstrap() {
   const nodeEnv = process.env.NODE_ENV || 'local';
@@ -125,31 +126,33 @@ async function bootstrap() {
   app.use(compression());
 
   // CORS configuration with dynamic origin handling
-  app.enableCors({
-    origin: [
-      'https://chat-service-frontend.pages.dev',
-      'https://*.chat-service-frontend.pages.dev',
-      'http://localhost:3000',
-      'http://localhost:8080',
-    ],
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Origin',
-      'DNT',
-      'User-Agent',
-      'X-Requested-With',
-      'If-Modified-Since',
-      'Cache-Control',
-      'Content-Type',
-      'Range',
-      'Accept',
-      'Authorization',
-    ],
-    credentials: true,
-    exposedHeaders: ['Authorization'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-  });
+  // app.enableCors({
+  //   origin: [
+  //     'https://chat-service-frontend.pages.dev',
+  //     'https://*.chat-service-frontend.pages.dev',
+  //     'http://localhost:3000',
+  //     'http://localhost:8080',
+  //   ],
+  //   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  //   allowedHeaders: [
+  //     'Origin',
+  //     'DNT',
+  //     'User-Agent',
+  //     'X-Requested-With',
+  //     'If-Modified-Since',
+  //     'Cache-Control',
+  //     'Content-Type',
+  //     'Range',
+  //     'Accept',
+  //     'Authorization',
+  //   ],
+  //   credentials: true,
+  //   exposedHeaders: ['Authorization'],
+  //   preflightContinue: false,
+  //   optionsSuccessStatus: 204,
+  // });
+  // Inside bootstrap function, after app creation:
+  app.useWebSocketAdapter(new CustomSocketAdapter(app));
 
   // Trust proxy (Cloudflare)
   const expressApp = app.getHttpAdapter().getInstance();
