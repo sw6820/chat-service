@@ -127,13 +127,10 @@ async function bootstrap() {
   // CORS configuration with dynamic origin handling
   app.enableCors({
     origin: [
-      // 'https://chat-service-frontend.pages.dev',
-      // 'https://*.chat-service-frontend.pages.dev',
-      // 'http://chat-service-frontend.pages.dev',
-      // 'http://*.chat-service-frontend.pages.dev',
-      // 'http://localhost:3000',
-      // 'http://localhost:8080',
-      '*',
+      'https://chat-service-frontend.pages.dev',
+      'https://*.chat-service-frontend.pages.dev',
+      'http://localhost:3000',
+      'http://localhost:8080',
     ],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -147,19 +144,12 @@ async function bootstrap() {
       'Range',
       'Accept',
       'Authorization',
-      'Access-Control-Allow-Origin',
-    ],
-    exposedHeaders: [
-      'Authorization',
-      'Set-Cookie',
-      'Content-Length',
-      'Content-Range',
     ],
     credentials: true,
+    exposedHeaders: ['Authorization'],
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
-  // app.use(cors());
 
   // Trust proxy (Cloudflare)
   const expressApp = app.getHttpAdapter().getInstance();
@@ -236,7 +226,7 @@ async function bootstrap() {
 
   // Start the server
   const portToUse = configService.get('SERVER_PORT') || 3000;
-  await app.listen(portToUse, '0.0.0.0');  // Listen on all network interfaces
+  await app.listen(portToUse, '0.0.0.0'); // Listen on all network interfaces
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`start server port : ${portToUse}`);
 }
