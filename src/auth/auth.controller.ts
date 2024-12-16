@@ -117,7 +117,15 @@ export class AuthController {
   // User login
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res() res: ExpressResponse) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res() res: ExpressResponse,
+    @Req() request: Request,
+  ) {
+    console.log('Received login request:', {
+      headers: request.headers,
+      method: request.method,
+    });
     try {
       console.log(`auth controller login`);
       const { access_token } = await this.authService.login(

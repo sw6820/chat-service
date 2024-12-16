@@ -137,6 +137,7 @@ async function bootstrap() {
     ],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
+      'Origin',
       'DNT',
       'User-Agent',
       'X-Requested-With',
@@ -146,6 +147,7 @@ async function bootstrap() {
       'Range',
       'Accept',
       'Authorization',
+      'Access-Control-Allow-Origin',
     ],
     exposedHeaders: [
       'Authorization',
