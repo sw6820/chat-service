@@ -1,73 +1,144 @@
 config:
   target: 'https://api.stahc.uk'  # Your server address
   phases:
-    - duration: 60  # Test duration in seconds
-      arrivalRate: 10  # 10 users per second
+    - name: "Warm up"
+      duration: 30
+      arrivalRate: 2
+      rampTo: 5
+    - name: "Normal load"
+      duration: 60
+      arrivalRate: 5
+      rampTo: 10
+    - name: "Peak load"
+      duration: 30
+      arrivalRate: 10
+      rampTo: 15
+    # - duration: 60  # Test duration in seconds
+    #   arrivalRate: 5  # 5 users per second
+  processor: "./processor.mjs"  # We'll create this to handle JSON data
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  ws:
+    # WebSocket endpoint
+    url: "wss://api.stahc.uk/chat"
+    subProtocols: ["socket.io"]
+
 scenarios:
-  # Scenario for registering and logging in users
-  - name: "User registration and login"
+  - name: "Chat room and messaging flow"
+    beforeScenario: "loadUserData"  # Custom function to load JSON data
     flow:
-      - post:
-          url: "/auth/signup"
-          json:
-            username: "user{{ $loop }}@example.com"
-            email: "user{{ $loop }}@example.com"
-            password: "password123"
-          capture:
-            - json: "$.token"  # Capture the token for further use
-              as: "token" 
-      - post:
-          url: "/auth/login"
-          json:
-            email: "user{{ $loop }}@example.com"
-            password: "password123"
-          capture:
-            - json: "$.token"  # Capture the token after login
-              as: "token"
-  
-  - name: "User sends a message"
-    flow:
-      - post:
-          url: "/chat/send"  # Endpoint for sending messages
-          json:
-            content: "Hello from user {{ userId }}"
-            userId: "{{ userId }}"
-          capture:
-            - json: "$.messageId"  # Capture the message ID for further validation
-              as: "messageId" # Specify how to store the captured value
+      # 2. Initialize WebSocket connection
+      - connect:
+          engine: "socketio"
+          namespace: "/chat"
+          auth:
+            token: "{{ socketToken }}"      
 
-  - name: "User joins a chat room"
-    flow:
+      # 1. Create or find a chat room
       - post:
-          url: "/rooms/join"  # Endpoint for joining a chat room
-          json:
-            roomId: "{{ roomId }}"
-            userId: "{{ userId }}"
-          capture:
-            - json: "$.roomId"  # Capture the room ID for validation
-              as: "joinedRoomId"  # Specify how to store the captured value
-
-  - name: "User loads chat history"
-    flow:
-      - get:
-          url: "/chat/rooms/{{ roomId }}/logs"  # Endpoint for loading chat logs
+          url: "/rooms/find-or-create"  # First create or find a room
           headers:
-            Authorization: "Bearer {{ token }}"  # Use a valid token
+            Authorization: "{{ token }}"
+          json:
+            friendId: "{{ $randomNumber(1,2) }}"  # Assuming friend ID for testing
           capture:
-            - json: "$.messages"  # Capture messages for validation
-              as: "chatMessages"
+            - json: "$.roomId"
+              as: "roomId"    
+          expect:
+            - statusCode: 200
 
-  - name: "Simulate multiple users sending messages"
-    flow:
+      # 3. Join chat room (WebSocket)
+      - emit:
+          channel: "joinRoom"
+          data:
+            roomId: "{{ roomId }}"
+          expect:
+            - "joinedRoom"
+
+      # 4. Send messages (WebSocket)
+      - emit:
+          channel: "sendMessage"
+          data:
+            userId: "{{ userId }}"
+            roomId: "{{ roomId }}"
+            content: "Hello from user {{ userId }}"
+          expect:
+            - "newMessage"
+
+      # 5. Send longer message
+      - think: 2
+      - emit:
+          channel: "sendMessage"
+          data:
+            userId: "{{ userId }}"
+            roomId: "{{ roomId }}"
+            content: "This is a longer test message to verify handling of extended content"
+          expect:
+            - "newMessage"
+
+      # 6. Rapid message sequence
       - loop:
-        - post:
-            url: "/chat/send"
-            json:
-              content: "Message {{ $loopCount }} from user {{ userId }}"
-              userId: "{{ userId }}"
-        count: 5  # Each user sends 5 messages
+          - emit:
+              channel: "sendMessage"
+              data:
+                userId: "{{ userId }}"
+                roomId: "{{ roomId }}"
+                content: "Quick message {{ $loopCount }}"
+              expect:
+                - "newMessage"
+          - think: 0.5
+        count: 5
 
-  - name: "Retrieve chat logs"
-    flow:
+      # # 2. Join the chat room
+      # - post:
+      #     url: "/rooms/{{ roomId }}/join"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       userId: "{{ userId }}"
+      #     expect:
+      #       - statusCode: 200
+
+      # 3. Load chat history before sending messages
       - get:
-          url: "/chat/rooms/1/logs"
+          url: "/chat/rooms/{{ roomId }}/logs"
+          headers:
+            Authorization: "{{ token }}"
+          expect:
+            - statusCode: 200
+
+      # 8. Leave room (WebSocket)
+      - emit:
+          channel: "leaveRoom"
+          data:
+            roomId: "{{ roomId }}"
+          expect:
+            - "leftRoom"
+
+      # 9. Disconnect WebSocket
+      - disconnect: {}            
+
+  - name: "History retrieval flow"
+    beforeScenario: "loadUserData"
+    flow:
+      # Only REST API tests for history
+      - post:
+          url: "/rooms/find-or-create"
+          headers:
+            Authorization: "{{ token }}"
+          json:
+            friendId: "{{ $randomNumber(1,10) }}"
+          capture:
+            - json: "$.roomId"
+              as: "roomId"
+
+      - loop:
+          - get:
+              url: "/chat/rooms/{{ roomId }}/logs"
+              headers:
+                Authorization: "{{ token }}"
+              expect:
+                - statusCode: 200
+          - think: 2
+        count: 3

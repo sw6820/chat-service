@@ -11,6 +11,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     // Add some logging here
     console.log('JwtAuthGuard: Checking authentication');
+    // console.log(`context : ${JSON.stringify(context)}`);
+    console.log(`context: ${Object.keys(context)}`);
     return super.canActivate(context);
   }
 

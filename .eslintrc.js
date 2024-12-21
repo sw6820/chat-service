@@ -14,8 +14,13 @@ module.exports = {
   env: {
     node: true,
     jest: true,
-  },
-  ignorePatterns: ['.eslintrc.js'],
+  },  
+  ignorePatterns: [
+    'dist',
+    'node_modules',
+    '.eslintrc.js',
+    'artillery/**/*',  // Add this line
+  ],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',

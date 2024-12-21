@@ -1,6 +1,13 @@
 [
-  { "userId": 1, "roomId": 1, "message": "Hello, this is user 1!" },
-  { "userId": 2, "roomId": 1, "message": "User 2 here!" },
-  { "userId": 3, "roomId": 2, "message": "User 3 sending a message." },
-  { "userId": 4, "roomId": 2, "message": "User 4 joining the chat." }
+  {
+    "userId": 1,
+    "roomId": "1",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoiYSIsImVtYWlsIjoiYUBhLmNvbSIsImlhdCI6MTczNDc4NTg5OCwibmJmIjoxNzM0Nzg1ODk4LCJleHAiOjE3MzUzOTA2OTgsImF1ZCI6WyJjaGF0LXNlcnZpY2UtYXBpIl0sImlzcyI6ImNoYXQtc2VydmljZSJ9.649umFedhZ8DrQ-0PSTv1NLy546a93gJl0vX_Em2Jpc"
+  },
+  {
+    "userId": 2,
+    "roomId": "1",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInVzZXJuYW1lIjoiYiIsImVtYWlsIjoiYkBiLmNvbSIsImlhdCI6MTczNDc4NjIyNywibmJmIjoxNzM0Nzg2MjI3LCJleHAiOjE3MzUzOTEwMjcsImF1ZCI6WyJjaGF0LXNlcnZpY2UtYXBpIl0sImlzcyI6ImNoYXQtc2VydmljZSJ9._fkCuQmZ1XaD-vfyQ4TbXqz9QlGnV0Ds6PFt0EAj7AE"
+  }
 ]
+
