@@ -47,7 +47,7 @@ console.log(`env : ${process.cwd()}/envs/.env.${process.env.NODE_ENV}`);
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
         entities: [__dirname + '/**/**/entities/*.entity{.ts,.js}'],
-        synchronize: true, // configService.get('NODE_ENV') === 'local',
+        synchronize: false, // configService.get('NODE_ENV') === 'local',
         logging: configService.get('NODE_ENV') === 'local',
         autoLoadEntities: true,
       }),
@@ -97,10 +97,6 @@ export class AppModule implements NestModule {
       ${this.configService.get<string>('SERVER_DOMAIN')}, 
       ${this.configService.get<number>('SERVER_PORT')}`,
     );
-    // console.log(
-    //   'JWT_SECRET in AppModule:',
-    //   this.configService.get<string>('JWT_SECRET'),
-    // ); // Check JWT_SECRET
     console.log(
       'All env variables:',
       this.configService.get<Record<string, any>>(''),

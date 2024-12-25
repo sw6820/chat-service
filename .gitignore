@@ -160,3 +160,9 @@ pids
 
 # Coverage directory
 coverage/
+
+# Ignore the Artillery data folder
+artillery/data/
+
+# Ignore the Artillery connection-test folder
+artillery/connection-test/

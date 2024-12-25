@@ -44,7 +44,7 @@
 //    "frontend/public/**/*.js",
     "typings/**/*.d.ts",
 //    "tests",
-//    "tests/**/*.ts"
+   "tests/**/*.ts"
   ],
   "exclude": [
     "node_modules",

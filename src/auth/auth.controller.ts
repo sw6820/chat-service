@@ -52,16 +52,6 @@ export class AuthController {
       });
 
       console.log('Token generated successfully');
-
-      // Set explicit CORS headers
-      // res.header(
-      //   'Access-Control-Allow-Origin',
-      //   'https://chat-service-frontend.pages.dev',
-      // );
-      // res.header('Access-Control-Allow-Credentials', 'true');
-      // res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');
-      // res.header('Authorization', `Bearer ${access_token}`);
-
       console.log('Response headers set successfully');
 
       return res.status(201).json({
@@ -134,17 +124,6 @@ export class AuthController {
       );
 
       console.log('Token generated successfully');
-
-      // Set explicit CORS headers
-      // res.header(
-      //   'Access-Control-Allow-Origin',
-      //   'https://chat-service-frontend.pages.dev',
-      // );
-      // res.header('Access-Control-Allow-Credentials', 'true');
-      // res.header('Access-Control-Expose-Headers', 'Authorization, Set-Cookie');
-
-      // // Set Authorization header
-      // res.header('Authorization', `Bearer ${access_token}`);
 
       // Set cookie with appropriate options for cross-site usage
       res.cookie('access_token', access_token, {

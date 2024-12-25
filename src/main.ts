@@ -83,22 +83,22 @@ async function bootstrap() {
   const environment = configService.get<string>('NODE_ENV');
   // consol
   console.log(`node env : ${environment}`);
-  const rateLimiter = new RateLimiterMemory({
-    points: 5, // Number of points
-    duration: 1, // Per second
-  });
+  // const rateLimiter = new RateLimiterMemory({
+  //   points: 5, // Number of points
+  //   duration: 1, // Per second
+  // });
 
-  app.use((req, res, next) => {
-    rateLimiter
-      .consume(req.ip)
-      .then(() => {
-        next();
-      })
-      .catch(() => {
-        7;
-        res.status(429).send('Too Many Requests');
-      });
-  });
+  // app.use((req, res, next) => {
+  //   rateLimiter
+  //     .consume(req.ip)
+  //     .then(() => {
+  //       next();
+  //     })
+  //     .catch(() => {
+  //       7;
+  //       res.status(429).send('Too Many Requests');
+  //     });
+  // });
 
   // Global validation pipes
   app.useGlobalPipes(new ValidationPipe());
@@ -130,7 +130,6 @@ async function bootstrap() {
     origin: [
       'https://chat-service-frontend.pages.dev',
       'https://*.chat-service-frontend.pages.dev',
-      // 'http://localhost:3000',
       'http://localhost:8080',
       'http://127.0.0.1:8080',
     ],

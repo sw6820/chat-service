@@ -3,19 +3,19 @@ config:
   phases:
     - name: "Warm up"
       duration: 30
-      arrivalRate: 2
-      rampTo: 5
+      arrivalRate: 1
+      rampTo: 2
     - name: "Normal load"
       duration: 60
-      arrivalRate: 5
-      rampTo: 10
+      arrivalRate: 2
+      rampTo: 5
     - name: "Peak load"
       duration: 30
       arrivalRate: 10
       rampTo: 15
     # - duration: 60  # Test duration in seconds
     #   arrivalRate: 5  # 5 users per second
-  processor: "./processor.mjs"  # We'll create this to handle JSON data
+  processor: "./processor.ts"  # We'll create this to handle JSON data
   defaults:
     headers:
       Content-Type: "application/json"
@@ -28,23 +28,36 @@ scenarios:
   - name: "Chat room and messaging flow"
     beforeScenario: "loadUserData"  # Custom function to load JSON data
     flow:
+  
+
+      # Get friends list
+      - get:
+          url: "/users/friends"
+          headers:
+            Authorization: "Bearer{{ token }}"
+          capture:
+            - json: "$.friends"
+              as: "friendsList"
+            - json: "$.friends[{{ Math.floor($randomNumber(0, $length(friendsList)-1)) }}].id"
+              as: "friendId"
+
       # 2. Initialize WebSocket connection
       - connect:
           engine: "socketio"
           namespace: "/chat"
           auth:
-            token: "{{ socketToken }}"      
+            token: "{{ socketToken }}"    
 
       # 1. Create or find a chat room
       - post:
           url: "/rooms/find-or-create"  # First create or find a room
           headers:
-            Authorization: "{{ token }}"
+            Authorization: "Bearer{{ token }}"
           json:
-            friendId: "{{ $randomNumber(1,2) }}"  # Assuming friend ID for testing
-          capture:
-            - json: "$.roomId"
-              as: "roomId"    
+            friendId: "{{ friendId }}"  # Assuming friend ID for testing
+          # capture:
+          #   - json: "$.roomId"
+          #     as: "roomId"    
           expect:
             - statusCode: 200
 
@@ -55,6 +68,15 @@ scenarios:
             roomId: "{{ roomId }}"
           expect:
             - "joinedRoom"
+
+
+      # 3. Load chat history before sending messages
+      - get:
+          url: "/chat/rooms/{{ roomId }}/logs"
+          headers:
+            Authorization: "Bearer{{ token }}"
+          expect:
+            - statusCode: 200            
 
       # 4. Send messages (WebSocket)
       - emit:
@@ -104,7 +126,7 @@ scenarios:
       - get:
           url: "/chat/rooms/{{ roomId }}/logs"
           headers:
-            Authorization: "{{ token }}"
+            Authorization: "Bearer{{ token }}"
           expect:
             - statusCode: 200
 
@@ -126,9 +148,9 @@ scenarios:
       - post:
           url: "/rooms/find-or-create"
           headers:
-            Authorization: "{{ token }}"
+            Authorization: "Bearer {{ token }}"
           json:
-            friendId: "{{ $randomNumber(1,10) }}"
+            friendId: "{{ friendId }}"  # Assuming friend ID for testing
           capture:
             - json: "$.roomId"
               as: "roomId"
@@ -137,7 +159,7 @@ scenarios:
           - get:
               url: "/chat/rooms/{{ roomId }}/logs"
               headers:
-                Authorization: "{{ token }}"
+                Authorization: "Bearer {{ token }}"
               expect:
                 - statusCode: 200
           - think: 2
