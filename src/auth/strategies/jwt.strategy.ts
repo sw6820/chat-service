@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    console.log(`validating jwt strategy with payload:`, payload); // Log payload for debugging
+    // console.log(`validating jwt strategy with payload:`, payload); // Log payload for debugging
     if (!payload) {
       throw new UnauthorizedException('Invalid token payload');
     }
@@ -36,7 +36,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       console.error(`User not found for ID: ${payload.sub}`); // Log user not found
       throw new UnauthorizedException();
     }
-    console.log(`User validated: ${JSON.stringify(user)}`);
+    // console.log(`User validated: ${JSON.stringify(user)}`);
     return {
       userId: payload.sub,
       username: payload.username,

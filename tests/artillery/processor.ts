@@ -59,6 +59,7 @@ async function login(email: string, password: string): Promise<string> {
       return response.data.access_token;
     } catch (error) {
       console.error(`Login failed for ${email}:`, error.message);
+      console.log(`Login failed for ${email}:`, error.message);
       throw error;
     }
   });
@@ -74,6 +75,7 @@ async function getFriends(token: string): Promise<Friend[]> {
     return response.data.friends;
   } catch (error) {
     console.error('Error fetching friends:', error.message);
+    console.log('Error fetching friends:', error.message);
     throw error;
   }
 }
@@ -84,6 +86,7 @@ async function getUserSecure(email: string): Promise<Partial<User>> {
     return response.data;
   } catch (error) {
     console.error(`Error fetching user ${email}:`, error.message);
+    console.log(`Error fetching user ${email}:`, error.message);
     throw error;
   }
 }
@@ -102,25 +105,26 @@ async function getRoom(token: string, friendId: number): Promise<string> {
     return response.data.roomId;
   } catch (error) {
     console.error('Error creating/finding room:', error.message);
+    console.log('Error creating/finding room:', error.message);
     throw error;
   }
 }
 
-async function registerUser(userData: RegisterUserDto): Promise<void> {
-  try {
-    await axios.post(`${API_URL}/auth/signup`, userData);
-    console.log(`Successfully registered user ${userData.email}`);
-  } catch (error) {
-    if (
-      error.response?.status === 400 &&
-      error.response?.data?.message?.includes('already exists')
-    ) {
-      console.log(`User ${userData.email} already exists`);
-      return;
-    }
-    throw error;
-  }
-}
+// async function registerUser(userData: RegisterUserDto): Promise<void> {
+//   try {
+//     await axios.post(`${API_URL}/auth/signup`, userData);
+//     console.log(`Successfully registered user ${userData.email}`);
+//   } catch (error) {
+//     if (
+//       error.response?.status === 400 &&
+//       error.response?.data?.message?.includes('already exists')
+//     ) {
+//       console.log(`User ${userData.email} already exists`);
+//       return;
+//     }
+//     throw error;
+//   }
+// }
 
 export function loadUserData(
   userContext: any,
@@ -133,45 +137,35 @@ export function loadUserData(
       if (!users) {
         const userData = readFileSync('./data/chat-users.json', 'utf-8');
         users = JSON.parse(userData);
-        console.log(`users: ${JSON.stringify(users)}`);
-
-        // Validate users exist
-        console.log('Validating user data...');
       }
 
       // Cycle through users in the data file
       const user = users[userIndex % users.length];
       userIndex++;
-      console.log(`user: ${JSON.stringify(user)}`);
       const token = await login(user.email, user.password);
       const userInfo = await getUserSecure(user.email);
-      console.log(`userinfo : ${JSON.stringify(userInfo)}`);
       const friends = await getFriends(token);
-      console.log(`${userInfo.email} friends: ${JSON.stringify(friends)}`);
-
       // Get random friend and create room
       const randomFriend = friends[Math.floor(Math.random() * friends.length)];
-      console.log(`random friend: ${JSON.stringify(randomFriend)}`);
       const roomId = await getRoom(token, randomFriend.id);
-      console.log(`roomeId: ${roomId}`);
-      // Set user data directly without login (since we have tokens in JSON)      
+      // Set user data directly without login (since we have tokens in JSON)
 
       userContext.vars = {
         userId: userInfo.id,
-        token: token, //`Bearer ${token}`,
-        // socketToken: token,
+        token: token,
         roomId: roomId,
         email: user.email,
 
         friends: friends,
-        friendId: 1,
-          // friends.length > 0
-          //   ? friends[Math.floor(Math.random() * friends.length)].id
-          //   : null,
+        friendId:
+          friends.length > 0
+            ? friends[Math.floor(Math.random() * friends.length)].id
+            : null,
       };
-      done(null, userContext); // Pass null as first argument for no error
+      done(null, userContext);
     } catch (error) {
       console.error('Error in loadUserData:', error.message);
+      console.log('Error in loadUserData:', error.message);
       done(error instanceof Error ? error : new Error(String(error)));
     }
   })();
