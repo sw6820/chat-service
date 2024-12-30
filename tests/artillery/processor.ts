@@ -29,6 +29,42 @@ const API_URL = 'https://api.stahc.uk'; //process.env.API_URL || 'http://localho
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
 
+const connectionPool = {
+  maxConnections: 10,
+  currentConnections: 0,
+  queue: [] as Array<() => void>,
+
+  async acquire(): Promise<void> {
+    if (this.currentConnections < this.maxConnections) {
+      this.currentConnections++;
+      return;
+    }
+
+    return new Promise((resolve) => {
+      this.queue.push(resolve);
+    });
+  },
+
+  release(): void {
+    this.currentConnections--;
+    const next = this.queue.shift();
+    if (next) {
+      this.currentConnections++;
+      next();
+    }
+  }
+};
+
+// Use in API calls
+async function makeRequest<T>(fn: () => Promise<T>): Promise<T> {
+  await connectionPool.acquire();
+  try {
+    return await fn();
+  } finally {
+    connectionPool.release();
+  }
+}
+
 async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -126,6 +162,19 @@ async function getRoom(token: string, friendId: number): Promise<string> {
 //   }
 // }
 
+// Add error tracking
+const errorTracker = {
+  errors: new Map<string, number>(),
+  addError(type: string) {
+    const count = this.errors.get(type) || 0;
+    this.errors.set(type, count + 1);
+    if (count > 50) {
+      console.error(`High error rate for ${type}: ${count}`);
+    }
+  }
+};
+
+// Modify loadUserData function
 export function loadUserData(
   userContext: any,
   events: any,
@@ -133,6 +182,14 @@ export function loadUserData(
 ): void {
   (async () => {
     try {
+      // await rateLimiter.acquire();
+      
+      // Add session tracking
+      if (!userContext.vars) {
+        userContext.vars = {};
+      }
+      userContext.vars.sessionStartTime = Date.now();
+
       // Load data only once and cache it
       if (!users) {
         const userData = readFileSync('./data/chat-users.json', 'utf-8');
@@ -162,11 +219,28 @@ export function loadUserData(
             ? friends[Math.floor(Math.random() * friends.length)].id
             : null,
       };
-      done(null, userContext);
+
+      // Add validation
+      if (!userContext.vars.token) {
+        throw new Error('Authentication failed');
+      }
+
+      if (!userContext.vars.roomId) {
+        throw new Error('Room creation failed');
+      }
+
+      done(null);
     } catch (error) {
-      console.error('Error in loadUserData:', error.message);
-      console.log('Error in loadUserData:', error.message);
-      done(error instanceof Error ? error : new Error(String(error)));
+      errorTracker.addError(error.message);
+      done(error);
     }
   })();
+}
+
+// Add cleanup function
+export function cleanupSession(context: any, events: any, done: DoneCallback) {
+  if (context.vars.token) {
+    delete context.vars.token;
+  }
+  done(null);
 }

@@ -1,5 +1,5 @@
 config:
-  target: 'https://api.stahc.uk'  # Your server address
+  target: 'https://api.stahc.uk' # https://api.stahc.uk # Your server address
   phases:
     - name: "Warm up"
       duration: 30
@@ -13,16 +13,19 @@ config:
       duration: 30
       arrivalRate: 10
       rampTo: 15
-    # - duration: 60  # Test duration in seconds
-    #   arrivalRate: 5  # 5 users per second
+    - duration: 60  # Test duration in seconds
+      arrivalRate: 5  # 5 users per second
   processor: "./processor.ts"  # We'll create this to handle JSON data
   defaults:
     headers:
       Content-Type: "application/json"
   ws:
     # WebSocket endpoint
-    url: "wss://api.stahc.uk/chat"
+    url: "wss://api.stahc.uk/chat" #"wss://api.stahc.uk/chat"
+    rejectUnauthorized: false
     subProtocols: ["socket.io"]
+  
+  verbose: true
 
 scenarios:
   - name: "Chat room and messaging flow"

@@ -53,3 +53,4 @@ export class ChatController {
     return this.chatService.updateRoomNameForUser(userId, roomId, newRoomName);
   }
 }
+

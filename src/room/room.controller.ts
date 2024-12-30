@@ -53,7 +53,7 @@ export class RoomController {
       return { roomId: room.id };
     } catch (error) {
       this.logger.error(
-        `Error in findOrCreateRoom: ${error.message}`,
+        `Error in findOrCreateRoom: ${error.message} userId: ${req.user['userId']} friend: ${friendId} `,
         error.stack,
       );
       throw error;
