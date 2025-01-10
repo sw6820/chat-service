@@ -1,9 +1,12 @@
 import { readFileSync } from 'fs';
 import axios from 'axios';
 import { DoneCallback } from 'passport';
+import { io } from 'socket.io-client';
+import { randomInt } from 'crypto';
 // import { promises as fs } from 'fs';
 
 interface User {
+  id: number;
   email: string;
   password: string;
 }
@@ -14,17 +17,17 @@ interface Friend {
   username: string;
 }
 
-interface RegisterUserDto {
-  email: string;
-  password: string;
-  username: string;
-}
+// interface RegisterUserDto {
+//   email: string;
+//   password: string;
+//   username: string;
+// }
 
 let users: User[];
 let userIndex = 0;
 
-const API_URL = 'https://api.stahc.uk'; //process.env.API_URL || 'http://localhost:3000';
-
+const API_URL = 'http://localhost:3000' // 'https://api.stahc.uk'; //process.env.API_URL || 'http://localhost:3000';
+const SOCKET_URL = 'ws://localhost:3000' // "wss://api.stahc.uk"
 // Add retry configuration
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
@@ -56,14 +59,14 @@ const connectionPool = {
 };
 
 // Use in API calls
-async function makeRequest<T>(fn: () => Promise<T>): Promise<T> {
-  await connectionPool.acquire();
-  try {
-    return await fn();
-  } finally {
-    connectionPool.release();
-  }
-}
+// async function makeRequest<T>(fn: () => Promise<T>): Promise<T> {
+//   await connectionPool.acquire();
+//   try {
+//     return await fn();
+//   } finally {
+//     connectionPool.release();
+//   }
+// }
 
 async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -92,6 +95,7 @@ async function login(email: string, password: string): Promise<string> {
         email,
         password,
       });
+      // console.log(`res data: ${JSON.stringify(response.data)}`);
       return response.data.access_token;
     } catch (error) {
       console.error(`Login failed for ${email}:`, error.message);
@@ -174,6 +178,11 @@ const errorTracker = {
   }
 };
 
+const socket = io(SOCKET_URL, {
+  transports: ['websocket'],
+  autoConnect: false
+});
+
 // Modify loadUserData function
 export function loadUserData(
   userContext: any,
@@ -192,47 +201,94 @@ export function loadUserData(
 
       // Load data only once and cache it
       if (!users) {
-        const userData = readFileSync('./data/chat-users.json', 'utf-8');
-        users = JSON.parse(userData);
+        try {
+          const userData = readFileSync('./data/chat-users.json', 'utf-8');
+          users = JSON.parse(userData);
+          // console.log(`Loaded ${users.length} users from file`);
+        } catch (error) {
+          console.error('Error loading users:', error);
+          return done(new Error('Failed to load users data'));
+        }
+      }
+
+      // Validate users array
+      if (!users || !Array.isArray(users) || users.length === 0) {
+        console.error('No valid users found');
+        return done(new Error('No valid users available'));
       }
 
       // Cycle through users in the data file
       const user = users[userIndex % users.length];
       userIndex++;
-      const token = await login(user.email, user.password);
-      const userInfo = await getUserSecure(user.email);
-      const friends = await getFriends(token);
-      // Get random friend and create room
-      const randomFriend = friends[Math.floor(Math.random() * friends.length)];
-      const roomId = await getRoom(token, randomFriend.id);
-      // Set user data directly without login (since we have tokens in JSON)
+      // console.log(`user email: ${user.email}`)
+      try {
+        const token = await login(user.email, user.password);
+        const userInfo = await getUserSecure(user.email);
+        const friends = await getFriends(token);
 
-      userContext.vars = {
-        userId: userInfo.id,
-        token: token,
-        roomId: roomId,
-        email: user.email,
+        if (!friends || friends.length === 0) {
+          console.error(`No friends found for user ${user.email}`);
+          return done(new Error('No friends available'));
+        }
 
-        friends: friends,
-        friendId:
-          friends.length > 0
-            ? friends[Math.floor(Math.random() * friends.length)].id
-            : null,
-      };
+        const randomFriend = friends[Math.floor(Math.random() * friends.length)];
+        const roomId = await getRoom(token, randomFriend.id);
 
-      // Add validation
-      if (!userContext.vars.token) {
-        throw new Error('Authentication failed');
+        const currentUser = {
+          email: user.email,
+          id: userInfo.id,
+          friend: {
+            id: randomFriend.id,
+            email: randomFriend.email
+          }
+        };
+
+        // Set context variables
+        userContext.vars = {
+          userId: userInfo.id,
+          token: token,
+          roomId: roomId,
+          email: user.email,
+          friends: friends,
+          friendId: randomFriend.id,
+          // Export the current user data
+          currentUser: {
+            email: user.email,
+            id: userInfo.id,
+            friend: {
+              id: randomFriend.id,
+              email: randomFriend.email
+            }
+          },
+          content: randomInt(10),
+        };
+
+        // Validation
+        if (!userContext.vars.token) {
+          return done(new Error('Authentication failed'));
+        }
+
+        if (!userContext.vars.roomId) {
+          return done(new Error('Room creation failed'));
+        }
+
+        // Log success for debugging
+        // console.log(`Successfully loaded user: ${user.email} with ID: ${userInfo.id}`);
+
+        events.currentUser = currentUser;
+
+        // Pass the user data through done callback
+        return done(null, userContext.vars.currentUser);
+
+      } catch (error) {
+        console.error(`Error processing user ${user.email}:`, error);
+        errorTracker.addError(error.message);
+        return done(error);
       }
-
-      if (!userContext.vars.roomId) {
-        throw new Error('Room creation failed');
-      }
-
-      done(null);
     } catch (error) {
+      console.error('Unexpected error:', error);
       errorTracker.addError(error.message);
-      done(error);
+      return done(error);
     }
   })();
 }
@@ -243,4 +299,34 @@ export function cleanupSession(context: any, events: any, done: DoneCallback) {
     delete context.vars.token;
   }
   done(null);
+}
+
+export function logResponse(userContext: any, events: any, done: Function) {
+  if (events.response) {
+    console.log('Response received:', JSON.stringify(events.response, null, 2));
+  }
+  return done();
+}
+
+// You can then access the user data in your test scenarios
+export function handleUserData(userContext: any, events: any, done: Function) {
+  if (events.currentUser) {
+    console.log('Current user from events:', events.currentUser);
+  }
+  if (userContext.vars.currentUser) {
+    console.log('Current user from context:', userContext.vars.currentUser);
+  }
+  return done();
+}
+
+export function handleSocketEvents(userContext: any, events: any, done: Function) {
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+  });
+
+  return done();
 }

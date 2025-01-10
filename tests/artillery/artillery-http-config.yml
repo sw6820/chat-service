@@ -1,8 +1,8 @@
 config:
-  target: 'https://api.stahc.uk' # https://api.stahc.uk # Your server address
+  target: "http://localhost:3000" #"https://api.stahc.uk" #  "ws://localhost:3000" # 
   phases:
     - name: "Warm up"
-      duration: 30
+      duration: 30 #30
       arrivalRate: 1
       rampTo: 2
     - name: "Normal load"
@@ -15,105 +15,385 @@ config:
       rampTo: 15
     - duration: 60  # Test duration in seconds
       arrivalRate: 5  # 5 users per second
-  processor: "./processor.ts"  # We'll create this to handle JSON data
+  processor: "./processor.ts"
   defaults:
     headers:
       Content-Type: "application/json"
-  ws:
-    # WebSocket endpoint
-    url: "wss://api.stahc.uk/chat" #"wss://api.stahc.uk/chat"
-    rejectUnauthorized: false
-    subProtocols: ["socket.io"]
+      Accept: "application/json"
+      Authorization: "Bearer {{ token }}"  # For authenticated requests
   
+  # Socket.io endpoint      
+  socketio:    
+    url: "http://localhost:3000"
+    transports: ["websocket"]
   verbose: true
 
 scenarios:
-  - name: "Chat room and messaging flow"
-    beforeScenario: "loadUserData"  # Custom function to load JSON data
+  - name: "Test scenario"
+    engine: socketio
     flow:
+      - function: "loadUserData"
+      - think: 1
+      # - function: "handleUserData" 
+      # - log: "{{ email }} {{ roomId }} {{ userId }} {{ friends }} {{ friendId }}"
+      - emit:
+          channel: 'sendMessage'
+          data: '{{ content }}'
+      - think: 1
+      
+    
+  # - name: "Real JWT Test"
+  #   flow:
+  #     # - log: "{{ email }} : {{ password }}"
+  #     - function: "loadUserData"
+  #     - think: 1
+  #     - function: "handleUserData"       
+  #     - post:
+  #         url: "/auth/login"
+  #         json:
+  #           email: '{{ email }}'
+  #           password: '{{ password }}'
+  #         capture:
+  #           - json: "$.access_token"
+  #             as: "token"
   
+  # - name: "Socket conn"
+    # engine: "socketio"
+    # flow:
+    #   - function: "loadUserData"
+    #   - think: 1
+    #   - function: "handleUserData"
+    #   - connect:
+    #       url: "ws://localhost:3000"
+    #       extraHeaders:
+    #         Authorization: "Bearer {{ token }}"
+    #   - think: 5
+    #   - disconnect: {}
 
-      # Get friends list
-      - get:
-          url: "/users/friends"
-          headers:
-            Authorization: "Bearer{{ token }}"
-          capture:
-            - json: "$.friends"
-              as: "friendsList"
-            - json: "$.friends[{{ Math.floor($randomNumber(0, $length(friendsList)-1)) }}].id"
-              as: "friendId"
 
-      # 2. Initialize WebSocket connection
-      - connect:
-          engine: "socketio"
-          namespace: "/chat"
-          auth:
-            token: "{{ socketToken }}"    
+  # - name: "Bare Minimum - With Auth"
+  #   engine: "socketio"
+  #   flow:
+  #     - connect:
+  #         url: "ws://localhost:3000/" # "wss://api.stahc.uk"
+  #         path: "/socket.io"
+  #         # namespace: "/chat"
+  #         extraHeaders:
+  #           Authorization: "Bearer {{ token }}"  # or from your processor
+  #     - think: 5
+  #     - disconnect: {}
 
-      # 1. Create or find a chat room
-      - post:
-          url: "/rooms/find-or-create"  # First create or find a room
-          headers:
-            Authorization: "Bearer{{ token }}"
-          json:
-            friendId: "{{ friendId }}"  # Assuming friend ID for testing
-          # capture:
-          #   - json: "$.roomId"
-          #     as: "roomId"    
-          expect:
-            - statusCode: 200
+
+
+#   - name: "Chat Flow with Processor"
+#     # This calls loadUserData from your processor before the scenario
+#     beforeScenario: "loadUserData"
+#     engine: "socketio"
+#     flow:
+#       # Now that processor already logs in, we don't re-login here.
+      
+#       # 1) Connect via Socket.IO, using the token set in processor
+#     - connect:
+#         engine: "socketio"
+#         url: "ws://localhost:3000" # "wss://api.stahc.uk/socket.io/?EIO=4&transport=websocket"  # No /chat in the URL
+# #         namespace: "/chat"         # Let Artillery handle the /chat namespace
+#         path: "/socket.io"
+#         auth:
+#           token: "Bearer {{ token }}"          
+#         extraHeaders:
+#           Authorization: "Bearer {{ token }}"
+#     - log: "token : {{ token }}"
+#     - think: 2
+#     - disconnect: {}
+  #     # 2) Optionally join the room created in processor
+  #     - emit:
+  #         channel: "joinRoom"
+  #         data:
+  #           roomId: "{{ roomId }}"   # from userContext.vars
+  #         expect:
+  #           - "joinedRoom"
+  #     - log: "room Id : {{ roomId }}"
+      
+      # 3) (Optional) Send a test message
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"   # from userContext.vars
+      #       roomId: "{{ roomId }}"
+      #       content: "Hello from user {{ userId }}"
+      #     expect:
+      #       - "newMessage"
+      
+      # 4) Disconnect or do further steps if you like
+      # - disconnect: {}
+  # - name: "HTTP login"
+  #   beforeScenario: "loadUserData"
+  #   flow:
+  #     - post:
+  #         url: "/auth/login"
+  #         json:
+  #           email: "a@a.com" #"{{ email }}"
+  #           password: "1" #"{{ password }}"
+  #         capture:
+  #           - json: "$.access_token"
+  #             as: "token"
+
+      # - connect:
+      #     engine: "socketio"
+      #     url: "wss://api.stahc.uk"
+      #     namespace: "/chat"
+      #     extraHeaders:
+      #       Authorization: "Bearer {{ token }}"
+
+  # - name: "Chat flow over WebSocket"
+  #   beforeScenario: "loadUserData"
+  #   engine: "socketio"        # or "ws" if using raw websockets
+  #   flow:
+  #     - connect:
+  #         url: "wss://api.stahc.uk/chat"  # or use the top-level ws.url
+  #         namespace: "/chat"
+  #         extraHeaders:
+  #           Authorization: "Bearer {{ token }}"
+  #     - emit:
+  #         channel: "joinRoom"
+  #         data:
+  #           roomId: "{{ roomId }}"
+  #         expect:
+  #           - "joinedRoom"
+  # - name: "Chat flow"
+  #   beforeScenario: "loadUserData"    
+  #   flow:      
+      # Login first to get token
+      # - log:
+      #     message: "Attempting to get user data"
+      # - log: "POST {{ apiUrl }}/auth/login"
+      # - post:
+      #     url: "/auth/login"
+      #     json:
+      #       email: "{{ email }}"
+      #       password: "{{ password }}"
+      #     headers:
+      #       Content-Type: "application/json"
+      #       Accept: "application/json"       
+      #       Origin: "https://chat-service-frontend.pages.dev"     
+      # - log: "Response received from {{ email }}"
+      # - capture:
+      #     - json: "$.token"
+      #       as: "token"
+      # - log: "Token captured: {{ token }}"            
+      #     capture:
+      #       - json: "$.access_token"
+      #         as: "token"
+      # - log: "Login response received, token: {{ token }}"
+      # - get:
+        # json: 
+          # email: "{{ email }}"
+          # password: "{{ password }}"
+      #   url: "/users/getUser/{{ email }}"
+      #   headers:
+      #     Authorization: "Bearer {{ token }}"
+      # - log:
+      #     message: "Request completed for email: {{ email }}"      
+        # qs:
+        #   search_keyword: "{{ email }}"
+      # - log
+
+      # 2. Create chat room
+      # - log: "Step 2: Creating chat room"
+      # - post:
+      #     url: "/chat/rooms"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       name: "Test Room {{ $randomNumber(1,1000) }}"
+      #     capture:
+      #       - json: "$.id"
+      #         as: "roomId"
+      # - log: "Room created with ID: {{ roomId }}"
 
       # 3. Join chat room (WebSocket)
-      - emit:
-          channel: "joinRoom"
-          data:
-            roomId: "{{ roomId }}"
-          expect:
-            - "joinedRoom"
+      # - log: "Step 3: Joining room {{ roomId }} via WebSocket"
+      # - emit:
+      #     channel: "joinRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+      #     expect:
+      #       - "joinedRoom"
+      # - log: "Room join attempt completed"
+
+      # 4. Load chat history
+      # - log: "Step 4: Loading chat history for room {{ roomId }}"
+      # - get:
+      #     url: "/chat/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200
+      # - log: "Chat history loaded"
+
+      # 5. Send first message
+      # - log: "Step 5: Sending first message to room {{ roomId }}"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "Hello from user {{ userId }}"
+      #     expect:
+      #       - "newMessage"
+      # - log: "First message sent"
+
+      # 6. Send longer message
+      # - think: 2
+      # - log: "Step 6: Sending longer message"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "This is a longer test message to verify handling of extended content"
+      #     expect:
+      #       - "newMessage"
+      # - log: "Longer message sent"
+
+      # 7. Rapid message sequence
+      # - log: "Step 7: Starting rapid message sequence"
+      # - loop:
+      #     - log: "Sending rapid message {{ $loopCount }} of 5"
+      #     - emit:
+      #         channel: "sendMessage"
+      #         data:
+      #           userId: "{{ userId }}"
+      #           roomId: "{{ roomId }}"
+      #           content: "Quick message {{ $loopCount }}"
+      #         expect:
+      #           - "newMessage"
+      #     - log: "Rapid message {{ $loopCount }} sent"
+      #     - think: 0.5
+      #   count: 5
+      # - log: "Rapid message sequence completed"
+
+      # 8. Final step
+      # - log: "Test scenario completed for user {{ userId }} in room {{ roomId }}"
+
+  # - name: "Chat room and messaging flow"
+  
+    # beforeScenario: "loadUserData"  # Custom function to load JSON data
+    # flow:
+      # -get:
+      #   url: "users/getUser"
+      # # 1. Login
+      # - log: "Step 1: Attempting login with email {{ email }}"
+      # - post:
+      #     url: "/auth/login"
+      #     json:
+      #       email: "{{ email }}"
+      #       password: "{{ password }}"
+      #     capture:
+      #       - json: "$.access_token"
+      #         as: "token"
+      # - log: "Login completed, token captured: {{ token }}"    
+  
+      # 2. Initialize WebSocket connection
+      # - connect:
+      #     engine: "socketio"
+      #     namespace: "/chat"
+      #     auth:
+      #       token: "{{ socketToken }}"    
+      # - log: "Connected, token captured: {{ token }}"            
+
+      # Get friends list
+      # - get:
+      #     url: "/users/friends"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     capture:
+      #       - json: "$.friends"
+      #         as: "friendsList"
+      #       - json: "$.friends[{{ Math.floor($randomNumber(0, $length(friendsList)-1)) }}].id"
+      #         as: "friendId"
+      # - log: "friend: {{ friendId }}"
+
+      # 1. Create or find a chat room
+      # - post:
+      #     url: "/rooms/find-or-create"  # First create or find a room
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       friendId: "{{ friendId }}"  # Assuming friend ID for testing
+      #     capture:
+      #       - json: "$.roomId"
+      #         as: "roomId"    
+      #     expect:
+      #       - statusCode: 200
+      # - log: "room: {{ roomId }}"
+
+      # 3. Join chat room (WebSocket)
+      # - log: "Step 3: Joining room {{ roomId }} via WebSocket"
+      # - emit:
+      #     channel: "joinRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+      #     capture:
+      #       - json: "$[1].roomId"
+      #         as: "roomId"
+      #     log:: "roomId : {{ roomId }}"
+      #     expect:
+      #       - "joinedRoom"
 
 
       # 3. Load chat history before sending messages
-      - get:
-          url: "/chat/rooms/{{ roomId }}/logs"
-          headers:
-            Authorization: "Bearer{{ token }}"
-          expect:
-            - statusCode: 200            
+      # - get:
+      #     url: "/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200            
+      # - log: "Chat history loaded"
 
       # 4. Send messages (WebSocket)
-      - emit:
-          channel: "sendMessage"
-          data:
-            userId: "{{ userId }}"
-            roomId: "{{ roomId }}"
-            content: "Hello from user {{ userId }}"
-          expect:
-            - "newMessage"
+      # - log: "Step 5: Sending first message to room {{ roomId }}"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "Hello from user {{ userId }}"
+      #     expect:
+      #       - "newMessage"
+      # - log: "First message sent"
 
       # 5. Send longer message
-      - think: 2
-      - emit:
-          channel: "sendMessage"
-          data:
-            userId: "{{ userId }}"
-            roomId: "{{ roomId }}"
-            content: "This is a longer test message to verify handling of extended content"
-          expect:
-            - "newMessage"
+      # - think: 2
+      # - log: "Step 6: Sending longer message"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "This is a longer test message to verify handling of extended content"
+      #     expect:
+      #       - "newMessage"
+      # - log: "Longer message sent"
 
       # 6. Rapid message sequence
-      - loop:
-          - emit:
-              channel: "sendMessage"
-              data:
-                userId: "{{ userId }}"
-                roomId: "{{ roomId }}"
-                content: "Quick message {{ $loopCount }}"
-              expect:
-                - "newMessage"
-          - think: 0.5
-        count: 5
+      # - log: "Step 7: Starting rapid message sequence"
+      # - loop:
+      #     - emit:
+      #         channel: "sendMessage"
+      #         data:
+      #           userId: "{{ userId }}"
+      #           roomId: "{{ roomId }}"
+      #           content: "Quick message {{ $loopCount }}"
+      #         expect:
+      #           - "newMessage"
+      #           - log: "Rapid message {{ $loopCount }} sent"
+      #     - think: 0.5
+      #   count: 5
+      # - log: "Rapid message sequence completed"
+
+      # 8. Final step
+      # - log: "Test scenario completed for user {{ userId }} in room {{ roomId }}"
 
       # # 2. Join the chat room
       # - post:
@@ -126,44 +406,532 @@ scenarios:
       #       - statusCode: 200
 
       # 3. Load chat history before sending messages
-      - get:
-          url: "/chat/rooms/{{ roomId }}/logs"
-          headers:
-            Authorization: "Bearer{{ token }}"
-          expect:
-            - statusCode: 200
+      # - get:
+      #     url: "/chat/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200
 
       # 8. Leave room (WebSocket)
-      - emit:
-          channel: "leaveRoom"
-          data:
-            roomId: "{{ roomId }}"
-          expect:
-            - "leftRoom"
+      # - emit:
+      #     channel: "leaveRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+      #     expect:
+      #       - "leftRoom"
 
       # 9. Disconnect WebSocket
-      - disconnect: {}            
+      # - disconnect: {}            
 
-  - name: "History retrieval flow"
-    beforeScenario: "loadUserData"
-    flow:
-      # Only REST API tests for history
-      - post:
-          url: "/rooms/find-or-create"
-          headers:
-            Authorization: "Bearer {{ token }}"
-          json:
-            friendId: "{{ friendId }}"  # Assuming friend ID for testing
-          capture:
-            - json: "$.roomId"
-              as: "roomId"
+  # - name: "History retrieval flow"
+  #   beforeScenario: "loadUserData"
+  #   flow:
+  #     # Only REST API tests for history
+  #     - post:
+  #         url: "/rooms/find-or-create"
+  #         headers:
+  #           Authorization: "Bearer {{ token }}"
+  #         json:
+  #           friendId: "{{ friendId }}"  # Assuming friend ID for testing
+  #         capture:
+  #           - json: "$.roomId"
+  #             as: "roomId"
 
-      - loop:
-          - get:
-              url: "/chat/rooms/{{ roomId }}/logs"
-              headers:
-                Authorization: "Bearer {{ token }}"
-              expect:
-                - statusCode: 200
-          - think: 2
-        count: 3
+  #     - loop:
+  #         - get:
+  #             url: "/chat/rooms/{{ roomId }}/logs"
+  #             headers:
+  #               Authorization: "Bearer {{ token }}"
+  #             expect:
+  #               - statusCode: 200
+  #         - think: 2
+  #       count: 3
+      # - post:
+      #     url: "/chat/rooms"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       name: "Test Room {{ $randomNumber(1,1000) }}"
+      #     capture:
+      #       - json: "$.id"
+      #         as: "roomId"
+      # - log: "Room created with ID: {{ roomId }}"
+
+      # 3. Join chat room (WebSocket)
+      # - log: "Step 3: Joining room {{ roomId }} via WebSocket"
+      # - emit:
+      #     channel: "joinRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+      #     expect:
+      #       - "joinedRoom"
+      # - log: "Room join attempt completed"
+
+      # 4. Load chat history
+      # - log: "Step 4: Loading chat history for room {{ roomId }}"
+      # - get:
+      #     url: "/chat/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200
+      # - log: "Chat history loaded"
+
+      # 5. Send first message
+      # - log: "Step 5: Sending first message to room {{ roomId }}"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "Hello from user {{ userId }}"
+      #     expect:
+      #       - "newMessage"
+      # - log: "First message sent"
+
+      # 6. Send longer message
+      # - think: 2
+      # - log: "Step 6: Sending longer message"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "This is a longer test message to verify handling of extended content"
+      #     expect:
+      #       - "newMessage"
+      # - log: "Longer message sent"
+
+      # 7. Rapid message sequence
+      # - log: "Step 7: Starting rapid message sequence"
+      # - loop:
+      #     - log: "Sending rapid message {{ $loopCount }} of 5"
+      #     - emit:
+      #         channel: "sendMessage"
+      #         data:
+      #           userId: "{{ userId }}"
+      #           roomId: "{{ roomId }}"
+      #           content: "Quick message {{ $loopCount }}"
+      #         expect:
+      #           - "newMessage"
+      #     - log: "Rapid message {{ $loopCount }} sent"
+      #     - think: 0.5
+      #   count: 5
+      # - log: "Rapid message sequence completed"
+
+      # 8. Final step
+  #     - log: "Test scenario completed for user {{ userId }} in room {{ roomId }}"
+
+  # - name: "Chat room and messaging flow"
+  #   beforeScenario: "loadUserData"  # Custom function to load JSON data
+  #   flow:
+  #     # 1. Login
+  #     - log: "Step 1: Attempting login with email {{ email }}"
+  #     - post:
+  #         url: "/auth/login"
+  #         json:
+  #           email: "{{ email }}"
+  #           password: "{{ password }}"
+  #         capture:
+  #           - json: "$.access_token"
+  #             as: "token"
+  #     - log: "Login completed, token captured: {{ token }}"    
+  
+      # 2. Initialize WebSocket connection
+      # - connect:
+      #     engine: "socketio"
+      #     namespace: "/chat"
+      #     auth:
+      #       token: "{{ socketToken }}"    
+      # - log: "Connected, token captured: {{ token }}"            
+
+      # Get friends list
+      # - get:
+      #     url: "/users/friends"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     capture:
+      #       - json: "$.friends"
+      #         as: "friendsList"
+      #       - json: "$.friends[{{ Math.floor($randomNumber(0, $length(friendsList)-1)) }}].id"
+      #         as: "friendId"
+      # - log: "friend: {{ friendId }}"
+
+      # 1. Create or find a chat room
+      # - post:
+      #     url: "/rooms/find-or-create"  # First create or find a room
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       friendId: "{{ friendId }}"  # Assuming friend ID for testing
+      #     capture:
+      #       - json: "$.roomId"
+      #         as: "roomId"    
+      #     expect:
+      #       - statusCode: 200
+      # - log: "room: {{ roomId }}"
+
+      # 3. Join chat room (WebSocket)
+      # - log: "Step 3: Joining room {{ roomId }} via WebSocket"
+      # - emit:
+      #     channel: "joinRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+          # capture:
+          #   - json: "$[1].roomId"
+          #     as: "joinedRoomId"
+          # log:: "roomId : {{ roomId }}"
+          # expect:
+          #   - "joinedRoom"
+
+
+      # 3. Load chat history before sending messages
+      # - get:
+      #     url: "/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200            
+      # - log: "Chat history loaded"
+
+      # 4. Send messages (WebSocket)
+      # - log: "Step 5: Sending first message to room {{ roomId }}"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "Hello from user {{ userId }}"
+      #     expect:
+      #       - "newMessage"
+      # - log: "First message sent"
+
+      # 5. Send longer message
+      # - think: 2
+      # - log: "Step 6: Sending longer message"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "This is a longer test message to verify handling of extended content"
+      #     expect:
+      #       - "newMessage"
+      # - log: "Longer message sent"
+
+      # 6. Rapid message sequence
+      # - log: "Step 7: Starting rapid message sequence"
+      # - loop:
+      #     - emit:
+      #         channel: "sendMessage"
+      #         data:
+      #           userId: "{{ userId }}"
+      #           roomId: "{{ roomId }}"
+      #           content: "Quick message {{ $loopCount }}"
+      #         expect:
+      #           - "newMessage"
+      #           - log: "Rapid message {{ $loopCount }} sent"
+      #     - think: 0.5
+      #   count: 5
+      # - log: "Rapid message sequence completed"
+
+      # 8. Final step
+      # - log: "Test scenario completed for user {{ userId }} in room {{ roomId }}"
+
+      # # 2. Join the chat room
+      # - post:
+      #     url: "/rooms/{{ roomId }}/join"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       userId: "{{ userId }}"
+      #     expect:
+      #       - statusCode: 200
+
+      # 3. Load chat history before sending messages
+      # - get:
+      #     url: "/chat/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200
+
+      # 8. Leave room (WebSocket)
+      # - emit:
+      #     channel: "leaveRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+      #     expect:
+      #       - "leftRoom"
+
+      # 9. Disconnect WebSocket
+      # - disconnect: {}            
+
+  # - name: "History retrieval flow"
+  #   beforeScenario: "loadUserData"
+  #   flow:
+  #     # Only REST API tests for history
+  #     - post:
+  #         url: "/rooms/find-or-create"
+  #         headers:
+  #           Authorization: "Bearer {{ token }}"
+  #         json:
+  #           friendId: "{{ friendId }}"  # Assuming friend ID for testing
+  #         capture:
+  #           - json: "$.roomId"
+  #             as: "roomId"
+
+  #     - loop:
+  #         - get:
+  #             url: "/chat/rooms/{{ roomId }}/logs"
+  #             headers:
+  #               Authorization: "Bearer {{ token }}"
+  #             expect:
+  #               - statusCode: 200
+  #         - think: 2
+  #       count: 3
+      # - post:
+      #     url: "/chat/rooms"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       name: "Test Room {{ $randomNumber(1,1000) }}"
+      #     capture:
+      #       - json: "$.id"
+      #         as: "roomId"
+      # - log: "Room created with ID: {{ roomId }}"
+
+      # 3. Join chat room (WebSocket)
+      # - log: "Step 3: Joining room {{ roomId }} via WebSocket"
+      # - emit:
+      #     channel: "joinRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+      #     expect:
+      #       - "joinedRoom"
+      # - log: "Room join attempt completed"
+
+      # 4. Load chat history
+      # - log: "Step 4: Loading chat history for room {{ roomId }}"
+      # - get:
+      #     url: "/chat/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200
+      # - log: "Chat history loaded"
+
+      # 5. Send first message
+      # - log: "Step 5: Sending first message to room {{ roomId }}"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "Hello from user {{ userId }}"
+      #     expect:
+      #       - "newMessage"
+      # - log: "First message sent"
+
+      # 6. Send longer message
+      # - think: 2
+      # - log: "Step 6: Sending longer message"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "This is a longer test message to verify handling of extended content"
+      #     expect:
+      #       - "newMessage"
+      # - log: "Longer message sent"
+
+      # 7. Rapid message sequence
+      # - log: "Step 7: Starting rapid message sequence"
+      # - loop:
+      #     - log: "Sending rapid message {{ $loopCount }} of 5"
+      #     - emit:
+      #         channel: "sendMessage"
+      #         data:
+      #           userId: "{{ userId }}"
+      #           roomId: "{{ roomId }}"
+      #           content: "Quick message {{ $loopCount }}"
+      #         expect:
+      #           - "newMessage"
+      #     - log: "Rapid message {{ $loopCount }} sent"
+      #     - think: 0.5
+      #   count: 5
+      # - log: "Rapid message sequence completed"
+
+      # 8. Final step
+  #     - log: "Test scenario completed for user {{ userId }} in room {{ roomId }}"
+
+  # - name: "Chat room and messaging flow"
+  #   beforeScenario: "loadUserData"  # Custom function to load JSON data
+  #   flow:
+  #     # 1. Login
+  #     - log: "Step 1: Attempting login with email {{ email }}"
+  #     - post:
+  #         url: "/auth/login"
+  #         json:
+  #           email: "{{ email }}"
+  #           password: "{{ password }}"
+  #         capture:
+  #           - json: "$.access_token"
+  #             as: "token"
+  #     - log: "Login completed, token captured: {{ token }}"    
+  
+      # 2. Initialize WebSocket connection
+      # - connect:
+      #     engine: "socketio"
+      #     namespace: "/chat"
+      #     auth:
+      #       token: "{{ socketToken }}"    
+      # - log: "Connected, token captured: {{ token }}"            
+
+      # Get friends list
+      # - get:
+      #     url: "/users/friends"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     capture:
+      #       - json: "$.friends"
+      #         as: "friendsList"
+      #       - json: "$.friends[{{ Math.floor($randomNumber(0, $length(friendsList)-1)) }}].id"
+      #         as: "friendId"
+      # - log: "friend: {{ friendId }}"
+
+      # 1. Create or find a chat room
+      # - post:
+      #     url: "/rooms/find-or-create"  # First create or find a room
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       friendId: "{{ friendId }}"  # Assuming friend ID for testing
+      #     capture:
+      #       - json: "$.roomId"
+      #         as: "roomId"    
+      #     expect:
+      #       - statusCode: 200
+      # - log: "room: {{ roomId }}"
+
+      # 3. Join chat room (WebSocket)
+      # - log: "Step 3: Joining room {{ roomId }} via WebSocket"
+      # - emit:
+      #     channel: "joinRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+          # capture:
+          #   - json: "$[1].roomId"
+          #     as: "joinedRoomId"
+          # log:: "roomId : {{ roomId }}"
+          # expect:
+          #   - "joinedRoom"
+
+
+      # 3. Load chat history before sending messages
+      # - get:
+      #     url: "/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200            
+      # - log: "Chat history loaded"
+
+      # 4. Send messages (WebSocket)
+      # - log: "Step 5: Sending first message to room {{ roomId }}"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "Hello from user {{ userId }}"
+      #     expect:
+      #       - "newMessage"
+      # - log: "First message sent"
+
+      # 5. Send longer message
+      # - think: 2
+      # - log: "Step 6: Sending longer message"
+      # - emit:
+      #     channel: "sendMessage"
+      #     data:
+      #       userId: "{{ userId }}"
+      #       roomId: "{{ roomId }}"
+      #       content: "This is a longer test message to verify handling of extended content"
+      #     expect:
+      #       - "newMessage"
+      # - log: "Longer message sent"
+
+      # 6. Rapid message sequence
+      # - log: "Step 7: Starting rapid message sequence"
+      # - loop:
+      #     - emit:
+      #         channel: "sendMessage"
+      #         data:
+      #           userId: "{{ userId }}"
+      #           roomId: "{{ roomId }}"
+      #           content: "Quick message {{ $loopCount }}"
+      #         expect:
+      #           - "newMessage"
+      #           - log: "Rapid message {{ $loopCount }} sent"
+      #     - think: 0.5
+      #   count: 5
+      # - log: "Rapid message sequence completed"
+
+      # 8. Final step
+      # - log: "Test scenario completed for user {{ userId }} in room {{ roomId }}"
+
+      # # 2. Join the chat room
+      # - post:
+      #     url: "/rooms/{{ roomId }}/join"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     json:
+      #       userId: "{{ userId }}"
+      #     expect:
+      #       - statusCode: 200
+
+      # 3. Load chat history before sending messages
+      # - get:
+      #     url: "/chat/rooms/{{ roomId }}/logs"
+      #     headers:
+      #       Authorization: "Bearer {{ token }}"
+      #     expect:
+      #       - statusCode: 200
+
+      # 8. Leave room (WebSocket)
+      # - emit:
+      #     channel: "leaveRoom"
+      #     data:
+      #       roomId: "{{ roomId }}"
+      #     expect:
+      #       - "leftRoom"
+
+      # 9. Disconnect WebSocket
+      # - disconnect: {}            
+
+  # - name: "History retrieval flow"
+  #   beforeScenario: "loadUserData"
+  #   flow:
+  #     # Only REST API tests for history
+  #     - post:
+  #         url: "/rooms/find-or-create"
+  #         headers:
+  #           Authorization: "Bearer {{ token }}"
+  #         json:
+  #           friendId: "{{ friendId }}"  # Assuming friend ID for testing
+  #         capture:
+  #           - json: "$.roomId"
+  #             as: "roomId"
+
+  #     - loop:
+  #         - get:
+  #             url: "/chat/rooms/{{ roomId }}/logs"
+  #             headers:
+  #               Authorization: "Bearer {{ token }}"
+  #             expect:
+  #               - statusCode: 200
+  #         - think: 2
+  #       count: 3

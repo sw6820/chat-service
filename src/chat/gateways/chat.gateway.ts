@@ -42,10 +42,6 @@ export class ChatGateway
 
   afterInit(server: Server) {
     console.log(`WebSocket ${server} initialized`);
-    // console.log(`server keys : ${Object.keys(server)}`);
-    // console.log(`server values : ${Object.values(server)}`);
-    // console.log(`soc : ${JSON.stringify(server.sockets)}`);
-    // console.log(`server: ${server.name}`);
   }
 
   handleConnection(client: Socket) {
@@ -87,12 +83,6 @@ export class ChatGateway
       );
       console.log(`client data ${JSON.stringify(client.data)}`);
 
-      // if (isNaN(userId) || isNaN(roomId) || !content) {
-      //   // console.log(
-      //   //   `Invalid userId or roomId: userId=${userId}, roomId=${roomId}`,
-      //   // );
-      //   throw new Error('Invalid user ID or room ID');
-      // }
       if (isNaN(userId) || isNaN(roomId) || !content.trim()) {
         throw new WsException(
           'Invalid user ID, room ID, or empty message content',
@@ -107,14 +97,7 @@ export class ChatGateway
       const message = await this.chatService.sendMessage(createChatDto);
       console.log(`message from chat service ${message}`);
       const timestamp = new Date().toLocaleTimeString(); // Get current timestamp
-
-      // console.log();
-      // this.server
-      //   .to(`room-${roomId}`)
-      //   .emit('newMessage', { ...message, timestamp });
-      console.log(`Broadcasting message to room-${roomId}`);
-      // console.log(`message: ${Object.keys(message)}`);
-      // console.log(`user, id ${JSON.stringify(message.user)}`);
+      console.log(`Broadcasting message to room-${roomId}`);      
       this.server.to(`room-${roomId}`).emit('newMessage', {
         ...message,
         timestamp,
@@ -147,7 +130,6 @@ export class ChatGateway
     if (roomId) {
       client.leave(`room-${roomId}`);
       client.emit('leftRoom', roomId);
-      // console.log(`Client ${client.id} left room ${roomId}`);
     } else {
       client.emit('error', 'Invalid room ID');
     }
