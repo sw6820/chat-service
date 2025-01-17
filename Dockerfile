@@ -51,9 +51,10 @@ WORKDIR /usr/src/chat-service
     # && chown -R nodejs:nodejs /usr/src/chat-service
 
 # Copy built assets from build stage
-# COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
-# COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/node_modules ./node_modules
-# COPY --from=build /usr/src/chat-service/envs ./envs
+COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
+COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/node_modules ./node_modules
+COPY --from=build /usr/src/chat-service/envs ./envs
+COPY --from=build /usr/src/chat-service/ecosystem.config.js ./ecosystem.config.js
 
 
 # Create script to fetch SSM parameters
