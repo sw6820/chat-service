@@ -1,5 +1,5 @@
 config:
-  target: "http://localhost:3000" #"https://api.stahc.uk" #  "ws://localhost:3000" # 
+  target: "https://api.stahc.uk" #  "http://localhost:3000" # 
   phases:
     - name: "Warm up"
       duration: 30 #30
@@ -24,7 +24,7 @@ config:
   
   # Socket.io endpoint      
   socketio:    
-    url: "http://localhost:3000"
+    url: "https://api.stahc.uk" #"http://localhost:3000"
     transports: ["websocket"]
   verbose: true
 

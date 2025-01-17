@@ -43,28 +43,28 @@ RUN apk add --no-cache \
 WORKDIR /usr/src/chat-service
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+# COPY package*.json ./
 
 # Create necessary directories with proper permissions
-RUN mkdir -p /usr/src/chat-service/{envs,scripts} \
+# RUN mkdir -p /usr/src/chat-service/{envs,scripts} \
     # && mkdir -p /usr/src/chat-service/scripts \
-    && chown -R nodejs:nodejs /usr/src/chat-service
+    # && chown -R nodejs:nodejs /usr/src/chat-service
 
 # Copy built assets from build stage
-COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
-COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/node_modules ./node_modules
-COPY --from=build /usr/src/chat-service/envs ./envs
+# COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
+# COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/node_modules ./node_modules
+# COPY --from=build /usr/src/chat-service/envs ./envs
 
 
 # Create script to fetch SSM parameters
 
-COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
-RUN chmod +x ./scripts/deploy.sh
+# COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
+# RUN chmod +x ./scripts/deploy.sh
 
-# Set environment variables
+# Set environment variables max-old-space-size 512 because t2.micro is 1GB RAM
 ENV NODE_ENV=production \
     PORT=3000 \
-    NODE_OPTIONS="--max-old-space-size=2048" \
+    NODE_OPTIONS="--max-old-space-size=512" \ 
     NPM_CONFIG_LOGLEVEL=warn
 #    AWS_DEFAULT_REGION=ap-northeast-2
 
@@ -96,6 +96,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # USER nodejs
 
 # Start the application using Node.js
-#CMD ["node", "dist/main.js"]
+# CMD ["node", "dist/main.js"]
+CMD ["pm2-runtime", "start", "/usr/src/chat-service/ecosystem.config.js"]
 # ENTRYPOINT ["/usr/src/chat-service/workflows/scripts/deploy.sh"]
-CMD ["npm", "run", "start:prod"]
+# CMD ["npm", "run", "start:prod"]

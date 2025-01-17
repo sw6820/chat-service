@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import axios from 'axios';
 import { DoneCallback } from 'passport';
-import { io } from 'socket.io-client';
+// import { io } from 'socket.io-client';
 import { randomInt } from 'crypto';
 // import { promises as fs } from 'fs';
 
@@ -26,37 +26,37 @@ interface Friend {
 let users: User[];
 let userIndex = 0;
 
-const API_URL = 'http://localhost:3000' // 'https://api.stahc.uk'; //process.env.API_URL || 'http://localhost:3000';
-const SOCKET_URL = 'ws://localhost:3000' // "wss://api.stahc.uk"
+const API_URL = 'https://api.stahc.uk'; //process.env.API_URL || 'http://localhost:3000';
+// const SOCKET_URL = "https://api.stahc.uk" //"wss://api.stahc.uk" // 'ws://localhost:3000' // "wss://api.stahc.uk"
 // Add retry configuration
 const RETRY_DELAY = 1000; // 1 second
 const MAX_RETRIES = 3;
 
-const connectionPool = {
-  maxConnections: 10,
-  currentConnections: 0,
-  queue: [] as Array<() => void>,
+// const connectionPool = {
+//   maxConnections: 10,
+//   currentConnections: 0,
+//   queue: [] as Array<() => void>,
 
-  async acquire(): Promise<void> {
-    if (this.currentConnections < this.maxConnections) {
-      this.currentConnections++;
-      return;
-    }
+//   async acquire(): Promise<void> {
+//     if (this.currentConnections < this.maxConnections) {
+//       this.currentConnections++;
+//       return;
+//     }
 
-    return new Promise((resolve) => {
-      this.queue.push(resolve);
-    });
-  },
+//     return new Promise((resolve) => {
+//       this.queue.push(resolve);
+//     });
+//   },
 
-  release(): void {
-    this.currentConnections--;
-    const next = this.queue.shift();
-    if (next) {
-      this.currentConnections++;
-      next();
-    }
-  }
-};
+//   release(): void {
+//     this.currentConnections--;
+//     const next = this.queue.shift();
+//     if (next) {
+//       this.currentConnections++;
+//       next();
+//     }
+//   }
+// };
 
 // Use in API calls
 // async function makeRequest<T>(fn: () => Promise<T>): Promise<T> {
@@ -178,10 +178,10 @@ const errorTracker = {
   }
 };
 
-const socket = io(SOCKET_URL, {
-  transports: ['websocket'],
-  autoConnect: false
-});
+// const socket = io(SOCKET_URL, {
+//   transports: ['websocket'],
+//   autoConnect: false
+// });
 
 // Modify loadUserData function
 export function loadUserData(
@@ -294,39 +294,39 @@ export function loadUserData(
 }
 
 // Add cleanup function
-export function cleanupSession(context: any, events: any, done: DoneCallback) {
-  if (context.vars.token) {
-    delete context.vars.token;
-  }
-  done(null);
-}
+// export function cleanupSession(context: any, events: any, done: DoneCallback) {
+//   if (context.vars.token) {
+//     delete context.vars.token;
+//   }
+//   done(null);
+// }
 
-export function logResponse(userContext: any, events: any, done: Function) {
-  if (events.response) {
-    console.log('Response received:', JSON.stringify(events.response, null, 2));
-  }
-  return done();
-}
+// export function logResponse(userContext: any, events: any, done: Function) {
+//   if (events.response) {
+//     console.log('Response received:', JSON.stringify(events.response, null, 2));
+//   }
+//   return done();
+// }
 
 // You can then access the user data in your test scenarios
-export function handleUserData(userContext: any, events: any, done: Function) {
-  if (events.currentUser) {
-    console.log('Current user from events:', events.currentUser);
-  }
-  if (userContext.vars.currentUser) {
-    console.log('Current user from context:', userContext.vars.currentUser);
-  }
-  return done();
-}
+// export function handleUserData(userContext: any, events: any, done: Function) {
+//   if (events.currentUser) {
+//     console.log('Current user from events:', events.currentUser);
+//   }
+//   if (userContext.vars.currentUser) {
+//     console.log('Current user from context:', userContext.vars.currentUser);
+//   }
+//   return done();
+// }
 
-export function handleSocketEvents(userContext: any, events: any, done: Function) {
-  socket.on('error', (error) => {
-    console.error('Socket error:', error);
-  });
+// export function handleSocketEvents(userContext: any, events: any, done: Function) {
+//   socket.on('error', (error) => {
+//     console.error('Socket error:', error);
+//   });
 
-  socket.on('connect_error', (error) => {
-    console.error('Connection error:', error);
-  });
+//   socket.on('connect_error', (error) => {
+//     console.error('Connection error:', error);
+//   });
 
-  return done();
-}
+//   return done();
+// }
