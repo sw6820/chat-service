@@ -21,10 +21,10 @@ RUN npm ci --legacy-peer-deps \
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN npm run build && prune --production
 
 # Remove development dependencies
-RUN npm prune --production
+# RUN npm prune --production
 
 # Stage 2: Prepare production image
 FROM node:20-alpine as production
@@ -37,7 +37,8 @@ RUN apk add --no-cache \
     postgresql-client \
     && apk upgrade --no-cache \
     && addgroup -g 1001 nodejs \
-    && adduser -S -u 1001 -G nodejs nodejs
+    && adduser -S -u 1001 -G nodejs nodejs \
+    && npm install -g pm2
 
 # Set working directory
 WORKDIR /usr/src/chat-service
