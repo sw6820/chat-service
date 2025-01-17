@@ -21,7 +21,7 @@ RUN npm ci --legacy-peer-deps \
 COPY . .
 
 # Build the application
-RUN npm run build && prune --production
+RUN npm run build && npm prune --production
 
 # Remove development dependencies
 # RUN npm prune --production
