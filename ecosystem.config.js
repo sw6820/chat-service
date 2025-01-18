@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     apps: [
         {
             name: "chat-service", // Name of the application

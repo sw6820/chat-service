@@ -55,7 +55,7 @@ WORKDIR /usr/src/chat-service
 COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
 COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/node_modules ./node_modules
 COPY --from=build /usr/src/chat-service/envs ./envs
-COPY --from=build /usr/src/chat-service/ecosystem.config.mjs ./ecosystem.config.mjs
+COPY --from=build /usr/src/chat-service/ecosystem.config.js ./ecosystem.config.js
 
 
 # Create script to fetch SSM parameters
@@ -99,6 +99,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Start the application using Node.js
 # CMD ["node", "dist/main.js"]
-CMD ["pm2-runtime", "start", "/usr/src/chat-service/ecosystem.config.mjs"]
+CMD ["pm2-runtime", "start", "/usr/src/chat-service/ecosystem.config.js"]
 # ENTRYPOINT ["/usr/src/chat-service/workflows/scripts/deploy.sh"]
 # CMD ["npm", "run", "start:prod"]
