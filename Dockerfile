@@ -44,7 +44,7 @@ RUN apk add --no-cache \
 WORKDIR /usr/src/chat-service
 
 # Copy package.json and package-lock.json
-# COPY package*.json ./
+COPY package*.json ./
 
 # Create necessary directories with proper permissions
 # RUN mkdir -p /usr/src/chat-service/{envs,scripts} \
