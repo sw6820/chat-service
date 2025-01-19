@@ -47,9 +47,9 @@ WORKDIR /usr/src/chat-service
 COPY package*.json ./
 
 # Create necessary directories with proper permissions
-# RUN mkdir -p /usr/src/chat-service/{envs,scripts} \
-    # && mkdir -p /usr/src/chat-service/scripts \
-    # && chown -R nodejs:nodejs /usr/src/chat-service
+RUN mkdir -p /usr/src/chat-service/{envs,scripts} \
+    && mkdir -p /usr/src/chat-service/scripts \
+    && chown -R nodejs:nodejs /usr/src/chat-service
 
 # Copy built assets from build stage
 COPY --from=build --chown=nodejs:nodejs /usr/src/chat-service/dist ./dist
@@ -62,6 +62,9 @@ COPY --from=build /usr/src/chat-service/ecosystem.config.js ./ecosystem.config.j
 
 # COPY --chown=nodejs:nodejs deploy/scripts/deploy.sh ./scripts/
 # RUN chmod +x ./scripts/deploy.sh
+
+# Ensure proper file ownership
+RUN chown -R nodejs:nodejs /usr/src/chat-service
 
 # Set environment variables max-old-space-size 512 because t2.micro is 1GB RAM
 ENV NODE_ENV=production \
