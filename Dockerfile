@@ -67,7 +67,7 @@ COPY --from=build /usr/src/chat-service/ecosystem.config.js ./ecosystem.config.j
 RUN chown -R nodejs:nodejs /usr/src/chat-service
 
 # Set environment variables max-old-space-size 512 because t2.micro is 1GB RAM
-ENV NODE_ENV=production \
+ENV NODE_ENV=prod \
     PORT=3000 \
     NODE_OPTIONS="--max-old-space-size=512" \ 
     NPM_CONFIG_LOGLEVEL=warn
