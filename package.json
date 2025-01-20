@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
-    "start": "node dist/main.js", //"nest start",
+    "start": "node dist/main.js",
     "start:pm2": "node dist/main.js",
     "start:dev": "NODE_ENV=dev nest start --watch",
     "start:local": "NODE_ENV=local nest start --watch",
