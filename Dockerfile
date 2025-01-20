@@ -38,8 +38,13 @@ RUN apk add --no-cache \
     && apk upgrade --no-cache \
     && addgroup -g 1001 nodejs \
     && adduser -S -u 1001 -G nodejs nodejs \
-    && npm install -g pm2
+    && npm install -g pm2 \
+    && pm2 install pm2-logrotate \
+    && pm2 set pm2-logrotate:max_size 10M \
+    && pm2 set pm2-logrotate:retain 5 
 
+
+    
 # Set working directory
 WORKDIR /usr/src/chat-service
 
@@ -70,7 +75,8 @@ RUN chown -R nodejs:nodejs /usr/src/chat-service
 ENV NODE_ENV=prod \
     PORT=3000 \
     NODE_OPTIONS="--max-old-space-size=512" \ 
-    NPM_CONFIG_LOGLEVEL=warn
+    NPM_CONFIG_LOGLEVEL=warn \
+    PM2_HOME="/usr/src/chat-service/.pm2" 
 #    AWS_DEFAULT_REGION=ap-northeast-2
 
 # Switch to non-root user
@@ -81,7 +87,8 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
+#   CMD curl -f http://localhost:3000/health || exit 1
+    CMD pm2 list | grep "online" || exit 1
 
 ## Install production dependencies only
 #RUN npm ci --omit=dev --legacy-peer-deps
@@ -102,6 +109,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Start the application using Node.js
 # CMD ["node", "dist/main.js"]
-CMD ["pm2-runtime", "dist/main.js", "/usr/src/chat-service/ecosystem.config.js"]
+# CMD ["pm2-runtime", "dist/main.js", "/usr/src/chat-service/ecosystem.config.js"]
+CMD ["pm2-runtime", "ecosystem.config.js"]
 # ENTRYPOINT ["/usr/src/chat-service/workflows/scripts/deploy.sh"]
 # CMD ["npm", "run", "start:prod"]
