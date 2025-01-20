@@ -2,9 +2,9 @@ module.exports = {
     apps: [
         {
             name: "chat-service", // Name of the application
-            script: 'npm', // './dist/main.js',
+            script: './dist/main.js', // './dist/main.js',
             cwd: '/usr/src/chat-service',
-            args: "run start:prod", // This explicitly uses the npm script
+            // args: "run start:prod", // This explicitly uses the npm script
             instances: 'max', // Max instances based on available CPU cores
             exec_mode: 'cluster', // Enable cluster mode for multi-core CPUs
             watch: false, // Disable watching in production

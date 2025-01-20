@@ -102,6 +102,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Start the application using Node.js
 # CMD ["node", "dist/main.js"]
-CMD ["pm2-runtime", "dist/main.js", "/usr/src/chat-service/ecosystem.config.js"]
+CMD ["pm2-runtime", "start", "/usr/src/chat-service/ecosystem.config.js"]
 # ENTRYPOINT ["/usr/src/chat-service/workflows/scripts/deploy.sh"]
 # CMD ["npm", "run", "start:prod"]
